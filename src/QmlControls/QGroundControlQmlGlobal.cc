@@ -50,10 +50,10 @@
 #ifdef QT_DEBUG
 #include "MockLink.h"
 #endif
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
 #include "AirLinkManager.h"
 #endif
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
 #include "UTMSPManager.h"
 #endif
 
@@ -119,10 +119,10 @@ QGroundControlQmlGlobal::QGroundControlQmlGlobal(QObject *parent)
 #ifndef NO_SERIAL_LINK
     , _gpsRtkFactGroup(GPSManager::instance()->gpsRtk()->gpsRtkFactGroup())
 #endif
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
     , _airlinkManager(AirLinkManager::instance())
 #endif
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
     , _utmspManager(UTMSPManager::instance())
 #endif
 {

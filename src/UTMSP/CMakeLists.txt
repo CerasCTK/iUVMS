@@ -3,7 +3,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 set(UTMSP_RESOURCES)
 qt_add_library(UTMSP STATIC)
 
-if(QGC_UTM_ADAPTER)
+if(UVMS_UTM_ADAPTER)
     message(STATUS "UTMSP is Initialized")
 
     # if(NOT TARGET nlohmann_json)
@@ -68,7 +68,7 @@ if(QGC_UTM_ADAPTER)
             ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    target_compile_definitions(UTMSP PUBLIC QGC_UTM_ADAPTER)
+    target_compile_definitions(UTMSP PUBLIC UVMS_UTM_ADAPTER)
 
     # qt_add_qml_module(UTMSP
     #     URI QGroundControl.UTMSP

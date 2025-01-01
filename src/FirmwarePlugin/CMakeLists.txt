@@ -1,7 +1,7 @@
-if(NOT QGC_DISABLE_APM_PLUGIN)
+if(NOT UVMS_DISABLE_APM_PLUGIN)
     add_subdirectory(APM)
 endif()
-if(NOT QGC_DISABLE_PX4_PLUGIN)
+if(NOT UVMS_DISABLE_PX4_PLUGIN)
     add_subdirectory(PX4)
 endif()
 
@@ -14,10 +14,10 @@ qt_add_library(FirmwarePlugin STATIC
     FirmwarePluginFactory.h
     FirmwarePluginManager.cc
     FirmwarePluginManager.h
-    $<$<NOT:$<BOOL:${QGC_DISABLE_APM_PLUGIN_FACTORY}>>:APM/APMFirmwarePluginFactory.cc>
-    $<$<NOT:$<BOOL:${QGC_DISABLE_APM_PLUGIN_FACTORY}>>:APM/APMFirmwarePluginFactory.h>
-    $<$<NOT:$<BOOL:${QGC_DISABLE_PX4_PLUGIN_FACTORY}>>:PX4/PX4FirmwarePluginFactory.cc>
-    $<$<NOT:$<BOOL:${QGC_DISABLE_PX4_PLUGIN_FACTORY}>>:PX4/PX4FirmwarePluginFactory.h>
+    $<$<NOT:$<BOOL:${UVMS_DISABLE_APM_PLUGIN_FACTORY}>>:APM/APMFirmwarePluginFactory.cc>
+    $<$<NOT:$<BOOL:${UVMS_DISABLE_APM_PLUGIN_FACTORY}>>:APM/APMFirmwarePluginFactory.h>
+    $<$<NOT:$<BOOL:${UVMS_DISABLE_PX4_PLUGIN_FACTORY}>>:PX4/PX4FirmwarePluginFactory.cc>
+    $<$<NOT:$<BOOL:${UVMS_DISABLE_PX4_PLUGIN_FACTORY}>>:PX4/PX4FirmwarePluginFactory.h>
 )
 
 target_link_libraries(FirmwarePlugin
@@ -29,8 +29,8 @@ target_link_libraries(FirmwarePlugin
         QGC
         Utilities
         VehicleSetup
-        $<$<NOT:$<BOOL:${QGC_DISABLE_APM_PLUGIN}>>:APMFirmwarePlugin>
-        $<$<NOT:$<BOOL:${QGC_DISABLE_PX4_PLUGIN}>>:PX4FirmwarePlugin>
+        $<$<NOT:$<BOOL:${UVMS_DISABLE_APM_PLUGIN}>>:APMFirmwarePlugin>
+        $<$<NOT:$<BOOL:${UVMS_DISABLE_PX4_PLUGIN}>>:PX4FirmwarePlugin>
     PUBLIC
         Qt6::Core
         Qt6::Positioning
@@ -41,6 +41,6 @@ target_link_libraries(FirmwarePlugin
 
 target_include_directories(FirmwarePlugin PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-# if(QGC_DISABLE_APM_MAVLINK)
+# if(UVMS_DISABLE_APM_MAVLINK)
 #     target_compile_definitions(FirmwarePlugin PUBLIC NO_ARDUPILOT_DIALECT)
 # endif()

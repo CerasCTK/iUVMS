@@ -1,18 +1,18 @@
 if(ANDROID OR IOS)
     if(DEFINED ENV{GST_VERSION})
-        set(QGC_GST_TARGET_VERSION $ENV{GST_VERSION} CACHE STRING "Environment Provided GStreamer Version")
+        set(UVMS_GST_TARGET_VERSION $ENV{GST_VERSION} CACHE STRING "Environment Provided GStreamer Version")
     else()
-        set(QGC_GST_TARGET_VERSION 1.22.12 CACHE STRING "Requested GStreamer Version")
+        set(UVMS_GST_TARGET_VERSION 1.22.12 CACHE STRING "Requested GStreamer Version")
     endif()
 endif()
 
 if(ANDROID OR IOS)
-    set(QGC_GST_STATIC_BUILD ON)
+    set(UVMS_GST_STATIC_BUILD ON)
 endif()
 
 find_package(PkgConfig QUIET)
 
-if(QGC_GST_STATIC_BUILD)
+if(UVMS_GST_STATIC_BUILD)
     list(APPEND PKG_CONFIG_ARGN --static)
 endif()
 
@@ -53,7 +53,7 @@ elseif(MACOS)
 elseif(LINUX)
     set(GSTREAMER_PREFIX "/usr")
     set(ENV{PKG_CONFIG_PATH} "${GSTREAMER_PREFIX}/lib/x86_64-linux-gnu/pkgconfig:${GSTREAMER_PREFIX}/lib/x86_64-linux-gnu/gstreamer-1.0/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-    # if(QGC_GST_STATIC_BUILD)
+    # if(UVMS_GST_STATIC_BUILD)
     #     list(APPEND PKG_CONFIG_ARGN
     #         --dont-define-prefix
     #         --define-variable=prefix=${GSTREAMER_PREFIX}
@@ -69,7 +69,7 @@ elseif(IOS)
         set(GSTREAMER_PREFIX_IOS "~/Library/Developer/GStreamer/iPhone.sdk/GStreamer.framework")
     else()
         FetchContent_Declare(gstreamer
-            URL "https://gstreamer.freedesktop.org/data/pkg/ios/${QGC_GST_TARGET_VERSION}/gstreamer-1.0-devel-${QGC_GST_TARGET_VERSION}-ios-universal.pkg"
+            URL "https://gstreamer.freedesktop.org/data/pkg/ios/${UVMS_GST_TARGET_VERSION}/gstreamer-1.0-devel-${UVMS_GST_TARGET_VERSION}-ios-universal.pkg"
         )
         FetchContent_MakeAvailable(gstreamer)
         set(GSTREAMER_PREFIX_IOS ${gstreamer_SOURCE_DIR})
@@ -79,8 +79,8 @@ elseif(ANDROID)
     if(DEFINED ENV{GSTREAMER_PREFIX_ANDROID} AND EXISTS $ENV{GSTREAMER_PREFIX_ANDROID})
         set(GSTREAMER_PREFIX_ANDROID $ENV{GSTREAMER_PREFIX_ANDROID})
     else()
-        set(GSTREAMER_ARCHIVE "gstreamer-1.0-android-universal-${QGC_GST_TARGET_VERSION}.tar.xz")
-        set(GSTREAMER_URL "https://gstreamer.freedesktop.org/data/pkg/android/${QGC_GST_TARGET_VERSION}/${GSTREAMER_ARCHIVE}")
+        set(GSTREAMER_ARCHIVE "gstreamer-1.0-android-universal-${UVMS_GST_TARGET_VERSION}.tar.xz")
+        set(GSTREAMER_URL "https://gstreamer.freedesktop.org/data/pkg/android/${UVMS_GST_TARGET_VERSION}/${GSTREAMER_ARCHIVE}")
         set(GSTREAMER_TARBALL "${CMAKE_BINARY_DIR}/_deps/gstreamer/${GSTREAMER_ARCHIVE}")
         set(GSTREAMER_INSTALL_DIR "${CMAKE_BINARY_DIR}/_deps/gstreamer/install/gstreamer")
         if(NOT EXISTS ${GSTREAMER_TARBALL})
@@ -147,7 +147,7 @@ cmake_print_variables(GSTREAMER_LIB_PATH)
 include(CMakeFindDependencyMacro)
 find_dependency(GObject)
 
-set(GStreamer_VERSION ${QGC_GST_TARGET_VERSION})
+set(GStreamer_VERSION ${UVMS_GST_TARGET_VERSION})
 if(PkgConfig_FOUND)
     message(STATUS "PKG_CONFIG_PATH $ENV{PKG_CONFIG_PATH}")
     message(STATUS "PKG_CONFIG_LIBDIR $ENV{PKG_CONFIG_LIBDIR}")
@@ -643,8 +643,8 @@ if(ANDROID)
     target_link_options(GStreamer::GStreamer INTERFACE "-Wl,-Bsymbolic")
 endif()
 
-if(QGC_GST_STATIC_BUILD)
-    target_compile_definitions(GStreamer::GStreamer INTERFACE QGC_GST_STATIC_BUILD)
+if(UVMS_GST_STATIC_BUILD)
+    target_compile_definitions(GStreamer::GStreamer INTERFACE UVMS_GST_STATIC_BUILD)
 endif()
 
 # foreach(dependency IN LISTS GST_DEPENDENCIES)

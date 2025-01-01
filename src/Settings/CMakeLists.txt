@@ -3,8 +3,8 @@ find_package(Qt6 REQUIRED COMPONENTS Core Multimedia Qml QmlIntegration)
 qt_add_library(Settings STATIC
     ADSBVehicleManagerSettings.cc
     ADSBVehicleManagerSettings.h
-    $<$<NOT:$<BOOL:${QGC_DISABLE_APM_MAVLINK}>>:APMMavlinkStreamRateSettings.cc>
-    $<$<NOT:$<BOOL:${QGC_DISABLE_APM_MAVLINK}>>:APMMavlinkStreamRateSettings.h>
+    $<$<NOT:$<BOOL:${UVMS_DISABLE_APM_MAVLINK}>>:APMMavlinkStreamRateSettings.cc>
+    $<$<NOT:$<BOOL:${UVMS_DISABLE_APM_MAVLINK}>>:APMMavlinkStreamRateSettings.h>
     AppSettings.cc
     AppSettings.h
     AutoConnectSettings.cc

@@ -2,7 +2,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_library(Viewer3D STATIC)
 
-if(QGC_VIEWER3D)
+if(UVMS_VIEWER3D)
     message(STATUS "Viewer3D is Initialized")
 
     find_package(Qt6 REQUIRED COMPONENTS Core Gui Network Positioning Qml Quick3D Xml)
@@ -49,7 +49,7 @@ if(QGC_VIEWER3D)
 
     target_include_directories(Viewer3D PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-    target_compile_definitions(Viewer3D PUBLIC QGC_VIEWER3D)
+    target_compile_definitions(Viewer3D PUBLIC UVMS_VIEWER3D)
 
     # file(GLOB_RECURSE QML_SOURCES RELATIVE Viewer3DQml Viewer3DQml/*.qml)
     # file(GLOB_RECURSE QML_RESOURCES RELATIVE Viewer3DQml Viewer3DQml/*.mesh)

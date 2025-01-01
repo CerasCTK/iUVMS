@@ -56,7 +56,7 @@ target_link_libraries(Utilities
         Qt6::Xml
 )
 
-if(QGC_ENABLE_BLUETOOTH)
+if(UVMS_ENABLE_BLUETOOTH)
     target_link_libraries(Utilities PRIVATE Qt6::Bluetooth)
 endif()
 

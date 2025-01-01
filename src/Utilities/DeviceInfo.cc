@@ -12,7 +12,7 @@
 
 #include <QtCore/qapplicationstatic.h>
 #include <QtNetwork/QNetworkInformation>
-#ifdef QGC_ENABLE_BLUETOOTH
+#ifdef UVMS_ENABLE_BLUETOOTH
 #    include <QtBluetooth/QBluetoothLocalDevice>
 #endif
 
@@ -53,7 +53,7 @@ bool isNetworkWired()
 
 bool isBluetoothAvailable()
 {
-    #ifdef QGC_ENABLE_BLUETOOTH
+    #ifdef UVMS_ENABLE_BLUETOOTH
         const QList<QBluetoothHostInfo> devices = QBluetoothLocalDevice::allDevices();
         return !devices.isEmpty();
     #else

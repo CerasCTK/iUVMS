@@ -9,7 +9,7 @@
 
 #pragma once
 
-#if defined (QGC_UTM_ADAPTER)
+#if defined (UVMS_UTM_ADAPTER)
 #include <QtCore/QDebug>
 
 inline QDebug operator<<(QDebug debug, const std::string &s) {

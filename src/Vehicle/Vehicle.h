@@ -75,7 +75,7 @@ class TrajectoryPoints;
 class VehicleBatteryFactGroup;
 class VehicleObjectAvoidance;
 class GimbalController;
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
 class UTMSPVehicle;
 #endif
 
@@ -1054,7 +1054,7 @@ private:
     Autotune*                       _autotune                       = nullptr;
     GimbalController*               _gimbalController               = nullptr;
 
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
     UTMSPVehicle*                    _utmspVehicle                    = nullptr;
 #endif
 

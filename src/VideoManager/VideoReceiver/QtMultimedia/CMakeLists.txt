@@ -31,7 +31,7 @@ target_include_directories(QtMultimediaReceiver PUBLIC ${CMAKE_CURRENT_SOURCE_DI
 
 target_compile_definitions(QtMultimediaReceiver PUBLIC QGC_QT_STREAMING)
 
-if(NOT QGC_ENABLE_UVC)
+if(NOT UVMS_ENABLE_UVC)
     target_compile_definitions(QtMultimediaReceiver PUBLIC QGC_DISABLE_UVC)
     return()
 endif()

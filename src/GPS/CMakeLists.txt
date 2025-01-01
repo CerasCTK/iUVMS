@@ -2,7 +2,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_library(GPS STATIC)
 
-if(QGC_NO_SERIAL_LINK)
+if(UVMS_NO_SERIAL_LINK)
     return()
 endif()
 

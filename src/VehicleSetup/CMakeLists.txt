@@ -27,7 +27,7 @@ target_link_libraries(VehicleSetup
 
 target_include_directories(VehicleSetup PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(NOT QGC_NO_SERIAL_LINK)
+if(NOT UVMS_NO_SERIAL_LINK)
     target_sources(VehicleSetup
         PRIVATE
             Bootloader.cc

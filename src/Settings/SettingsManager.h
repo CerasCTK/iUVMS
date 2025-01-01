@@ -63,7 +63,7 @@ class SettingsManager : public QObject
     Q_MOC_INCLUDE("RTKSettings.h")
     Q_MOC_INCLUDE("UnitsSettings.h")
     Q_MOC_INCLUDE("VideoSettings.h")
-#ifdef QGC_VIEWER3D
+#ifdef UVMS_VIEWER3D
     Q_MOC_INCLUDE("Viewer3DSettings.h")
 #endif
     Q_PROPERTY(QObject *adsbVehicleManagerSettings      READ adsbVehicleManagerSettings     CONSTANT)
@@ -87,7 +87,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QObject *rtkSettings                     READ rtkSettings                    CONSTANT)
     Q_PROPERTY(QObject *unitsSettings                   READ unitsSettings                  CONSTANT)
     Q_PROPERTY(QObject *videoSettings                   READ videoSettings                  CONSTANT)
-#ifdef QGC_VIEWER3D
+#ifdef UVMS_VIEWER3D
     Q_PROPERTY(QObject *viewer3DSettings                READ viewer3DSettings               CONSTANT)
 #endif
 public:
@@ -120,7 +120,7 @@ public:
     RTKSettings *rtkSettings() const;
     UnitsSettings *unitsSettings() const;
     VideoSettings *videoSettings() const;
-#ifdef QGC_VIEWER3D
+#ifdef UVMS_VIEWER3D
     Viewer3DSettings *viewer3DSettings() const;
 #endif
 
@@ -146,7 +146,7 @@ private:
     RTKSettings *_rtkSettings = nullptr;
     UnitsSettings *_unitsSettings = nullptr;
     VideoSettings *_videoSettings = nullptr;
-#ifdef QGC_VIEWER3D
+#ifdef UVMS_VIEWER3D
     Viewer3DSettings *_viewer3DSettings = nullptr;
 #endif
 };

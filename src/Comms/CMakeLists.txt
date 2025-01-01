@@ -42,7 +42,7 @@ target_include_directories(Comms PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 ############# Serial
 
-if(QGC_NO_SERIAL_LINK)
+if(UVMS_NO_SERIAL_LINK)
     target_compile_definitions(Comms PUBLIC NO_SERIAL_LINK)
 else()
     target_sources(Comms
@@ -80,7 +80,7 @@ endif()
 
 ############# Bluetooth
 
-if(QGC_ENABLE_BLUETOOTH)
+if(UVMS_ENABLE_BLUETOOTH)
     find_package(Qt6 REQUIRED COMPONENTS Bluetooth)
     target_link_libraries(Comms PUBLIC Qt6::Bluetooth)
     target_sources(Comms
@@ -88,7 +88,7 @@ if(QGC_ENABLE_BLUETOOTH)
             BluetoothLink.cc
             BluetoothLink.h
     )
-    target_compile_definitions(Comms PUBLIC QGC_ENABLE_BLUETOOTH)
+    target_compile_definitions(Comms PUBLIC UVMS_ENABLE_BLUETOOTH)
     target_precompile_headers(Comms
         PRIVATE
             <QtBluetooth/QBluetoothSocket>
@@ -97,7 +97,7 @@ endif()
 
 ############# ZEROConf
 
-if(QGC_ZEROCONF_ENABLED)
+if(UVMS_ZEROCONF_ENABLED)
     set(BUILD_DOC OFF CACHE INTERNAL "")
     set(BUILD_EXAMPLES OFF CACHE INTERNAL "")
     set(BUILD_TESTS OFF CACHE INTERNAL "")
@@ -110,7 +110,7 @@ if(QGC_ZEROCONF_ENABLED)
     FetchContent_MakeAvailable(qmdnsengine)
 
     target_link_libraries(Comms PUBLIC qmdnsengine)
-    target_compile_definitions(Comms PUBLIC QGC_ZEROCONF_ENABLED)
+    target_compile_definitions(Comms PUBLIC UVMS_ZEROCONF_ENABLED)
 endif()
 
 # target_compile_definitions(Comms PUBLIC QABSTRACTSOCKET_DEBUG)

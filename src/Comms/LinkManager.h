@@ -134,7 +134,7 @@ private:
     void _addUDPAutoConnectLink();
     void _addMAVLinkForwardingLink();
     void _createDynamicForwardLink(const char *linkName, const QString &hostName);
-#ifdef QGC_ZEROCONF_ENABLED
+#ifdef UVMS_ZEROCONF_ENABLED
     void _addZeroConfAutoConnectLink();
 #endif
 

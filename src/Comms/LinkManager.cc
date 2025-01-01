@@ -21,7 +21,7 @@
 #include "TCPLink.h"
 #include "UDPLink.h"
 
-#ifdef QGC_ENABLE_BLUETOOTH
+#ifdef UVMS_ENABLE_BLUETOOTH
 #include "BluetoothLink.h"
 #endif
 
@@ -37,11 +37,11 @@
 #include "MockLink.h"
 #endif
 
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
 #include "AirLinkLink.h"
 #endif
 
-#ifdef QGC_ZEROCONF_ENABLED
+#ifdef UVMS_ZEROCONF_ENABLED
 #include <qmdnsengine/browser.h>
 #include <qmdnsengine/cache.h>
 #include <qmdnsengine/mdns.h>
@@ -136,7 +136,7 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr &config)
     case LinkConfiguration::TypeTcp:
         link = std::make_shared<TCPLink>(config);
         break;
-#ifdef QGC_ENABLE_BLUETOOTH
+#ifdef UVMS_ENABLE_BLUETOOTH
     case LinkConfiguration::TypeBluetooth:
         link = std::make_shared<BluetoothLink>(config);
         break;
@@ -149,7 +149,7 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr &config)
         link = std::make_shared<MockLink>(config);
         break;
 #endif
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
     case LinkConfiguration::AirLink:
         link = std::make_shared<AirLinkLink>(config);
         break;
@@ -340,7 +340,7 @@ void LinkManager::loadLinkConfigurationList()
             case LinkConfiguration::TypeTcp:
                 link = new TCPConfiguration(name);
                 break;
-#ifdef QGC_ENABLE_BLUETOOTH
+#ifdef UVMS_ENABLE_BLUETOOTH
             case LinkConfiguration::TypeBluetooth:
                 link = new BluetoothConfiguration(name);
                 break;
@@ -353,7 +353,7 @@ void LinkManager::loadLinkConfigurationList()
                 link = new MockConfiguration(name);
                 break;
 #endif
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
             case LinkConfiguration::AirLink:
                 link = new AirLinkConfiguration(name);
                 break;
@@ -418,7 +418,7 @@ void LinkManager::_addMAVLinkForwardingLink()
     _createDynamicForwardLink(_mavlinkForwardingLinkName, hostName);
 }
 
-#ifdef QGC_ZEROCONF_ENABLED
+#ifdef UVMS_ZEROCONF_ENABLED
 void LinkManager::_addZeroConfAutoConnectLink()
 {
     if (!_autoConnectSettings->autoConnectZeroConf()->rawValue().toBool()) {
@@ -500,7 +500,7 @@ void LinkManager::_updateAutoConnectLinks()
 
     _addUDPAutoConnectLink();
     _addMAVLinkForwardingLink();
-#ifdef QGC_ZEROCONF_ENABLED
+#ifdef UVMS_ZEROCONF_ENABLED
     _addZeroConfAutoConnectLink();
 #endif
 #ifndef NO_SERIAL_LINK
@@ -532,13 +532,13 @@ QStringList LinkManager::linkTypeStrings() const
 #endif
     list += tr("UDP");
     list += tr("TCP");
-#ifdef QGC_ENABLE_BLUETOOTH
+#ifdef UVMS_ENABLE_BLUETOOTH
     list += tr("Bluetooth");
 #endif
 #ifdef QT_DEBUG
     list += tr("Mock Link");
 #endif
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
     list += tr("AirLink");
 #endif
     list += tr("Log Replay");

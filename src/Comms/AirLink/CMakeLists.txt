@@ -2,7 +2,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_library(AirLink STATIC)
 
-if(NOT QGC_AIRLINK_DISABLED)
+if(NOT UVMS_AIRLINK_DISABLED)
     find_package(Qt6 REQUIRED COMPONENTS Network QmlIntegration)
 
     target_sources(AirLink
@@ -50,5 +50,5 @@ if(NOT QGC_AIRLINK_DISABLED)
     # cmake_print_variables(AirLink_targets)
     # target_link_libraries(AirLink PRIVATE AirLinkplugin)
 else()
-    target_compile_definitions(AirLink PUBLIC QGC_AIRLINK_DISABLED)
+    target_compile_definitions(AirLink PUBLIC UVMS_AIRLINK_DISABLED)
 endif()

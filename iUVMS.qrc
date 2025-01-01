@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file alias="AseMainRootWindow.qml">src/AseUI/AseMainRootWindow.qml</file>
+    </qresource>
+</RCC>

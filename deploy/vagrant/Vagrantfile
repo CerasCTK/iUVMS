@@ -58,7 +58,7 @@ Vagrant.configure(2) do |config|
   # rm -rf /vagrant/shadow_build
   # mkdir /vagrant/shadow_build
   # cd /vagrant/shadow_build
-  # time cmake -S /vagrant -B . -G Ninja -DCMAKE_BUILD_TYPE=Release -DQGC_BUILD_TESTING=ON -DQGC_STABLE_BUILD=OFF  # 34s
+  # time cmake -S /vagrant -B . -G Ninja -DCMAKE_BUILD_TYPE=Release -DUVMS_BUILD_TESTING=ON -DUVMS_STABLE_BUILD=OFF  # 34s
   # time cmake --build . --target all --config Release  # 75m
   # time cmake --install . --config Release
 
@@ -112,7 +112,7 @@ set -x
 rm -rf /vagrant/shadow_build
 mkdir /vagrant/shadow_build
 cd /vagrant/shadow_build
-time cmake -S /vagrant -B . -G Ninja -DCMAKE_BUILD_TYPE=Release -DQGC_BUILD_TESTING=ON -DQGC_STABLE_BUILD=OFF  # 34s
+time cmake -S /vagrant -B . -G Ninja -DCMAKE_BUILD_TYPE=Release -DUVMS_BUILD_TESTING=ON -DUVMS_STABLE_BUILD=OFF  # 34s
 CONFIGURE
 "
 

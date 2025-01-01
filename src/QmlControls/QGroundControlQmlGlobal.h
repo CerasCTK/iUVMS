@@ -41,10 +41,10 @@ Q_MOC_INCLUDE("QGCPalette.h")
 Q_MOC_INCLUDE("PositionManager.h")
 Q_MOC_INCLUDE("SettingsManager.h")
 Q_MOC_INCLUDE("VideoManager.h")
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
 Q_MOC_INCLUDE("UTMSPManager.h")
 #endif
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
 Q_MOC_INCLUDE("AirLinkManager.h")
 #endif
 
@@ -81,7 +81,7 @@ public:
 #ifndef NO_SERIAL_LINK
     Q_PROPERTY(FactGroup*           gpsRtk                  READ    gpsRtkFactGroup         CONSTANT)
 #endif
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
     Q_PROPERTY(AirLinkManager*      airlinkManager          READ    airlinkManager          CONSTANT)
 #endif
     Q_PROPERTY(bool                 airlinkSupported        READ    airlinkSupported        CONSTANT)
@@ -123,7 +123,7 @@ public:
 
     Q_PROPERTY(bool              utmspSupported           READ    utmspSupported              CONSTANT)
 
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
     Q_PROPERTY(UTMSPManager*     utmspManager             READ    utmspManager                CONSTANT)
 #endif
 
@@ -179,7 +179,7 @@ public:
     static QGeoCoordinate   flightMapPosition   ()  { return _coord; }
     static double           flightMapZoom       ()  { return _zoom; }
 
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
     AirLinkManager*         airlinkManager      ()  { return _airlinkManager; }
     bool                    airlinkSupported    ()  { return true; }
 #else
@@ -227,7 +227,7 @@ public:
 
     QString qgcVersion              (void) const;
 
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
     UTMSPManager* utmspManager() {return _utmspManager;}
     bool utmspSupported() { return true; }
 #else
@@ -255,10 +255,10 @@ private:
 #ifndef NO_SERIAL_LINK
     FactGroup*              _gpsRtkFactGroup        = nullptr;
 #endif
-#ifndef QGC_AIRLINK_DISABLED
+#ifndef UVMS_AIRLINK_DISABLED
     AirLinkManager*         _airlinkManager         = nullptr;
 #endif
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
     UTMSPManager*           _utmspManager           = nullptr;
 #endif
 

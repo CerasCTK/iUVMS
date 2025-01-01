@@ -2,9 +2,9 @@
 <Installer>
     <Name>@CMAKE_PROJECT_NAME@</Name>
     <Version>@CMAKE_PROJECT_VERSION@</Version>
-    <ReleaseDate>@QGC_APP_DATE@</ReleaseDate>
-    <Title>@QGC_INSTALLER_NAME@</Title>
-    <Publisher>@QGC_ORG_NAME@</Publisher>
+    <ReleaseDate>@UVMS_APP_DATE@</ReleaseDate>
+    <Title>@UVMS_INSTALLER_NAME@</Title>
+    <Publisher>@UVMS_ORG_NAME@</Publisher>
     <ProductUrl>@CMAKE_PROJECT_HOMEPAGE_URL@</ProductUrl>
     <InstallerApplicationIcon>appicon</InstallerApplicationIcon>
     <InstallerWindowIcon>windowicon</InstallerWindowIcon>

@@ -344,14 +344,14 @@ void UDPWorker::connectLink()
         qCWarning(UDPLinkLog) << "Failed to join multicast group" << _multicastGroup.toString();
     }
 
-#ifdef QGC_ZEROCONF_ENABLED
+#ifdef UVMS_ZEROCONF_ENABLED
     _registerZeroconf(_udpConfig->localPort());
 #endif
 }
 
 void UDPWorker::disconnectLink()
 {
-#ifdef QGC_ZEROCONF_ENABLED
+#ifdef UVMS_ZEROCONF_ENABLED
     _deregisterZeroconf();
 #endif
 
@@ -477,7 +477,7 @@ void UDPWorker::_onSocketErrorOccurred(QUdpSocket::SocketError error)
     }
 }
 
-#ifdef QGC_ZEROCONF_ENABLED
+#ifdef UVMS_ZEROCONF_ENABLED
 void UDPWorker::_zeroconfRegisterCallback(DNSServiceRef sdRef, DNSServiceFlags flags, DNSServiceErrorType errorCode, const char *name, const char *regtype, const char *domain, void *context)
 {
     Q_UNUSED(sdRef); Q_UNUSED(flags); Q_UNUSED(name); Q_UNUSED(regtype); Q_UNUSED(domain);
@@ -543,7 +543,7 @@ void UDPWorker::_deregisterZeroconf()
         _dnssServiceRef = NULL;
     }
 }
-#endif // QGC_ZEROCONF_ENABLED
+#endif // UVMS_ZEROCONF_ENABLED
 
 /*===========================================================================*/
 

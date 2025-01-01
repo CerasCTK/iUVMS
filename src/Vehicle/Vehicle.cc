@@ -56,7 +56,7 @@
 #include <MAVLinkSigning.h>
 #include "GimbalController.h"
 
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
 #include "UTMSPVehicle.h"
 #include "UTMSPManager.h"
 #endif
@@ -143,7 +143,7 @@ Vehicle::Vehicle(LinkInterface*             link,
         SettingsManager::instance()->videoSettings()->lowLatencyMode()->setRawValue(true);
     }
 
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
     _utmspVehicle = UTMSPManager::instance()->instantiateVehicle(this);
 #endif
 

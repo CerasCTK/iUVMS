@@ -590,7 +590,7 @@ bool GeoFenceController::isEmpty(void) const
 
 }
 
-#ifdef QGC_UTM_ADAPTER
+#ifdef UVMS_UTM_ADAPTER
 void GeoFenceController::loadFlightPlanData()
 {
     QJsonArray jsonPolygonArray;

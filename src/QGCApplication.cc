@@ -69,7 +69,7 @@
 #ifndef QGC_DISABLE_MAVLINK_INSPECTOR
 #include "MAVLinkInspectorController.h"
 #endif
-#ifdef QGC_VIEWER3D
+#ifdef UVMS_VIEWER3D
 #include "Viewer3DManager.h"
 #endif
 #ifndef NO_SERIAL_LINK
@@ -134,20 +134,20 @@ QGCApplication::QGCApplication(int &argc, char* argv[], bool unitTesting)
     if (_runningUnitTests) {
         // We don't want unit tests to use the same QSettings space as the normal app. So we tweak the app
         // name. Also we want to run unit tests with clean settings every time.
-        applicationName = QStringLiteral("%1_unittest").arg(QGC_APP_NAME);
+        applicationName = QStringLiteral("%1_unittest").arg(UVMS_APP_NAME);
     } else {
 #ifdef DAILY_BUILD
         // This gives daily builds their own separate settings space. Allowing you to use daily and stable builds
         // side by side without daily screwing up your stable settings.
-        applicationName = QStringLiteral("%1 Daily").arg(QGC_APP_NAME);
+        applicationName = QStringLiteral("%1 Daily").arg(UVMS_APP_NAME);
 #else
-        applicationName = QGC_APP_NAME;
+        applicationName = UVMS_APP_NAME;
 #endif
     }
     setApplicationName(applicationName);
-    setOrganizationName(QGC_ORG_NAME);
-    setOrganizationDomain(QGC_ORG_DOMAIN);
-    setApplicationVersion(QString(QGC_APP_VERSION_STR));
+    setOrganizationName(UVMS_ORG_NAME);
+    setOrganizationDomain(UVMS_ORG_DOMAIN);
+    setApplicationVersion(QString(UVMS_APP_VERSION_STR));
     #ifdef Q_OS_LINUX
         setWindowIcon(QIcon(":/res/qgroundcontrol.ico"));
     #endif
@@ -278,7 +278,7 @@ void QGCApplication::init()
     VideoManager::registerQmlTypes();
     QGCCorePlugin::registerQmlTypes();
     GPSRtk::registerQmlTypes();
-#ifdef QGC_VIEWER3D
+#ifdef UVMS_VIEWER3D
     Viewer3DManager::registerQmlTypes();
 #endif
 

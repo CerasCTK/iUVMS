@@ -3,8 +3,8 @@
     <DisplayName>@CMAKE_PROJECT_NAME@</DisplayName>
     <Description>@CMAKE_PROJECT_DESCRIPTION@</Description>
     <Version>@CMAKE_PROJECT_VERSION@</Version>
-    <ReleaseDate>@QGC_APP_DATE@</ReleaseDate>
-    <Name>@QGC_ORG_NAME@</Name>
+    <ReleaseDate>@UVMS_APP_DATE@</ReleaseDate>
+    <Name>@UVMS_ORG_NAME@</Name>
     <Licenses>
         <License name="License Agreement" file="license.txt" />
     </Licenses>

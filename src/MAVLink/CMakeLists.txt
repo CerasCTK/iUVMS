@@ -46,8 +46,8 @@ include(FetchContent)
 # FetchContent_MakeAvailable(mavlink)
 
 FetchContent_Declare(mavlink
-    GIT_REPOSITORY ${QGC_MAVLINK_GIT_REPO}
-    GIT_TAG ${QGC_MAVLINK_GIT_TAG}
+    GIT_REPOSITORY ${UVMS_MAVLINK_GIT_REPO}
+    GIT_TAG ${UVMS_MAVLINK_GIT_TAG}
 )
 FetchContent_MakeAvailable(mavlink)
 
