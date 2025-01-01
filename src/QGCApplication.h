@@ -9,19 +9,20 @@
 
 #pragma once
 
-#include <QtWidgets/QApplication>
-#include <QtCore/QTimer>
 #include <QtCore/QElapsedTimer>
-#include <QtCore/QMap>
-#include <QtCore/QSet>
 #include <QtCore/QEvent>
+#include <QtCore/QMap>
 #include <QtCore/QMetaMethod>
 #include <QtCore/QMetaObject>
+#include <QtCore/QSet>
+#include <QtCore/QTimer>
 #include <QtCore/QTranslator>
+#include <QtWidgets/QApplication>
 
-// These private headers are require to implement the signal compress support below
-#include <QtCore/private/qthread_p.h>
+// These private headers are require to implement the signal compress support
+// below
 #include <QtCore/private/qobject_p.h>
+#include <QtCore/private/qthread_p.h>
 
 // Work around circular header includes
 class QQmlApplicationEngine;
@@ -52,61 +53,71 @@ class QGCApplication;
  *
  * Note: `lastWindowClosed` will be sent by MessageBox popups and other
  * dialogs, that are spawned in QML, when they are closed
-**/
+ **/
 
 // TODO: Use QtGraphs to convert to QGuiApplication
-class QGCApplication : public QApplication
-{
+class QGCApplication : public QApplication {
     Q_OBJECT
-public:
-    QGCApplication(int &argc, char* argv[], bool unitTesting);
+  public:
+    QGCApplication(int &argc, char *argv[], bool unitTesting);
     ~QGCApplication();
 
-    /// @brief Sets the persistent flag to delete all settings the next time QGroundControl is started.
+    /// @brief Sets the persistent flag to delete all settings the next time
+    /// QGroundControl is started.
     void deleteAllSettingsNextBoot(void);
 
-    /// @brief Clears the persistent flag to delete all settings the next time QGroundControl is started.
+    /// @brief Clears the persistent flag to delete all settings the next time
+    /// QGroundControl is started.
     void clearDeleteAllSettingsNextBoot(void);
 
     /// @brief Returns true if unit tests are being run
-    bool runningUnitTests(void) const{ return _runningUnitTests; }
+    bool runningUnitTests(void) const { return _runningUnitTests; }
 
     /// @brief Returns true if Qt debug output should be logged to a file
-    bool logOutput(void) const{ return _logOutput; }
+    bool logOutput(void) const { return _logOutput; }
 
-    /// Used to report a missing Parameter. Warning will be displayed to user. Method may be called
-    /// multiple times.
-    void reportMissingParameter(int componentId, const QString& name);
+    /// Used to report a missing Parameter. Warning will be displayed to user.
+    /// Method may be called multiple times.
+    void reportMissingParameter(int componentId, const QString &name);
 
     /// @return true: Fake ui into showing mobile interface
     bool fakeMobile(void) const { return _fakeMobile; }
 
-    void            setLanguage();
-    QQuickWindow*   mainRootWindow();
-    uint64_t        msecsSinceBoot(void) { return _msecsElapsedTime.elapsed(); }
-    QString         numberToString(quint64 number);
-    QString         bigSizeToString(quint64 size);
-    QString         bigSizeMBToString(quint64 size_MB);
+    void setLanguage();
+    QQuickWindow *mainRootWindow();
 
-    /// Registers the signal such that only the last duplicate signal added is left in the queue.
-    void addCompressedSignal(const QMetaMethod & method);
+    uint64_t msecsSinceBoot(void) { return _msecsElapsedTime.elapsed(); }
 
-    void removeCompressedSignal(const QMetaMethod & method);
+    QString numberToString(quint64 number);
+    QString bigSizeToString(quint64 size);
+    QString bigSizeMBToString(quint64 size_MB);
+
+    /// Registers the signal such that only the last duplicate signal added is
+    /// left in the queue.
+    void addCompressedSignal(const QMetaMethod &method);
+
+    void removeCompressedSignal(const QMetaMethod &method);
 
     bool event(QEvent *e) override;
 
     static QString cachedParameterMetaDataFile(void);
     static QString cachedAirframeMetaDataFile(void);
 
-public slots:
-    /// You can connect to this slot to show an information message box from a different thread.
-    void informationMessageBoxOnMainThread(const QString& title, const QString& msg);
+  public slots:
+    /// You can connect to this slot to show an information message box from a
+    /// different thread.
+    void
+    informationMessageBoxOnMainThread(const QString &title, const QString &msg);
 
-    /// You can connect to this slot to show a warning message box from a different thread.
-    void warningMessageBoxOnMainThread(const QString& title, const QString& msg);
+    /// You can connect to this slot to show a warning message box from a
+    /// different thread.
+    void
+    warningMessageBoxOnMainThread(const QString &title, const QString &msg);
 
-    /// You can connect to this slot to show a critical message box from a different thread.
-    void criticalMessageBoxOnMainThread(const QString& title, const QString& msg);
+    /// You can connect to this slot to show a critical message box from a
+    /// different thread.
+    void
+    criticalMessageBoxOnMainThread(const QString &title, const QString &msg);
 
     void showSetupView();
 
@@ -116,86 +127,110 @@ public slots:
     const QLocale getCurrentLanguage() { return _locale; }
 
     /// Show non-modal vehicle message to the user
-    void showCriticalVehicleMessage(const QString& message);
+    void showCriticalVehicleMessage(const QString &message);
 
     /// Show modal application message to the user
-    void showAppMessage(const QString& message, const QString& title = QString());
+    void
+    showAppMessage(const QString &message, const QString &title = QString());
 
-    /// Show modal application message to the user about the need for a reboot. Multiple messages will be supressed if they occur
-    /// one after the other.
-    void showRebootAppMessage(const QString& message, const QString& title = QString());
+    /// Show modal application message to the user about the need for a reboot.
+    /// Multiple messages will be supressed if they occur one after the other.
+    void showRebootAppMessage(
+        const QString &message, const QString &title = QString()
+    );
 
-    QGCImageProvider* qgcImageProvider();
+    QGCImageProvider *qgcImageProvider();
 
-signals:
+  signals:
     void languageChanged(const QLocale locale);
 
-public:
-    /// @brief Perform initialize which is common to both normal application running and unit tests.
+  public:
+    /// @brief Perform initialize which is common to both normal application
+    /// running and unit tests.
     void init();
     void shutdown();
 
-    // Although public, these methods are internal and should only be called by UnitTest code
-    QQmlApplicationEngine* qmlAppEngine() { return _qmlAppEngine; }
+    // Although public, these methods are internal and should only be called by
+    // UnitTest code
+    QQmlApplicationEngine *qmlAppEngine() { return _qmlAppEngine; }
 
-private slots:
-    void _missingParamsDisplay                      (void);
-    void _qgcCurrentStableVersionDownloadComplete   (QString remoteFile, QString localFile, QString errorMsg);
-    bool _parseVersionText                          (const QString& versionString, int& majorVersion, int& minorVersion, int& buildVersion);
-    void _showDelayedAppMessages                    (void);
+  private slots:
+    void _missingParamsDisplay(void);
+    void _qgcCurrentStableVersionDownloadComplete(
+        QString remoteFile, QString localFile, QString errorMsg
+    );
+    bool _parseVersionText(
+        const QString &versionString, int &majorVersion, int &minorVersion,
+        int &buildVersion
+    );
+    void _showDelayedAppMessages(void);
 
-private:
-    /// @brief Initialize the application for normal application boot. Or in other words we are not going to run unit tests.
+  private:
+    /// @brief Initialize the application for normal application boot. Or in
+    /// other words we are not going to run unit tests.
     void _initForNormalAppBoot();
 
-    QObject* _rootQmlObject();
+    QObject *_rootQmlObject();
     void _checkForNewVersion();
 
     // Overrides from QApplication
-    bool compressEvent(QEvent *event, QObject *receiver, QPostEventList *postedEvents) override;
+    bool compressEvent(
+        QEvent *event, QObject *receiver, QPostEventList *postedEvents
+    ) override;
 
-    bool                        _runningUnitTests;                                  ///< true: running unit tests, false: normal app
-    static const int            _missingParamsDelayedDisplayTimerTimeout = 1000;    ///< Timeout to wait for next missing fact to come in before display
-    QTimer                      _missingParamsDelayedDisplayTimer;                  ///< Timer use to delay missing fact display
-    QList<QPair<int,QString>>   _missingParams;                                     ///< List of missing parameter component id:name
+    bool _runningUnitTests; ///< true: running unit tests, false: normal app
+    static const int _missingParamsDelayedDisplayTimerTimeout
+        = 1000; ///< Timeout to wait for next missing fact to come in before
+                ///< display
+    QTimer _missingParamsDelayedDisplayTimer; ///< Timer use to delay missing
+                                              ///< fact display
+    QList<QPair<int, QString>>
+        _missingParams; ///< List of missing parameter component id:name
 
-    QQmlApplicationEngine* _qmlAppEngine        = nullptr;
-    bool                _logOutput              = false;    ///< true: Log Qt debug output to file
-    bool				_fakeMobile             = false;    ///< true: Fake ui into displaying mobile interface
-    bool                _settingsUpgraded       = false;    ///< true: Settings format has been upgrade to new version
-    int                 _majorVersion           = 0;
-    int                 _minorVersion           = 0;
-    int                 _buildVersion           = 0;
-    QQuickWindow*       _mainRootWindow         = nullptr;
-    QTranslator         _qgcTranslatorSourceCode;           ///< translations for source code C++/Qml
-    QTranslator         _qgcTranslatorQtLibs;               ///< tranlsations for Qt libraries
-    QLocale             _locale;
-    bool                _error                  = false;
-    bool                _showErrorsInToolbar    = false;
-    QElapsedTimer       _msecsElapsedTime;
+    QQmlApplicationEngine *_qmlAppEngine = nullptr;
+    bool _logOutput = false; ///< true: Log Qt debug output to file
+    bool _fakeMobile
+        = false; ///< true: Fake ui into displaying mobile interface
+    bool _settingsUpgraded
+        = false; ///< true: Settings format has been upgrade to new version
+    int _majorVersion = 0;
+    int _minorVersion = 0;
+    int _buildVersion = 0;
+    QQuickWindow *_mainRootWindow = nullptr;
+    QTranslator
+        _qgcTranslatorSourceCode;     ///< translations for source code C++/Qml
+    QTranslator _qgcTranslatorQtLibs; ///< tranlsations for Qt libraries
+    QLocale _locale;
+    bool _error = false;
+    bool _showErrorsInToolbar = false;
+    QElapsedTimer _msecsElapsedTime;
 
-    QList<QPair<QString /* title */, QString /* message */>> _delayedAppMessages;
+    QList<QPair<QString /* title */, QString /* message */>>
+        _delayedAppMessages;
 
     class CompressedSignalList {
         Q_DISABLE_COPY(CompressedSignalList)
 
-    public:
+      public:
         CompressedSignalList() {}
 
-        void add        (const QMetaMethod & method);
-        void remove     (const QMetaMethod & method);
-        bool contains   (const QMetaObject * metaObject, int signalIndex);
+        void add(const QMetaMethod &method);
+        void remove(const QMetaMethod &method);
+        bool contains(const QMetaObject *metaObject, int signalIndex);
 
-    private:
-        static int _signalIndex(const QMetaMethod & method);
+      private:
+        static int _signalIndex(const QMetaMethod &method);
 
-        QMap<const QMetaObject*, QSet<int> > _signalMap;
+        QMap<const QMetaObject *, QSet<int>> _signalMap;
     };
 
     CompressedSignalList _compressedSignals;
 
-    const QString _settingsVersionKey = QStringLiteral("SettingsVersion"); ///< Settings key which hold settings version
-    const QString _deleteAllSettingsKey = QStringLiteral("DeleteAllSettingsNextBoot"); ///< If this settings key is set on boot, all settings will be deleted
+    const QString _settingsVersionKey = QStringLiteral("SettingsVersion"
+    ); ///< Settings key which hold settings version
+    const QString _deleteAllSettingsKey = QStringLiteral(
+        "DeleteAllSettingsNextBoot"
+    ); ///< If this settings key is set on boot, all settings will be deleted
 
     const QString qgcImageProviderId = QStringLiteral("QGCImages");
 

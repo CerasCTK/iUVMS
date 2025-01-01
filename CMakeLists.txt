@@ -14,7 +14,7 @@ include(CustomOptions)
 
 if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/custom)
     message(STATUS "Enabling custom build")
-    set(QGC_CUSTOM_BUILD ON)
+    set(UVMS_CUSTOM_BUILD ON)
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/custom/cmake)
     include(CustomOverrides)
 endif()
@@ -251,7 +251,7 @@ if(UVMS_CUSTOM_BUILD)
 endif()
 
 #######################################################
-#                QGroundControl Resources
+#                   iUVMS Resources
 #######################################################
 
 if(NOT UVMS_CUSTOM_BUILD)
@@ -282,7 +282,7 @@ if(UVMS_BUILD_TESTING)
 endif()
 
 #######################################################
-#               QGroundControl Target
+#                   iUVMS Target
 #######################################################
 
 qt_add_executable(${PROJECT_NAME}

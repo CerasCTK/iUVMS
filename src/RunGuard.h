@@ -9,22 +9,20 @@
 
 #pragma once
 
-
 #include <QtCore/QObject>
 #include <QtCore/QSharedMemory>
 #include <QtCore/QSystemSemaphore>
 
-class RunGuard
-{
-public:
-    RunGuard( const QString& key );
+class RunGuard {
+  public:
+    RunGuard(const QString &key);
     ~RunGuard();
 
     bool isAnotherRunning();
     bool tryToRun();
     void release();
 
-private:
+  private:
     const QString key;
     const QString memLockKey;
     const QString sharedmemKey;
@@ -32,5 +30,5 @@ private:
     QSharedMemory sharedMem;
     QSystemSemaphore memLock;
 
-    Q_DISABLE_COPY( RunGuard )
+    Q_DISABLE_COPY(RunGuard)
 };
