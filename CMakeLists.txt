@@ -478,7 +478,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 if(UVMS_BUILD_TESTING)
     add_subdirectory(test)
-    target_link_libraries(${PROJECT_NAME} PRIVATE qgctest)
+    target_link_libraries(${PROJECT_NAME} PRIVATE uvmstest)
 endif()
 
 qt_import_plugins(${PROJECT_NAME}
