@@ -7,21 +7,19 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include "VehicleComponent.h"
 
-class APMTuningComponent : public VehicleComponent
-{
+class APMTuningComponent : public VehicleComponent {
     Q_OBJECT
-    
-public:
-    APMTuningComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent = nullptr);
-    
+
+  public:
+    APMTuningComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent = nullptr);
+
     // Virtuals from VehicleComponent
     QStringList setupCompleteChangedTriggerList(void) const final;
-    
+
     // Virtuals from VehicleComponent
     QString name(void) const final;
     QString description(void) const final;
@@ -30,9 +28,10 @@ public:
     bool setupComplete(void) const final;
     QUrl setupSource(void) const final;
     QUrl summaryQmlSource(void) const final;
+
     bool allowSetupWhileArmed(void) const final { return true; }
 
-private:
-    const QString   _name;
-    QVariantList    _summaryItems;
+  private:
+    const QString _name;
+    QVariantList _summaryItems;
 };

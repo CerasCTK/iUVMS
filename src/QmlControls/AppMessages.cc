@@ -7,26 +7,23 @@
  *
  ****************************************************************************/
 
-
-
 // Allows QGlobalStatic to work on this translation unit
 #define _LOG_CTOR_ACCESS_ public
 
 #include "AppMessages.h"
+#include "AppSettings.h"
 #include "QGCApplication.h"
 #include "SettingsManager.h"
-#include "AppSettings.h"
 
-#include <QtCore/QStringListModel>
 #include <QtConcurrent/QtConcurrent>
+#include <QtCore/QStringListModel>
 #include <QtCore/QTextStream>
 
 Q_GLOBAL_STATIC(AppLogModel, debug_model)
 
 static QtMessageHandler old_handler;
 
-static void msgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
+static void msgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     const char symbols[] = { 'D', 'E', '!', 'X', 'I' };
     QString output = QString("[%1] at %2:%3 - \"%4\"").arg(symbols[type]).arg(context.file).arg(context.line).arg(msg);
 
@@ -38,24 +35,20 @@ static void msgHandler(QtMsgType type, const QMessageLogContext &context, const 
     if (old_handler != nullptr) {
         old_handler(type, context, msg);
     }
-    if( type == QtFatalMsg ) abort();
+    if (type == QtFatalMsg)
+        abort();
 }
 
-void AppMessages::installHandler()
-{
+void AppMessages::installHandler() {
     old_handler = qInstallMessageHandler(msgHandler);
 
     // Force creation of debug model on installing thread
     Q_UNUSED(*debug_model);
 }
 
-AppLogModel *AppMessages::getModel()
-{
-    return debug_model;
-}
+AppLogModel *AppMessages::getModel() { return debug_model; }
 
-AppLogModel::AppLogModel() : QStringListModel()
-{
+AppLogModel::AppLogModel() : QStringListModel() {
 #ifdef __mobile__
     Qt::ConnectionType contype = Qt::QueuedConnection;
 #else
@@ -64,8 +57,7 @@ AppLogModel::AppLogModel() : QStringListModel()
     connect(this, &AppLogModel::emitLog, this, &AppLogModel::threadsafeLog, contype);
 }
 
-void AppLogModel::writeMessages(const QString dest_file)
-{
+void AppLogModel::writeMessages(const QString dest_file) {
     const QString writebuffer(stringList().join('\n').append('\n'));
 
     QFuture<void> future = QtConcurrent::run([dest_file, writebuffer] {
@@ -83,13 +75,9 @@ void AppLogModel::writeMessages(const QString dest_file)
     });
 }
 
-void AppLogModel::log(const QString message)
-{
-    emit debug_model->emitLog(message);
-}
+void AppLogModel::log(const QString message) { emit debug_model->emitLog(message); }
 
-void AppLogModel::threadsafeLog(const QString message)
-{
+void AppLogModel::threadsafeLog(const QString message) {
     const int line = rowCount();
     insertRows(line, 1);
     setData(index(line), message, Qt::DisplayRole);

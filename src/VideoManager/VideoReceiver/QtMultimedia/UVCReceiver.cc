@@ -13,41 +13,31 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QPermissions>
-#include <QtQuick/QQuickItem>
-#include <QtMultimedia/QMediaDevices>
-#include <QtMultimedia/QCameraDevice>
 #include <QtMultimedia/QCamera>
+#include <QtMultimedia/QCameraDevice>
 #include <QtMultimedia/QImageCapture>
 #include <QtMultimedia/QMediaCaptureSession>
+#include <QtMultimedia/QMediaDevices>
 #include <QtMultimediaQuick/private/qquickvideooutput_p.h>
+#include <QtQuick/QQuickItem>
 
 QGC_LOGGING_CATEGORY(UVCReceiverLog, "qgc.video.qtmultimedia.uvcreceiver")
 
-UVCReceiver::UVCReceiver(QObject *parent)
-    : QtMultimediaReceiver(parent)
-    , _camera(new QCamera(this))
-    , _imageCapture(new QImageCapture(this))
-{
+UVCReceiver::UVCReceiver(QObject *parent) : QtMultimediaReceiver(parent), _camera(new QCamera(this)), _imageCapture(new QImageCapture(this)) {
     _captureSession->setCamera(_camera);
     _captureSession->setImageCapture(_imageCapture);
     _captureSession->setVideoSink(_videoSink);
 
-    (void) connect(_captureSession, &QMediaCaptureSession::cameraChanged, this, [this] {
-        adjustAspectRatio();
-    });
+    (void)connect(_captureSession, &QMediaCaptureSession::cameraChanged, this, [this] { adjustAspectRatio(); });
 
     _checkPermission();
 
     qCDebug(UVCReceiverLog) << Q_FUNC_INFO << this;
 }
 
-UVCReceiver::~UVCReceiver()
-{
-    qCDebug(UVCReceiverLog) << Q_FUNC_INFO << this;
-}
+UVCReceiver::~UVCReceiver() { qCDebug(UVCReceiverLog) << Q_FUNC_INFO << this; }
 
-void UVCReceiver::adjustAspectRatio()
-{
+void UVCReceiver::adjustAspectRatio() {
     if (!_videoOutput) {
         return;
     }
@@ -65,11 +55,10 @@ void UVCReceiver::adjustAspectRatio()
     }
 }
 
-QCameraDevice UVCReceiver::findCameraDevice(const QString &cameraId)
-{
+QCameraDevice UVCReceiver::findCameraDevice(const QString &cameraId) {
     // QString videoSource = _videoSettings->videoSource()->rawValue().toString();
     const QList<QCameraDevice> videoInputs = QMediaDevices::videoInputs();
-    for (const QCameraDevice& camera : videoInputs) {
+    for (const QCameraDevice &camera : videoInputs) {
         if (camera.description() == cameraId) {
             return camera;
         }
@@ -78,8 +67,7 @@ QCameraDevice UVCReceiver::findCameraDevice(const QString &cameraId)
     return QMediaDevices::defaultVideoInput();
 }
 
-void UVCReceiver::_checkPermission()
-{
+void UVCReceiver::_checkPermission() {
     QCameraPermission cameraPermission;
     if (qApp->checkPermission(cameraPermission) == Qt::PermissionStatus::Undetermined) {
         qApp->requestPermission(cameraPermission, [this](const QPermission &permission) {
@@ -90,7 +78,4 @@ void UVCReceiver::_checkPermission()
     }
 }
 
-bool UVCReceiver::enabled()
-{
-    return (QMediaDevices::videoInputs().count() > 0);
-}
+bool UVCReceiver::enabled() { return (QMediaDevices::videoInputs().count() > 0); }

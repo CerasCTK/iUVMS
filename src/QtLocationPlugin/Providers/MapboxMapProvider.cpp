@@ -8,11 +8,10 @@
  ****************************************************************************/
 
 #include "MapboxMapProvider.h"
-#include "SettingsManager.h"
 #include "AppSettings.h"
+#include "SettingsManager.h"
 
-QString MapboxMapProvider::_getURL(int x, int y, int zoom) const
-{
+QString MapboxMapProvider::_getURL(int x, int y, int zoom) const {
     const QString mapBoxToken = SettingsManager::instance()->appSettings()->mapboxToken()->rawValue().toString();
     if (!mapBoxToken.isEmpty()) {
         if (_mapTypeId == QStringLiteral("mapbox.custom")) {

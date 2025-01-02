@@ -40,12 +40,12 @@ typedef enum : uint8_t {
 
 #define MAVLINK_EXTERNAL_RX_STATUS
 #ifdef MAVLINK_EXTERNAL_RX_STATUS
-    extern mavlink_status_t m_mavlink_status[MAVLINK_COMM_NUM_BUFFERS];
+extern mavlink_status_t m_mavlink_status[MAVLINK_COMM_NUM_BUFFERS];
 #endif
 
 #define MAVLINK_GET_CHANNEL_STATUS
 #ifdef MAVLINK_GET_CHANNEL_STATUS
-    extern mavlink_status_t* mavlink_get_channel_status(uint8_t chan);
+extern mavlink_status_t *mavlink_get_channel_status(uint8_t chan);
 #endif
 
 // #define MAVLINK_NO_SIGN_PACKET
@@ -56,21 +56,21 @@ typedef enum : uint8_t {
 
 // Ignore warnings from mavlink headers for both GCC/Clang and MSVC
 #ifdef __GNUC__
-#   if __GNUC__ > 8
-#       pragma GCC diagnostic push
-#       pragma GCC diagnostic ignored "-Waddress-of-packed-member"
-#   else
-#       pragma GCC diagnostic push
-#       pragma GCC diagnostic ignored "-Wall"
-#   endif
+#if __GNUC__ > 8
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #else
-#   pragma warning(push, 0)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
+#endif
+#else
+#pragma warning(push, 0)
 #endif
 
 #include <mavlink.h>
 
 #ifdef __GNUC__
-#	pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #else
-#	pragma warning(pop, 0)
+#pragma warning(pop, 0)
 #endif

@@ -15,10 +15,9 @@ QT_BEGIN_NAMESPACE
 class QSerialPort;
 class QSerialPortInfoPrivate;
 
-class Q_SERIALPORT_EXPORT QSerialPortInfo
-{
+class Q_SERIALPORT_EXPORT QSerialPortInfo {
     Q_DECLARE_PRIVATE(QSerialPortInfo)
-public:
+  public:
     QSerialPortInfo();
     explicit QSerialPortInfo(const QSerialPort &port);
     explicit QSerialPortInfo(const QString &name);
@@ -26,7 +25,7 @@ public:
     QSerialPortInfo(const QSerialPortInfoPrivate &dd);
     ~QSerialPortInfo();
 
-    QSerialPortInfo& operator=(const QSerialPortInfo &other);
+    QSerialPortInfo &operator=(const QSerialPortInfo &other);
     void swap(QSerialPortInfo &other);
 
     QString portName() const;
@@ -46,7 +45,7 @@ public:
     static QList<qint32> standardBaudRates();
     static QList<QSerialPortInfo> availablePorts();
 
-private:
+  private:
     // QSerialPortInfo(const QSerialPortInfoPrivate &dd);
     friend QList<QSerialPortInfo> availablePortsByUdev(bool &ok);
     friend QList<QSerialPortInfo> availablePortsBySysfs(bool &ok);
@@ -54,8 +53,7 @@ private:
     std::unique_ptr<QSerialPortInfoPrivate> d_ptr;
 };
 
-inline bool QSerialPortInfo::isNull() const
-{ return !d_ptr; }
+inline bool QSerialPortInfo::isNull() const { return !d_ptr; }
 
 QT_END_NAMESPACE
 

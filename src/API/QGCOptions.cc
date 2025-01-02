@@ -12,15 +12,11 @@
 
 QGC_LOGGING_CATEGORY(QGCFlyViewOptionsLog, "qgc.api.qgcflyviewoptions");
 
-QGCFlyViewOptions::QGCFlyViewOptions(QGCOptions *options, QObject *parent)
-    : QObject(parent)
-    , _options(options)
-{
+QGCFlyViewOptions::QGCFlyViewOptions(QGCOptions *options, QObject *parent) : QObject(parent), _options(options) {
     // qCDebug(QGCFlyViewOptionsLog) << Q_FUNC_INFO << this;
 }
 
-QGCFlyViewOptions::~QGCFlyViewOptions()
-{
+QGCFlyViewOptions::~QGCFlyViewOptions() {
     // qCDebug(QGCFlyViewOptionsLog) << Q_FUNC_INFO << this;
 }
 
@@ -28,14 +24,10 @@ QGCFlyViewOptions::~QGCFlyViewOptions()
 
 QGC_LOGGING_CATEGORY(QGCOptionsLog, "qgc.api.qgcoptions");
 
-QGCOptions::QGCOptions(QObject *parent)
-    : QObject(parent)
-    , _defaultFlyViewOptions(new QGCFlyViewOptions(this))
-{
+QGCOptions::QGCOptions(QObject *parent) : QObject(parent), _defaultFlyViewOptions(new QGCFlyViewOptions(this)) {
     // qCDebug(QGCOptionsLog) << Q_FUNC_INFO << this;
 }
 
-QGCOptions::~QGCOptions()
-{
+QGCOptions::~QGCOptions() {
     // qCDebug(QGCOptionsLog) << Q_FUNC_INFO << this;
 }

@@ -8,21 +8,20 @@
  ****************************************************************************/
 
 #include "RequestMessageTest.h"
-#include "MultiVehicleManager.h"
 #include "MockLink.h"
+#include "MultiVehicleManager.h"
 
 #include <QtTest/QTest>
 
 RequestMessageTest::TestCase_t RequestMessageTest::_rgTestCases[] = {
-    {  MockLink::FailRequestMessageNone,                                MAV_RESULT_ACCEPTED,    Vehicle::RequestMessageNoFailure,                   1,                                  false },
-    {  MockLink::FailRequestMessageCommandAcceptedMsgNotSent,           MAV_RESULT_FAILED,      Vehicle::RequestMessageFailureMessageNotReceived,   1,                                  false },
-    {  MockLink::FailRequestMessageCommandUnsupported,                  MAV_RESULT_UNSUPPORTED, Vehicle::RequestMessageFailureCommandError,         1,                                  false },
-    {  MockLink::FailRequestMessageCommandNoResponse,                   MAV_RESULT_FAILED,      Vehicle::RequestMessageFailureCommandNotAcked,      Vehicle::_mavCommandMaxRetryCount,  false },
+    { MockLink::FailRequestMessageNone, MAV_RESULT_ACCEPTED, Vehicle::RequestMessageNoFailure, 1, false },
+    { MockLink::FailRequestMessageCommandAcceptedMsgNotSent, MAV_RESULT_FAILED, Vehicle::RequestMessageFailureMessageNotReceived, 1, false },
+    { MockLink::FailRequestMessageCommandUnsupported, MAV_RESULT_UNSUPPORTED, Vehicle::RequestMessageFailureCommandError, 1, false },
+    { MockLink::FailRequestMessageCommandNoResponse, MAV_RESULT_FAILED, Vehicle::RequestMessageFailureCommandNotAcked, Vehicle::_mavCommandMaxRetryCount, false },
 };
 
-void RequestMessageTest::_requestMessageResultHandler(void* resultHandlerData, MAV_RESULT commandResult, Vehicle::RequestMessageResultHandlerFailureCode_t failureCode, const mavlink_message_t& message)
-{
-    TestCase_t* testCase = static_cast<TestCase_t*>(resultHandlerData);
+void RequestMessageTest::_requestMessageResultHandler(void *resultHandlerData, MAV_RESULT commandResult, Vehicle::RequestMessageResultHandlerFailureCode_t failureCode, const mavlink_message_t &message) {
+    TestCase_t *testCase = static_cast<TestCase_t *>(resultHandlerData);
 
     testCase->resultHandlerCalled = true;
     QCOMPARE((int)testCase->expectedCommandResult, (int)commandResult);
@@ -32,13 +31,12 @@ void RequestMessageTest::_requestMessageResultHandler(void* resultHandlerData, M
     }
 }
 
-void RequestMessageTest::_testCaseWorker(TestCase_t& testCase)
-{
+void RequestMessageTest::_testCaseWorker(TestCase_t &testCase) {
     _connectMockLinkNoInitialConnectSequence();
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
+
     // Gimbal controller sends message requests when receiving heartbeats, trying to find a gimbal, and it messes with this test so we disable it
     vehicle->deleteGimbalController();
 
@@ -64,25 +62,21 @@ void RequestMessageTest::_testCaseWorker(TestCase_t& testCase)
     _disconnectMockLink();
 }
 
-void RequestMessageTest::_performTestCases(void)
-{
+void RequestMessageTest::_performTestCases(void) {
     int index = 0;
-    for (TestCase_t& testCase: _rgTestCases) {
+    for (TestCase_t &testCase : _rgTestCases) {
         qDebug() << "Testing case" << index++;
         _testCaseWorker(testCase);
     }
 }
 
-void RequestMessageTest::_duplicateCommand(void)
-{
+void RequestMessageTest::_duplicateCommand(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    RequestMessageTest::TestCase_t testCase = {
-        MockLink::FailRequestMessageCommandNoResponse, MAV_RESULT_FAILED, Vehicle::RequestMessageFailureDuplicateCommand, 1, false
-    };
+    RequestMessageTest::TestCase_t testCase = { MockLink::FailRequestMessageCommandNoResponse, MAV_RESULT_FAILED, Vehicle::RequestMessageFailureDuplicateCommand, 1, false };
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
 
     _mockLink->clearReceivedMavCommandCounts();
     _mockLink->setRequestMessageFailureMode(testCase.failureMode);
@@ -110,25 +104,21 @@ void RequestMessageTest::_duplicateCommand(void)
     QVERIFY(false == vehicle->isMavCommandPending(MAV_COMP_ID_AUTOPILOT1, MAV_CMD_REQUEST_MESSAGE));
 }
 
-void RequestMessageTest::_compIdAllRequestMessageResultHandler(void* resultHandlerData, MAV_RESULT commandResult, Vehicle::RequestMessageResultHandlerFailureCode_t failureCode, const mavlink_message_t& /*message*/)
-{
-    TestCase_t* testCase = static_cast<TestCase_t*>(resultHandlerData);
+void RequestMessageTest::_compIdAllRequestMessageResultHandler(void *resultHandlerData, MAV_RESULT commandResult, Vehicle::RequestMessageResultHandlerFailureCode_t failureCode, const mavlink_message_t & /*message*/) {
+    TestCase_t *testCase = static_cast<TestCase_t *>(resultHandlerData);
 
     testCase->resultHandlerCalled = true;
     QCOMPARE((int)testCase->expectedCommandResult, (int)commandResult);
     QCOMPARE((int)testCase->expectedFailureCode, (int)failureCode);
 }
 
-void RequestMessageTest::_compIdAllFailure(void)
-{
+void RequestMessageTest::_compIdAllFailure(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    RequestMessageTest::TestCase_t testCase = {
-        MockLink::FailRequestMessageCommandNoResponse, MAV_RESULT_FAILED, Vehicle::RequestMessageFailureCommandError, 0, false
-    };
+    RequestMessageTest::TestCase_t testCase = { MockLink::FailRequestMessageCommandNoResponse, MAV_RESULT_FAILED, Vehicle::RequestMessageFailureCommandError, 0, false };
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
 
     _mockLink->clearReceivedMavCommandCounts();
     _mockLink->setRequestMessageFailureMode(testCase.failureMode);

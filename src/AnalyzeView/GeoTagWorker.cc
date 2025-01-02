@@ -11,44 +11,32 @@
 
 #include "GeoTagWorker.h"
 #include "ExifParser.h"
-#include "ULogParser.h"
 #include "PX4LogParser.h"
 #include "QGCLoggingCategory.h"
+#include "ULogParser.h"
 
 #include <QtCore/QDir>
 
 QGC_LOGGING_CATEGORY(GeoTagWorkerLog, "qgc.analyzeview.geotagworker")
 
-GeoTagWorker::GeoTagWorker(QObject *parent)
-    : QObject(parent)
-{
+GeoTagWorker::GeoTagWorker(QObject *parent) : QObject(parent) {
     // qCDebug(GeoTagWorkerLog) << Q_FUNC_INFO << this;
 
 #ifdef QT_DEBUG
-    (void) connect(this, &GeoTagWorker::error, this, [](const QString &errorMsg) {
-        qCDebug(GeoTagWorkerLog) << errorMsg;
-    }, Qt::AutoConnection);
+    (void)connect(this, &GeoTagWorker::error, this, [](const QString &errorMsg) { qCDebug(GeoTagWorkerLog) << errorMsg; }, Qt::AutoConnection);
 #endif
 }
 
-GeoTagWorker::~GeoTagWorker()
-{
+GeoTagWorker::~GeoTagWorker() {
     // qCDebug(GeoTagWorkerLog) << Q_FUNC_INFO << this;
 }
 
-bool GeoTagWorker::process()
-{
+bool GeoTagWorker::process() {
     _cancel = false;
     emit progressChanged(1);
 
     using StepFunction = bool (GeoTagWorker::*)();
-    const StepFunction steps[] = {
-        &GeoTagWorker::_loadImages,
-        &GeoTagWorker::_parseExif,
-        &GeoTagWorker::_parseLogs,
-        &GeoTagWorker::_calibrate,
-        &GeoTagWorker::_tagImages
-    };
+    const StepFunction steps[] = { &GeoTagWorker::_loadImages, &GeoTagWorker::_parseExif, &GeoTagWorker::_parseLogs, &GeoTagWorker::_calibrate, &GeoTagWorker::_tagImages };
 
     for (StepFunction step : steps) {
         if (_cancel) {
@@ -67,8 +55,7 @@ bool GeoTagWorker::process()
     return true;
 }
 
-bool GeoTagWorker::_loadImages()
-{
+bool GeoTagWorker::_loadImages() {
     _imageList.clear();
 
     QDir imageDirectory = QDir(_imageDirectory);
@@ -90,12 +77,11 @@ bool GeoTagWorker::_loadImages()
     return true;
 }
 
-bool GeoTagWorker::_parseExif()
-{
+bool GeoTagWorker::_parseExif() {
     _imageTimestamps.clear();
 
     // TODO: QtConcurrent::mapped?
-    for (const QFileInfo& fileInfo : _imageList) {
+    for (const QFileInfo &fileInfo : _imageList) {
         if (_cancel) {
             emit error(tr("Tagging cancelled"));
             return false;
@@ -116,7 +102,7 @@ bool GeoTagWorker::_parseExif()
             return false;
         }
 
-        (void) _imageTimestamps.append(imageTime.toSecsSinceEpoch());
+        (void)_imageTimestamps.append(imageTime.toSecsSinceEpoch());
     }
 
     emit progressChanged(2.0 * (100.0 / kSteps));
@@ -124,8 +110,7 @@ bool GeoTagWorker::_parseExif()
     return true;
 }
 
-bool GeoTagWorker::_parseLogs()
-{
+bool GeoTagWorker::_parseLogs() {
     _triggerList.clear();
 
     QFile file(_logFile);
@@ -162,8 +147,7 @@ bool GeoTagWorker::_parseLogs()
     return true;
 }
 
-bool GeoTagWorker::_calibrate()
-{
+bool GeoTagWorker::_calibrate() {
     _imageIndices.clear();
     _imageOffsets.clear();
     _triggerIndices.clear();
@@ -178,15 +162,15 @@ bool GeoTagWorker::_calibrate()
 
     for (int i = 0; i < _imageTimestamps.size(); ++i) {
         const qint64 offset = lastImageTimestamp - _imageTimestamps[i];
-        (void) _imageOffsets.insert(offset, i);
+        (void)_imageOffsets.insert(offset, i);
     }
 
     for (const CameraFeedbackPacket &trigger : _triggerList) {
         const qint64 triggerOffset = lastTriggerTimestamp - trigger.timestamp;
         if (_imageOffsets.contains(triggerOffset)) {
             const int imageIndex = _imageOffsets[triggerOffset];
-            (void) _imageIndices.append(imageIndex);
-            (void) _triggerIndices.append(&trigger - &_triggerList[0]);
+            (void)_imageIndices.append(imageIndex);
+            (void)_triggerIndices.append(&trigger - &_triggerList[0]);
         }
     }
 
@@ -200,8 +184,7 @@ bool GeoTagWorker::_calibrate()
     return true;
 }
 
-bool GeoTagWorker::_tagImages()
-{
+bool GeoTagWorker::_tagImages() {
     const qsizetype maxIndex = std::min(_imageIndices.count(), _triggerIndices.count());
     for (int i = 0; i < maxIndex; i++) {
         if (_cancel) {

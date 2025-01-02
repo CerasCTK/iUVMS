@@ -8,112 +8,110 @@
  ****************************************************************************/
 
 #include "APMAirframeComponentController.h"
-#include "MultiVehicleManager.h"
-#include "QGCApplication.h"
-#include "QGCFileDownload.h"
-#include "ParameterManager.h"
-#include "Vehicle.h"
 #include "ArduCopterFirmwarePlugin.h"
 #include "ArduRoverFirmwarePlugin.h"
+#include "MultiVehicleManager.h"
+#include "ParameterManager.h"
+#include "QGCApplication.h"
+#include "QGCFileDownload.h"
+#include "Vehicle.h"
 
-#include <QtCore/QVariant>
-#include <QtCore/QJsonParseError>
 #include <QtCore/QJsonObject>
+#include <QtCore/QJsonParseError>
+#include <QtCore/QVariant>
 #include <QtGui/QCursor>
 #include <QtGui/QGuiApplication>
 
 // These should match the ArduCopter FRAME_CLASS parameter enum meta data
-#define FRAME_CLASS_UNDEFINED       0
-#define FRAME_CLASS_QUAD            1
-#define FRAME_CLASS_HEX             2
-#define FRAME_CLASS_OCTA            3
-#define FRAME_CLASS_OCTAQUAD        4
-#define FRAME_CLASS_Y6              5
-#define FRAME_CLASS_HELI            6
-#define FRAME_CLASS_TRI             7
-#define FRAME_CLASS_SINGLECOPTER    8
-#define FRAME_CLASS_COAXCOPTER      9
-#define FRAME_CLASS_BICOPTER        10
-#define FRAME_CLASS_HELI_DUAL       11
-#define FRAME_CLASS_DODECAHEXA      12
-#define FRAME_CLASS_HELIQUAD        13
+#define FRAME_CLASS_UNDEFINED 0
+#define FRAME_CLASS_QUAD 1
+#define FRAME_CLASS_HEX 2
+#define FRAME_CLASS_OCTA 3
+#define FRAME_CLASS_OCTAQUAD 4
+#define FRAME_CLASS_Y6 5
+#define FRAME_CLASS_HELI 6
+#define FRAME_CLASS_TRI 7
+#define FRAME_CLASS_SINGLECOPTER 8
+#define FRAME_CLASS_COAXCOPTER 9
+#define FRAME_CLASS_BICOPTER 10
+#define FRAME_CLASS_HELI_DUAL 11
+#define FRAME_CLASS_DODECAHEXA 12
+#define FRAME_CLASS_HELIQUAD 13
 
 // These should match the ArduCopter FRAME_TYPE parameter enum meta data
-#define FRAME_TYPE_PLUS         0
-#define FRAME_TYPE_X            1
-#define FRAME_TYPE_V            2
-#define FRAME_TYPE_H            3
-#define FRAME_TYPE_V_TAIL       4
-#define FRAME_TYPE_A_TAIL       5
-#define FRAME_TYPE_Y6B          10
-#define FRAME_TYPE_Y6F          11
-#define FRAME_TYPE_BETAFLIGHTX  12
-#define FRAME_TYPE_DJIX         13
-#define FRAME_TYPE_CLOCKWISEX   14
+#define FRAME_TYPE_PLUS 0
+#define FRAME_TYPE_X 1
+#define FRAME_TYPE_V 2
+#define FRAME_TYPE_H 3
+#define FRAME_TYPE_V_TAIL 4
+#define FRAME_TYPE_A_TAIL 5
+#define FRAME_TYPE_Y6B 10
+#define FRAME_TYPE_Y6F 11
+#define FRAME_TYPE_BETAFLIGHTX 12
+#define FRAME_TYPE_DJIX 13
+#define FRAME_TYPE_CLOCKWISEX 14
 
 // These should match the Rover FRAME_CLASS parameter enum meta data
-#define FRAME_CLASS_ROVER       1
-#define FRAME_CLASS_BOAT        2
-#define FRAME_CLASS_BALANCEBOT  3
+#define FRAME_CLASS_ROVER 1
+#define FRAME_CLASS_BOAT 2
+#define FRAME_CLASS_BALANCEBOT 3
 
 // These should match the Rover FRAME_TYPE parameter enum meta data
-#define FRAME_TYPE_UNDEFINED    0
-#define FRAME_TYPE_OMNI3        1
-#define FRAME_TYPE_OMNIX        2
-#define FRAME_TYPE_OMNIPLUS     3
+#define FRAME_TYPE_UNDEFINED 0
+#define FRAME_TYPE_OMNI3 1
+#define FRAME_TYPE_OMNIX 2
+#define FRAME_TYPE_OMNIPLUS 3
 
 typedef struct {
-    int         frameClass;
-    int         frameType;
-    const char* imageResource;
+    int frameClass;
+    int frameType;
+    const char *imageResource;
 } FrameToImageInfo_t;
 
 static constexpr const FrameToImageInfo_t s_rgFrameToImageCopter[] = {
-    { FRAME_CLASS_QUAD,         FRAME_TYPE_X,       "QuadRotorX" },             // Default
-    { FRAME_CLASS_QUAD,         FRAME_TYPE_PLUS,    "QuadRotorPlus" },
-    { FRAME_CLASS_QUAD,         FRAME_TYPE_V,       "QuadRotorWide" },
-    { FRAME_CLASS_QUAD,         FRAME_TYPE_H,       "QuadRotorH" },
-    { FRAME_CLASS_QUAD,         FRAME_TYPE_V_TAIL,  "QuadRotorVTail" },
-    { FRAME_CLASS_QUAD,         FRAME_TYPE_A_TAIL,  "QuadRotorATail" },
+    { FRAME_CLASS_QUAD, FRAME_TYPE_X, "QuadRotorX" }, // Default
+    { FRAME_CLASS_QUAD, FRAME_TYPE_PLUS, "QuadRotorPlus" },
+    { FRAME_CLASS_QUAD, FRAME_TYPE_V, "QuadRotorWide" },
+    { FRAME_CLASS_QUAD, FRAME_TYPE_H, "QuadRotorH" },
+    { FRAME_CLASS_QUAD, FRAME_TYPE_V_TAIL, "QuadRotorVTail" },
+    { FRAME_CLASS_QUAD, FRAME_TYPE_A_TAIL, "QuadRotorATail" },
 
-    { FRAME_CLASS_HEX,          FRAME_TYPE_X,       "HexaRotorX" },             // Default
-    { FRAME_CLASS_HEX,          FRAME_TYPE_PLUS,    "HexaRotorPlus" },
+    { FRAME_CLASS_HEX, FRAME_TYPE_X, "HexaRotorX" }, // Default
+    { FRAME_CLASS_HEX, FRAME_TYPE_PLUS, "HexaRotorPlus" },
 
-    { FRAME_CLASS_OCTA,         FRAME_TYPE_X,       "OctoRotorX" },             // Default
-    { FRAME_CLASS_OCTA,         FRAME_TYPE_PLUS,    "OctoRotorPlus" },
-    { FRAME_CLASS_OCTA,         FRAME_TYPE_V,       "AirframeUnknown" },
-    { FRAME_CLASS_OCTA,         FRAME_TYPE_H,       "AirframeUnknown" },
+    { FRAME_CLASS_OCTA, FRAME_TYPE_X, "OctoRotorX" }, // Default
+    { FRAME_CLASS_OCTA, FRAME_TYPE_PLUS, "OctoRotorPlus" },
+    { FRAME_CLASS_OCTA, FRAME_TYPE_V, "AirframeUnknown" },
+    { FRAME_CLASS_OCTA, FRAME_TYPE_H, "AirframeUnknown" },
 
-    { FRAME_CLASS_OCTAQUAD,     FRAME_TYPE_X,       "OctoRotorXCoaxial" },      // Default
-    { FRAME_CLASS_OCTAQUAD,     FRAME_TYPE_PLUS,    "OctoRotorPlusCoaxial" },
-    { FRAME_CLASS_OCTAQUAD,     FRAME_TYPE_V,       "AirframeUnknown" },
-    { FRAME_CLASS_OCTAQUAD,     FRAME_TYPE_H,       "AirframeUnknown" },
+    { FRAME_CLASS_OCTAQUAD, FRAME_TYPE_X, "OctoRotorXCoaxial" }, // Default
+    { FRAME_CLASS_OCTAQUAD, FRAME_TYPE_PLUS, "OctoRotorPlusCoaxial" },
+    { FRAME_CLASS_OCTAQUAD, FRAME_TYPE_V, "AirframeUnknown" },
+    { FRAME_CLASS_OCTAQUAD, FRAME_TYPE_H, "AirframeUnknown" },
 
-    { FRAME_CLASS_Y6,           FRAME_TYPE_Y6B,     "Y6B" },                    // Default
-    { FRAME_CLASS_Y6,           FRAME_TYPE_Y6F,     "AirframeUnknown" },
-    { FRAME_CLASS_Y6,           -1,                 "Y6A" },
+    { FRAME_CLASS_Y6, FRAME_TYPE_Y6B, "Y6B" }, // Default
+    { FRAME_CLASS_Y6, FRAME_TYPE_Y6F, "AirframeUnknown" },
+    { FRAME_CLASS_Y6, -1, "Y6A" },
 
-    { FRAME_CLASS_DODECAHEXA,   FRAME_TYPE_X,       "AirframeUnknown" },        // Default
-    { FRAME_CLASS_DODECAHEXA,   FRAME_TYPE_PLUS,    "AirframeUnknown" },
+    { FRAME_CLASS_DODECAHEXA, FRAME_TYPE_X, "AirframeUnknown" }, // Default
+    { FRAME_CLASS_DODECAHEXA, FRAME_TYPE_PLUS, "AirframeUnknown" },
 
-    { FRAME_CLASS_HELI,         -1,                 "Helicopter" },
-    { FRAME_CLASS_TRI,          -1,                 "YPlus" },
+    { FRAME_CLASS_HELI, -1, "Helicopter" },
+    { FRAME_CLASS_TRI, -1, "YPlus" },
 };
 
 static constexpr const FrameToImageInfo_t s_rgFrameToImageRover[] = {
-    { FRAME_CLASS_ROVER,    -1, "Rover" },
-    { FRAME_CLASS_BOAT,     -1, "Boat" },
+    { FRAME_CLASS_ROVER, -1, "Rover" },
+    { FRAME_CLASS_BOAT, -1, "Boat" },
 };
 
 /// Returns the image resource for the frameClass, frameType pair
 ///     @param[in,out] frameType Specified frame type, or -1 to match first item in list (frameType found will be returned)
-static QString s_findImageResourceCopter(int frameClass, int& frameType)
-{
-    for (size_t i=0; i<sizeof(s_rgFrameToImageCopter)/sizeof(s_rgFrameToImageCopter[0]); i++) {
-        const FrameToImageInfo_t* pFrameToImageInfo = &s_rgFrameToImageCopter[i];
+static QString s_findImageResourceCopter(int frameClass, int &frameType) {
+    for (size_t i = 0; i < sizeof(s_rgFrameToImageCopter) / sizeof(s_rgFrameToImageCopter[0]); i++) {
+        const FrameToImageInfo_t *pFrameToImageInfo = &s_rgFrameToImageCopter[i];
 
-        if ((pFrameToImageInfo->frameClass == frameClass && frameType == -1) ||
-                (pFrameToImageInfo->frameClass == frameClass && pFrameToImageInfo->frameType == frameType)) {
+        if ((pFrameToImageInfo->frameClass == frameClass && frameType == -1) || (pFrameToImageInfo->frameClass == frameClass && pFrameToImageInfo->frameType == frameType)) {
             frameType = pFrameToImageInfo->frameType;
             return pFrameToImageInfo->imageResource;
         }
@@ -122,12 +120,11 @@ static QString s_findImageResourceCopter(int frameClass, int& frameType)
     return QStringLiteral("AirframeUnknown");
 }
 
-static QString s_findImageResourceRover(int frameClass, int frameType)
-{
+static QString s_findImageResourceRover(int frameClass, int frameType) {
     Q_UNUSED(frameType);
 
-    for (size_t i=0; i<sizeof(s_rgFrameToImageRover)/sizeof(s_rgFrameToImageRover[0]); i++) {
-        const FrameToImageInfo_t* pFrameToImageInfo = &s_rgFrameToImageRover[i];
+    for (size_t i = 0; i < sizeof(s_rgFrameToImageRover) / sizeof(s_rgFrameToImageRover[0]); i++) {
+        const FrameToImageInfo_t *pFrameToImageInfo = &s_rgFrameToImageRover[i];
 
         if (pFrameToImageInfo->frameClass == frameClass) {
             return pFrameToImageInfo->imageResource;
@@ -138,35 +135,24 @@ static QString s_findImageResourceRover(int frameClass, int frameType)
 }
 
 APMAirframeComponentController::APMAirframeComponentController(void)
-    : _frameClassFact   (getParameterFact(ParameterManager::defaultComponentId, QStringLiteral("FRAME_CLASS"), false /* reportMissing */))
-    , _frameTypeFact    (getParameterFact(ParameterManager::defaultComponentId, QStringLiteral("FRAME_TYPE"), false /* reportMissing */))
-    , _frameClassModel  (new QmlObjectListModel(this))
-{
+    : _frameClassFact(getParameterFact(ParameterManager::defaultComponentId, QStringLiteral("FRAME_CLASS"), false /* reportMissing */)),
+      _frameTypeFact(getParameterFact(ParameterManager::defaultComponentId, QStringLiteral("FRAME_TYPE"), false /* reportMissing */)), _frameClassModel(new QmlObjectListModel(this)) {
     _fillFrameClasses();
 }
 
-APMAirframeComponentController::~APMAirframeComponentController()
-{
+APMAirframeComponentController::~APMAirframeComponentController() {}
 
-}
+void APMAirframeComponentController::_fillFrameClasses() {
+    FirmwarePlugin *fwPlugin = _vehicle->firmwarePlugin();
 
-void APMAirframeComponentController::_fillFrameClasses()
-{
-    FirmwarePlugin* fwPlugin = _vehicle->firmwarePlugin();
-
-    if (qobject_cast<ArduCopterFirmwarePlugin*>(fwPlugin)) {
+    if (qobject_cast<ArduCopterFirmwarePlugin *>(fwPlugin)) {
         QList<int> frameTypeNotSupported;
 
-        frameTypeNotSupported << FRAME_CLASS_HELI
-                              << FRAME_CLASS_SINGLECOPTER
-                              << FRAME_CLASS_COAXCOPTER
-                              << FRAME_CLASS_BICOPTER
-                              << FRAME_CLASS_HELI_DUAL
-                              << FRAME_CLASS_HELIQUAD;
+        frameTypeNotSupported << FRAME_CLASS_HELI << FRAME_CLASS_SINGLECOPTER << FRAME_CLASS_COAXCOPTER << FRAME_CLASS_BICOPTER << FRAME_CLASS_HELI_DUAL << FRAME_CLASS_HELIQUAD;
 
-        for (int i=1; i<_frameClassFact->enumStrings().count(); i++) {
-            QString frameClassName =    _frameClassFact->enumStrings()[i];
-            int     frameClass =        _frameClassFact->enumValues()[i].toInt();
+        for (int i = 1; i < _frameClassFact->enumStrings().count(); i++) {
+            QString frameClassName = _frameClassFact->enumStrings()[i];
+            int frameClass = _frameClassFact->enumValues()[i].toInt();
 
             if (frameClass == FRAME_CLASS_HELI) {
                 // Heli requires it's own firmware variant. You can't switch to Heli from a Copter variant firmware.
@@ -175,17 +161,16 @@ void APMAirframeComponentController::_fillFrameClasses()
 
             _frameClassModel->append(new APMFrameClass(frameClassName, true /* copter */, frameClass, _frameTypeFact, _frameClassModel));
         }
-    } else if (qobject_cast<ArduRoverFirmwarePlugin*>(fwPlugin)) {
-        for (int i=1; i<_frameClassFact->enumStrings().count(); i++) {
-            QString frameClassName =    _frameClassFact->enumStrings()[i];
-            int     frameClass =        _frameClassFact->enumValues()[i].toInt();
+    } else if (qobject_cast<ArduRoverFirmwarePlugin *>(fwPlugin)) {
+        for (int i = 1; i < _frameClassFact->enumStrings().count(); i++) {
+            QString frameClassName = _frameClassFact->enumStrings()[i];
+            int frameClass = _frameClassFact->enumValues()[i].toInt();
             _frameClassModel->append(new APMFrameClass(frameClassName, false /* copter */, frameClass, _frameTypeFact, _frameClassModel));
         }
     }
 }
 
-void APMAirframeComponentController::_loadParametersFromDownloadFile(const QString& downloadedParamFile)
-{
+void APMAirframeComponentController::_loadParametersFromDownloadFile(const QString &downloadedParamFile) {
     QFile parametersFile(downloadedParamFile);
     if (!parametersFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning() << "Unable to open downloaded parameter file" << downloadedParamFile << parametersFile.errorString();
@@ -211,19 +196,17 @@ void APMAirframeComponentController::_loadParametersFromDownloadFile(const QStri
     _vehicle->parameterManager()->refreshAllParameters();
 }
 
-void APMAirframeComponentController::loadParameters(const QString& paramFile)
-{
+void APMAirframeComponentController::loadParameters(const QString &paramFile) {
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     QString paramFileUrl = QStringLiteral("https://api.github.com/repos/ArduPilot/ardupilot/contents/Tools/Frame_params/%1?ref=master");
 
-    QGCFileDownload* downloader = new QGCFileDownload(this);
+    QGCFileDownload *downloader = new QGCFileDownload(this);
     connect(downloader, &QGCFileDownload::downloadComplete, this, &APMAirframeComponentController::_githubJsonDownloadComplete);
     downloader->download(paramFileUrl.arg(paramFile));
 }
 
-void APMAirframeComponentController::_githubJsonDownloadComplete(QString /*remoteFile*/, QString localFile, QString errorMsg)
-{
+void APMAirframeComponentController::_githubJsonDownloadComplete(QString /*remoteFile*/, QString localFile, QString errorMsg) {
     if (errorMsg.isEmpty()) {
         QFile jsonFile(localFile);
         if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -237,13 +220,13 @@ void APMAirframeComponentController::_githubJsonDownloadComplete(QString /*remot
         QJsonParseError jsonParseError;
         QJsonDocument doc = QJsonDocument::fromJson(bytes, &jsonParseError);
         if (jsonParseError.error != QJsonParseError::NoError) {
-            qWarning() <<  "Unable to open json document" << localFile << jsonParseError.errorString();
+            qWarning() << "Unable to open json document" << localFile << jsonParseError.errorString();
             QGuiApplication::restoreOverrideCursor();
             return;
         }
         QJsonObject json = doc.object();
 
-        QGCFileDownload* downloader = new QGCFileDownload(this);
+        QGCFileDownload *downloader = new QGCFileDownload(this);
         connect(downloader, &QGCFileDownload::downloadComplete, this, &APMAirframeComponentController::_paramFileDownloadComplete);
         downloader->download(json[QLatin1String("download_url")].toString());
     } else {
@@ -252,8 +235,7 @@ void APMAirframeComponentController::_githubJsonDownloadComplete(QString /*remot
     }
 }
 
-void APMAirframeComponentController::_paramFileDownloadComplete(QString /*remoteFile*/, QString localFile, QString errorMsg)
-{
+void APMAirframeComponentController::_paramFileDownloadComplete(QString /*remoteFile*/, QString localFile, QString errorMsg) {
     if (errorMsg.isEmpty()) {
         _loadParametersFromDownloadFile(localFile);
     } else {
@@ -262,15 +244,8 @@ void APMAirframeComponentController::_paramFileDownloadComplete(QString /*remote
     }
 }
 
-APMFrameClass::APMFrameClass(const QString& name, bool copter, int frameClass, Fact* frameTypeFact, QObject* parent)
-    : QObject               (parent)
-    , _name                 (name)
-    , _copter               (copter)
-    , _frameClass           (frameClass)
-    , _defaultFrameType     (-1)
-    , _frameTypeSupported   (false)
-    , _frameTypeFact        (frameTypeFact)
-{
+APMFrameClass::APMFrameClass(const QString &name, bool copter, int frameClass, Fact *frameTypeFact, QObject *parent)
+    : QObject(parent), _name(name), _copter(copter), _frameClass(frameClass), _defaultFrameType(-1), _frameTypeSupported(false), _frameTypeFact(frameTypeFact) {
     if (frameTypeFact) {
         connect(frameTypeFact, &Fact::rawValueChanged, this, &APMFrameClass::imageResourceChanged);
         connect(frameTypeFact, &Fact::rawValueChanged, this, &APMFrameClass::frameTypeChanged);
@@ -279,8 +254,8 @@ APMFrameClass::APMFrameClass(const QString& name, bool copter, int frameClass, F
     if (copter) {
         QList<int> rgSupportedFrameTypes;
 
-        for (size_t i=0; i<sizeof(s_rgFrameToImageCopter)/sizeof(s_rgFrameToImageCopter[0]); i++) {
-            const FrameToImageInfo_t* pFrameToImageInfo = &s_rgFrameToImageCopter[i];
+        for (size_t i = 0; i < sizeof(s_rgFrameToImageCopter) / sizeof(s_rgFrameToImageCopter[0]); i++) {
+            const FrameToImageInfo_t *pFrameToImageInfo = &s_rgFrameToImageCopter[i];
 
             if (pFrameToImageInfo->frameClass == frameClass) {
                 if (_defaultFrameType == -1) {
@@ -300,7 +275,7 @@ APMFrameClass::APMFrameClass(const QString& name, bool copter, int frameClass, F
         }
 
         // Filter the enums
-        for (const int frameType: rgSupportedFrameTypes) {
+        for (const int frameType : rgSupportedFrameTypes) {
             int index = frameTypeFact->enumValues().indexOf(frameType);
             if (index != -1) {
                 _frameTypeEnumValues.append(frameType);
@@ -315,18 +290,11 @@ APMFrameClass::APMFrameClass(const QString& name, bool copter, int frameClass, F
     _frameTypeSupported = _defaultFrameType != -1;
 }
 
-APMFrameClass::~APMFrameClass()
-{
+APMFrameClass::~APMFrameClass() {}
 
-}
+int APMFrameClass::frameType(void) { return _frameTypeFact->rawValue().toInt(); }
 
-int APMFrameClass::frameType(void)
-{
-    return _frameTypeFact->rawValue().toInt();
-}
-
-QString APMFrameClass::imageResource(void)
-{
+QString APMFrameClass::imageResource(void) {
     QString imageResource;
 
     int frameType = _frameTypeFact ? _frameTypeFact->rawValue().toInt() : -1;

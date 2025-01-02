@@ -15,12 +15,11 @@
 #include "SettingsGroup.h"
 
 /// Application Settings
-class AppSettings : public SettingsGroup
-{
+class AppSettings : public SettingsGroup {
     Q_OBJECT
 
-public:
-    AppSettings(QObject* parent = nullptr);
+  public:
+    AppSettings(QObject *parent = nullptr);
 
     DEFINE_SETTING_NAME_GROUP()
 
@@ -65,82 +64,83 @@ public:
     // Although this is a global setting it only affects ArduPilot vehicle since PX4 automatically starts the stream from the vehicle side
     DEFINE_SETTINGFACT(apmStartMavlinkStreams)
 
-    Q_PROPERTY(QString missionSavePath          READ missionSavePath            NOTIFY savePathsChanged)
-    Q_PROPERTY(QString parameterSavePath        READ parameterSavePath          NOTIFY savePathsChanged)
-    Q_PROPERTY(QString telemetrySavePath        READ telemetrySavePath          NOTIFY savePathsChanged)
-    Q_PROPERTY(QString logSavePath              READ logSavePath                NOTIFY savePathsChanged)
-    Q_PROPERTY(QString videoSavePath            READ videoSavePath              NOTIFY savePathsChanged)
-    Q_PROPERTY(QString photoSavePath            READ photoSavePath              NOTIFY savePathsChanged)
-    Q_PROPERTY(QString crashSavePath            READ crashSavePath              NOTIFY savePathsChanged)
-    Q_PROPERTY(QString customActionsSavePath    READ customActionsSavePath      NOTIFY savePathsChanged)
+    Q_PROPERTY(QString missionSavePath READ missionSavePath NOTIFY savePathsChanged)
+    Q_PROPERTY(QString parameterSavePath READ parameterSavePath NOTIFY savePathsChanged)
+    Q_PROPERTY(QString telemetrySavePath READ telemetrySavePath NOTIFY savePathsChanged)
+    Q_PROPERTY(QString logSavePath READ logSavePath NOTIFY savePathsChanged)
+    Q_PROPERTY(QString videoSavePath READ videoSavePath NOTIFY savePathsChanged)
+    Q_PROPERTY(QString photoSavePath READ photoSavePath NOTIFY savePathsChanged)
+    Q_PROPERTY(QString crashSavePath READ crashSavePath NOTIFY savePathsChanged)
+    Q_PROPERTY(QString customActionsSavePath READ customActionsSavePath NOTIFY savePathsChanged)
 
-    Q_PROPERTY(QString planFileExtension        MEMBER planFileExtension        CONSTANT)
-    Q_PROPERTY(QString missionFileExtension     MEMBER missionFileExtension     CONSTANT)
-    Q_PROPERTY(QString waypointsFileExtension   MEMBER waypointsFileExtension   CONSTANT)
-    Q_PROPERTY(QString parameterFileExtension   MEMBER parameterFileExtension   CONSTANT)
-    Q_PROPERTY(QString telemetryFileExtension   MEMBER telemetryFileExtension   CONSTANT)
-    Q_PROPERTY(QString kmlFileExtension         MEMBER kmlFileExtension         CONSTANT)
-    Q_PROPERTY(QString shpFileExtension         MEMBER shpFileExtension         CONSTANT)
-    Q_PROPERTY(QString logFileExtension         MEMBER logFileExtension         CONSTANT)
-    Q_PROPERTY(QString tilesetFileExtension     MEMBER tilesetFileExtension     CONSTANT)
+    Q_PROPERTY(QString planFileExtension MEMBER planFileExtension CONSTANT)
+    Q_PROPERTY(QString missionFileExtension MEMBER missionFileExtension CONSTANT)
+    Q_PROPERTY(QString waypointsFileExtension MEMBER waypointsFileExtension CONSTANT)
+    Q_PROPERTY(QString parameterFileExtension MEMBER parameterFileExtension CONSTANT)
+    Q_PROPERTY(QString telemetryFileExtension MEMBER telemetryFileExtension CONSTANT)
+    Q_PROPERTY(QString kmlFileExtension MEMBER kmlFileExtension CONSTANT)
+    Q_PROPERTY(QString shpFileExtension MEMBER shpFileExtension CONSTANT)
+    Q_PROPERTY(QString logFileExtension MEMBER logFileExtension CONSTANT)
+    Q_PROPERTY(QString tilesetFileExtension MEMBER tilesetFileExtension CONSTANT)
 
-    QString missionSavePath       ();
-    QString parameterSavePath     ();
-    QString telemetrySavePath     ();
-    QString logSavePath           ();
-    QString videoSavePath         ();
-    QString photoSavePath         ();
-    QString crashSavePath         ();
-    QString customActionsSavePath ();
+    QString missionSavePath();
+    QString parameterSavePath();
+    QString telemetrySavePath();
+    QString logSavePath();
+    QString videoSavePath();
+    QString photoSavePath();
+    QString crashSavePath();
+    QString customActionsSavePath();
 
     // Helper methods for working with firstRunPromptIds QVariant settings string list
-    static QList<int> firstRunPromptsIdsVariantToList   (const QVariant& firstRunPromptIds);
-    static QVariant   firstRunPromptsIdsListToVariant   (const QList<int>& rgIds);
-    Q_INVOKABLE void  firstRunPromptIdsMarkIdAsShown    (int id);
+    static QList<int> firstRunPromptsIdsVariantToList(const QVariant &firstRunPromptIds);
+    static QVariant firstRunPromptsIdsListToVariant(const QList<int> &rgIds);
+    Q_INVOKABLE void firstRunPromptIdsMarkIdAsShown(int id);
 
     // Application wide file extensions
-    static constexpr const char* parameterFileExtension =   "params";
-    static constexpr const char* planFileExtension =        "plan";
-    static constexpr const char* missionFileExtension =     "mission";
-    static constexpr const char* waypointsFileExtension =   "waypoints";
-    static constexpr const char* fenceFileExtension =       "fence";
-    static constexpr const char* rallyPointFileExtension =  "rally";
-    static constexpr const char* telemetryFileExtension =   "tlog";
-    static constexpr const char* kmlFileExtension =         "kml";
-    static constexpr const char* shpFileExtension =         "shp";
-    static constexpr const char* logFileExtension =         "ulg";
-    static constexpr const char* tilesetFileExtension =     "qgctiledb";
+    static constexpr const char *parameterFileExtension = "params";
+    static constexpr const char *planFileExtension = "plan";
+    static constexpr const char *missionFileExtension = "mission";
+    static constexpr const char *waypointsFileExtension = "waypoints";
+    static constexpr const char *fenceFileExtension = "fence";
+    static constexpr const char *rallyPointFileExtension = "rally";
+    static constexpr const char *telemetryFileExtension = "tlog";
+    static constexpr const char *kmlFileExtension = "kml";
+    static constexpr const char *shpFileExtension = "shp";
+    static constexpr const char *logFileExtension = "ulg";
+    static constexpr const char *tilesetFileExtension = "qgctiledb";
 
     // Child directories of savePath for specific file types
-    static constexpr const char* parameterDirectory =       QT_TRANSLATE_NOOP("AppSettings", "Parameters");
-    static constexpr const char* telemetryDirectory =       QT_TRANSLATE_NOOP("AppSettings", "Telemetry");
-    static constexpr const char* missionDirectory =         QT_TRANSLATE_NOOP("AppSettings", "Missions");
-    static constexpr const char* logDirectory =             QT_TRANSLATE_NOOP("AppSettings", "Logs");
-    static constexpr const char* videoDirectory =           QT_TRANSLATE_NOOP("AppSettings", "Video");
-    static constexpr const char* photoDirectory =           QT_TRANSLATE_NOOP("AppSettings", "Photo");
-    static constexpr const char* crashDirectory =           QT_TRANSLATE_NOOP("AppSettings", "CrashLogs");
-    static constexpr const char* customActionsDirectory =   QT_TRANSLATE_NOOP("AppSettings", "CustomActions");
+    static constexpr const char *parameterDirectory = QT_TRANSLATE_NOOP("AppSettings", "Parameters");
+    static constexpr const char *telemetryDirectory = QT_TRANSLATE_NOOP("AppSettings", "Telemetry");
+    static constexpr const char *missionDirectory = QT_TRANSLATE_NOOP("AppSettings", "Missions");
+    static constexpr const char *logDirectory = QT_TRANSLATE_NOOP("AppSettings", "Logs");
+    static constexpr const char *videoDirectory = QT_TRANSLATE_NOOP("AppSettings", "Video");
+    static constexpr const char *photoDirectory = QT_TRANSLATE_NOOP("AppSettings", "Photo");
+    static constexpr const char *crashDirectory = QT_TRANSLATE_NOOP("AppSettings", "CrashLogs");
+    static constexpr const char *customActionsDirectory = QT_TRANSLATE_NOOP("AppSettings", "CustomActions");
 
-signals:
+  signals:
     void savePathsChanged();
 
-private slots:
+  private slots:
     void _indoorPaletteChanged();
     void _checkSavePathDirectories();
     void _qLocaleLanguageChanged();
     void _mavlink2SigningKeyChanged();
 
-private:
+  private:
     static QLocale::Language _qLocaleLanguageEarlyAccess(void);
 
     static QList<QLocale::Language> _rgReleaseLanguages;
     static QList<QLocale::Language> _rgPartialLanguages;
 
     typedef struct {
-        QLocale::Language   languageId;
-        const char*         languageName;
+        QLocale::Language languageId;
+        const char *languageName;
     } LanguageInfo_t;
+
     static LanguageInfo_t _rgLanguageInfo[];
-    
+
     friend class QGCApplication;
 };

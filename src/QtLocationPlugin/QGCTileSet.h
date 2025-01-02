@@ -9,17 +9,15 @@
 
 #pragma once
 
-#include <QtCore/QtTypes>
 #include <QtCore/QMetaType>
+#include <QtCore/QtTypes>
 
-class QGCTileSet
-{
-public:
+class QGCTileSet {
+  public:
     QGCTileSet() = default;
     ~QGCTileSet() = default;
 
-    QGCTileSet &operator+=(const QGCTileSet &other)
-    {
+    QGCTileSet &operator+=(const QGCTileSet &other) {
         tileX0 += other.tileX0;
         tileX1 += other.tileX1;
         tileY0 += other.tileY0;
@@ -29,8 +27,7 @@ public:
         return *this;
     }
 
-    void clear()
-    {
+    void clear() {
         tileX0 = 0;
         tileX1 = 0;
         tileY0 = 0;

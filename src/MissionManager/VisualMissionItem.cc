@@ -8,36 +8,27 @@
  ****************************************************************************/
 
 #include "VisualMissionItem.h"
-#include "TerrainQuery.h"
 #include "PlanMasterController.h"
-#include "Vehicle.h"
 #include "QGC.h"
+#include "TerrainQuery.h"
+#include "Vehicle.h"
 
 // All VisualMissionItem derived classes are parented to masterController in order to tie their lifecycles together.
 
-VisualMissionItem::VisualMissionItem(PlanMasterController* masterController, bool flyView)
-    : QObject           (masterController)
-    , _flyView          (flyView)
-    , _masterController (masterController)
-    , _missionController(masterController->missionController())
-    , _controllerVehicle(masterController->controllerVehicle())
-{
+VisualMissionItem::VisualMissionItem(PlanMasterController *masterController, bool flyView)
+    : QObject(masterController), _flyView(flyView), _masterController(masterController), _missionController(masterController->missionController()), _controllerVehicle(masterController->controllerVehicle()) {
     _commonInit();
 }
 
-VisualMissionItem::VisualMissionItem(const VisualMissionItem& other, bool flyView)
-    : QObject                   (other._masterController)
-    , _flyView                  (flyView)
-{
+VisualMissionItem::VisualMissionItem(const VisualMissionItem &other, bool flyView) : QObject(other._masterController), _flyView(flyView) {
     *this = other;
 
     _commonInit();
 }
 
-void VisualMissionItem::_commonInit(void)
-{
+void VisualMissionItem::_commonInit(void) {
     // Don't get terrain altitude information for submarines or boats
-    Vehicle* controllerVehicle = _masterController->controllerVehicle();
+    Vehicle *controllerVehicle = _masterController->controllerVehicle();
     if (controllerVehicle->vehicleType() != MAV_TYPE_SUBMARINE && controllerVehicle->vehicleType() != MAV_TYPE_SURFACE_BOAT) {
         _updateTerrainTimer.setInterval(500);
         _updateTerrainTimer.setSingleShot(true);
@@ -47,8 +38,7 @@ void VisualMissionItem::_commonInit(void)
     }
 }
 
-const VisualMissionItem& VisualMissionItem::operator=(const VisualMissionItem& other)
-{
+const VisualMissionItem &VisualMissionItem::operator=(const VisualMissionItem &other) {
     setParent(other._masterController);
 
     _masterController = other._masterController;
@@ -68,84 +58,72 @@ const VisualMissionItem& VisualMissionItem::operator=(const VisualMissionItem& o
     return *this;
 }
 
-VisualMissionItem::~VisualMissionItem()
-{    
-}
+VisualMissionItem::~VisualMissionItem() {}
 
-void VisualMissionItem::setIsCurrentItem(bool isCurrentItem)
-{
+void VisualMissionItem::setIsCurrentItem(bool isCurrentItem) {
     if (_isCurrentItem != isCurrentItem) {
         _isCurrentItem = isCurrentItem;
         emit isCurrentItemChanged(isCurrentItem);
     }
 }
 
-void VisualMissionItem::setHasCurrentChildItem(bool hasCurrentChildItem)
-{
+void VisualMissionItem::setHasCurrentChildItem(bool hasCurrentChildItem) {
     if (_hasCurrentChildItem != hasCurrentChildItem) {
         _hasCurrentChildItem = hasCurrentChildItem;
         emit hasCurrentChildItemChanged(hasCurrentChildItem);
     }
 }
 
-void VisualMissionItem::setDistance(double distance)
-{
+void VisualMissionItem::setDistance(double distance) {
     if (!QGC::fuzzyCompare(_distance, distance)) {
         _distance = distance;
         emit distanceChanged(_distance);
     }
 }
 
-void VisualMissionItem::setDistanceFromStart(double distanceFromStart)
-{
+void VisualMissionItem::setDistanceFromStart(double distanceFromStart) {
     if (!QGC::fuzzyCompare(_distanceFromStart, distanceFromStart)) {
         _distanceFromStart = distanceFromStart;
         emit distanceFromStartChanged(_distanceFromStart);
     }
 }
 
-void VisualMissionItem::setAltDifference(double altDifference)
-{
+void VisualMissionItem::setAltDifference(double altDifference) {
     if (!QGC::fuzzyCompare(_altDifference, altDifference)) {
         _altDifference = altDifference;
         emit altDifferenceChanged(_altDifference);
     }
 }
 
-void VisualMissionItem::setAltPercent(double altPercent)
-{
+void VisualMissionItem::setAltPercent(double altPercent) {
     if (!QGC::fuzzyCompare(_altPercent, altPercent)) {
         _altPercent = altPercent;
         emit altPercentChanged(_altPercent);
     }
 }
 
-void VisualMissionItem::setTerrainPercent(double terrainPercent)
-{
+void VisualMissionItem::setTerrainPercent(double terrainPercent) {
     if (!QGC::fuzzyCompare(_terrainPercent, terrainPercent)) {
         _terrainPercent = terrainPercent;
         emit terrainPercentChanged(terrainPercent);
     }
 }
 
-void VisualMissionItem::setTerrainCollision(bool terrainCollision)
-{
+void VisualMissionItem::setTerrainCollision(bool terrainCollision) {
     if (terrainCollision != _terrainCollision) {
         _terrainCollision = terrainCollision;
         emit terrainCollisionChanged(terrainCollision);
     }
 }
 
-void VisualMissionItem::setAzimuth(double azimuth)
-{
+void VisualMissionItem::setAzimuth(double azimuth) {
     if (!QGC::fuzzyCompare(_azimuth, azimuth)) {
         _azimuth = azimuth;
         emit azimuthChanged(_azimuth);
     }
 }
 
-void VisualMissionItem::setMissionFlightStatus(MissionController::MissionFlightStatus_t& missionFlightStatus)
-{
+void VisualMissionItem::setMissionFlightStatus(MissionController::MissionFlightStatus_t &missionFlightStatus) {
     if (!QGC::fuzzyCompare(missionFlightStatus.gimbalYaw, _missionGimbalYaw)) {
         _missionGimbalYaw = missionFlightStatus.gimbalYaw;
         emit missionGimbalYawChanged(_missionGimbalYaw);
@@ -156,16 +134,14 @@ void VisualMissionItem::setMissionFlightStatus(MissionController::MissionFlightS
     }
 }
 
-void VisualMissionItem::setMissionVehicleYaw(double vehicleYaw)
-{
+void VisualMissionItem::setMissionVehicleYaw(double vehicleYaw) {
     if (!QGC::fuzzyCompare(_missionVehicleYaw, vehicleYaw)) {
         _missionVehicleYaw = vehicleYaw;
         emit missionVehicleYawChanged(_missionVehicleYaw);
     }
 }
 
-void VisualMissionItem::_updateTerrainAltitude(void)
-{
+void VisualMissionItem::_updateTerrainAltitude(void) {
     if (coordinate().latitude() == 0 && coordinate().longitude() == 0) {
         // This is an intermediate state we don't react to
         return;
@@ -180,8 +156,7 @@ void VisualMissionItem::_updateTerrainAltitude(void)
     }
 }
 
-void VisualMissionItem::_reallyUpdateTerrainAltitude(void)
-{
+void VisualMissionItem::_reallyUpdateTerrainAltitude(void) {
     QGeoCoordinate coord = coordinate();
     if (specifiesCoordinate() && coord.isValid() && (qIsNaN(_terrainAltitude) || !QGC::fuzzyCompare(_lastLatTerrainQuery, coord.latitude()) || !QGC::fuzzyCompare(_lastLonTerrainQuery, coord.longitude()))) {
         _lastLatTerrainQuery = coord.latitude();
@@ -198,43 +173,33 @@ void VisualMissionItem::_reallyUpdateTerrainAltitude(void)
     }
 }
 
-void VisualMissionItem::_terrainDataReceived(bool success, QList<double> heights)
-{
+void VisualMissionItem::_terrainDataReceived(bool success, QList<double> heights) {
     _terrainAltitude = success ? heights[0] : qQNaN();
     emit terrainAltitudeChanged(_terrainAltitude);
     _currentTerrainAtCoordinateQuery = nullptr;
 }
 
-void VisualMissionItem::_setBoundingCube(QGCGeoBoundingCube bc)
-{
+void VisualMissionItem::_setBoundingCube(QGCGeoBoundingCube bc) {
     if (bc != _boundingCube) {
         _boundingCube = bc;
         emit boundingCubeChanged();
     }
 }
 
-void VisualMissionItem::setWizardMode(bool wizardMode)
-{
+void VisualMissionItem::setWizardMode(bool wizardMode) {
     if (wizardMode != _wizardMode) {
         _wizardMode = wizardMode;
         emit wizardModeChanged(_wizardMode);
     }
 }
 
-void VisualMissionItem::setParentItem(VisualMissionItem* parentItem)
-{
+void VisualMissionItem::setParentItem(VisualMissionItem *parentItem) {
     if (_parentItem != parentItem) {
         _parentItem = parentItem;
         emit parentItemChanged(parentItem);
     }
 }
 
-void VisualMissionItem::_amslEntryAltChanged(void)
-{
-    emit amslEntryAltChanged(amslEntryAlt());
-}
+void VisualMissionItem::_amslEntryAltChanged(void) { emit amslEntryAltChanged(amslEntryAlt()); }
 
-void VisualMissionItem::_amslExitAltChanged(void)
-{
-    emit amslExitAltChanged(amslExitAlt());
-}
+void VisualMissionItem::_amslExitAltChanged(void) { emit amslExitAltChanged(amslExitAlt()); }

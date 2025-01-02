@@ -19,16 +19,12 @@ class QAbstractNetworkCache;
 
 Q_DECLARE_LOGGING_CATEGORY(QGCFileDownloadLog)
 
-class QGCFileDownload : public QObject
-{
+class QGCFileDownload : public QObject {
     Q_OBJECT
 
-    enum HTTP_Response {
-        SUCCESS_OK = 200,
-        REDIRECTION_MULTIPLE_CHOICES = 300
-    };
+    enum HTTP_Response { SUCCESS_OK = 200, REDIRECTION_MULTIPLE_CHOICES = 300 };
 
-public:
+  public:
     QGCFileDownload(QObject *parent = nullptr);
     ~QGCFileDownload();
 
@@ -37,23 +33,23 @@ public:
     ///     @param requestAttributes Optional request attributes to set
     ///     @param redirect true: call is internal due to redirect
     ///     @return true: Asynchronous download has started, false: Download initialization failed
-    bool download(const QString& remoteFile, const QList<QPair<QNetworkRequest::Attribute,QVariant>> &requestAttributes = {}, bool redirect = false);
+    bool download(const QString &remoteFile, const QList<QPair<QNetworkRequest::Attribute, QVariant>> &requestAttributes = {}, bool redirect = false);
 
     void setCache(QAbstractNetworkCache *cache);
 
     static void setIgnoreSSLErrorsIfNeeded(QNetworkReply &networkReply);
 
-signals:
+  signals:
     void downloadProgress(qint64 curr, qint64 total);
     void downloadComplete(const QString &remoteFile, const QString &localFile, const QString &errorMsg);
 
-private slots:
+  private slots:
     void _downloadFinished();
 
     /// Called when an error occurs during download
     void _downloadError(QNetworkReply::NetworkError code);
 
-private:
+  private:
     QNetworkAccessManager *_networkManager = nullptr;
     QString _originalRemoteFile;
     QList<QPair<QNetworkRequest::Attribute, QVariant>> _requestAttributes;

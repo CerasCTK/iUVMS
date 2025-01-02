@@ -12,8 +12,7 @@
 
 #include <QtTest/QTest>
 
-void QGCSerialPortInfoTest::_testLoadJsonData()
-{
+void QGCSerialPortInfoTest::_testLoadJsonData() {
     QVERIFY(!QGCSerialPortInfo::_jsonLoaded);
     QVERIFY(QGCSerialPortInfo::_loadJsonData());
     QVERIFY(QGCSerialPortInfo::_jsonLoaded);

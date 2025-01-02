@@ -8,59 +8,51 @@
  ****************************************************************************/
 
 #include "CameraCalc.h"
-#include "JsonHelper.h"
-#include "Vehicle.h"
 #include "CameraMetaData.h"
+#include "JsonHelper.h"
 #include "PlanMasterController.h"
+#include "Vehicle.h"
 
 #include <QtQml/QQmlEngine>
 
-CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& settingsGroup, QObject* parent)
-    : CameraSpec                    (settingsGroup, parent)
-    , _distanceMode                 (masterController->missionController()->globalAltitudeModeDefault())
-    , _knownCameraList              (masterController->controllerVehicle()->staticCameraList())
-    , _metaDataMap                  (FactMetaData::createMapFromJsonFile(QStringLiteral(":/json/CameraCalc.FactMetaData.json"), this))
-    , _cameraNameFact               (settingsGroup, _metaDataMap[cameraNameName])
-    , _valueSetIsDistanceFact       (settingsGroup, _metaDataMap[valueSetIsDistanceName])
-    , _distanceToSurfaceFact        (settingsGroup, _metaDataMap[distanceToSurfaceName])
-    , _imageDensityFact             (settingsGroup, _metaDataMap[imageDensityName])
-    , _frontalOverlapFact           (settingsGroup, _metaDataMap[frontalOverlapName])
-    , _sideOverlapFact              (settingsGroup, _metaDataMap[sideOverlapName])
-    , _adjustedFootprintSideFact    (settingsGroup, _metaDataMap[adjustedFootprintSideName])
-    , _adjustedFootprintFrontalFact (settingsGroup, _metaDataMap[adjustedFootprintFrontalName])
-{
+CameraCalc::CameraCalc(PlanMasterController *masterController, const QString &settingsGroup, QObject *parent)
+    : CameraSpec(settingsGroup, parent), _distanceMode(masterController->missionController()->globalAltitudeModeDefault()), _knownCameraList(masterController->controllerVehicle()->staticCameraList()),
+      _metaDataMap(FactMetaData::createMapFromJsonFile(QStringLiteral(":/json/CameraCalc.FactMetaData.json"), this)), _cameraNameFact(settingsGroup, _metaDataMap[cameraNameName]),
+      _valueSetIsDistanceFact(settingsGroup, _metaDataMap[valueSetIsDistanceName]), _distanceToSurfaceFact(settingsGroup, _metaDataMap[distanceToSurfaceName]), _imageDensityFact(settingsGroup, _metaDataMap[imageDensityName]),
+      _frontalOverlapFact(settingsGroup, _metaDataMap[frontalOverlapName]), _sideOverlapFact(settingsGroup, _metaDataMap[sideOverlapName]), _adjustedFootprintSideFact(settingsGroup, _metaDataMap[adjustedFootprintSideName]),
+      _adjustedFootprintFrontalFact(settingsGroup, _metaDataMap[adjustedFootprintFrontalName]) {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 
-    connect(&_valueSetIsDistanceFact,       &Fact::valueChanged,                this, &CameraCalc::_setDirty);
-    connect(&_distanceToSurfaceFact,        &Fact::valueChanged,                this, &CameraCalc::_setDirty);
-    connect(&_imageDensityFact,             &Fact::valueChanged,                this, &CameraCalc::_setDirty);
-    connect(&_frontalOverlapFact,           &Fact::valueChanged,                this, &CameraCalc::_setDirty);
-    connect(&_sideOverlapFact,              &Fact::valueChanged,                this, &CameraCalc::_setDirty);
-    connect(&_adjustedFootprintSideFact,    &Fact::valueChanged,                this, &CameraCalc::_setDirty);
-    connect(&_adjustedFootprintFrontalFact, &Fact::valueChanged,                this, &CameraCalc::_setDirty);
-    connect(&_cameraNameFact,               &Fact::valueChanged,                this, &CameraCalc::_setDirty);
-    connect(this,                           &CameraCalc::distanceModeChanged,   this, &CameraCalc::_setDirty);
+    connect(&_valueSetIsDistanceFact, &Fact::valueChanged, this, &CameraCalc::_setDirty);
+    connect(&_distanceToSurfaceFact, &Fact::valueChanged, this, &CameraCalc::_setDirty);
+    connect(&_imageDensityFact, &Fact::valueChanged, this, &CameraCalc::_setDirty);
+    connect(&_frontalOverlapFact, &Fact::valueChanged, this, &CameraCalc::_setDirty);
+    connect(&_sideOverlapFact, &Fact::valueChanged, this, &CameraCalc::_setDirty);
+    connect(&_adjustedFootprintSideFact, &Fact::valueChanged, this, &CameraCalc::_setDirty);
+    connect(&_adjustedFootprintFrontalFact, &Fact::valueChanged, this, &CameraCalc::_setDirty);
+    connect(&_cameraNameFact, &Fact::valueChanged, this, &CameraCalc::_setDirty);
+    connect(this, &CameraCalc::distanceModeChanged, this, &CameraCalc::_setDirty);
 
     connect(&_cameraNameFact, &Fact::valueChanged, this, &CameraCalc::_cameraNameChanged);
     connect(&_cameraNameFact, &Fact::valueChanged, this, &CameraCalc::isManualCameraChanged);
     connect(&_cameraNameFact, &Fact::valueChanged, this, &CameraCalc::isCustomCameraChanged);
 
-    connect(&_distanceToSurfaceFact,    &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
-    connect(&_imageDensityFact,         &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
-    connect(&_frontalOverlapFact,       &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
-    connect(&_sideOverlapFact,          &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
-    connect(sensorWidth(),              &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
-    connect(sensorHeight(),             &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
-    connect(imageWidth(),               &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
-    connect(imageHeight(),              &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
-    connect(focalLength(),              &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
-    connect(landscape(),                &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(&_distanceToSurfaceFact, &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(&_imageDensityFact, &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(&_frontalOverlapFact, &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(&_sideOverlapFact, &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(sensorWidth(), &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(sensorHeight(), &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(imageWidth(), &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(imageHeight(), &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(focalLength(), &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
+    connect(landscape(), &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
 
     // Build the brand list from known cameras
     _cameraBrandList.append(xlatManualCameraName());
     _cameraBrandList.append(xlatCustomCameraName());
-    for (int cameraIndex=0; cameraIndex<_knownCameraList.count(); cameraIndex++) {
-        CameraMetaData* cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData*>();
+    for (int cameraIndex = 0; cameraIndex < _knownCameraList.count(); cameraIndex++) {
+        CameraMetaData *cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData *>();
         if (!_cameraBrandList.contains(cameraMetaData->brand)) {
             _cameraBrandList.append(cameraMetaData->brand);
         }
@@ -72,8 +64,7 @@ CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& se
     setDirty(false);
 }
 
-void CameraCalc::_cameraNameChanged(void)
-{
+void CameraCalc::_cameraNameChanged(void) {
     if (_disableRecalc) {
         return;
     }
@@ -88,9 +79,9 @@ void CameraCalc::_cameraNameChanged(void)
         }
     } else {
         // Look for known camera
-        CameraMetaData* knownCameraMetaData = nullptr;
-        for (int cameraIndex=0; cameraIndex<_knownCameraList.count(); cameraIndex++) {
-            CameraMetaData* cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData*>();
+        CameraMetaData *knownCameraMetaData = nullptr;
+        for (int cameraIndex = 0; cameraIndex < _knownCameraList.count(); cameraIndex++) {
+            CameraMetaData *cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData *>();
             if (cameraName == cameraMetaData->canonicalName) {
                 knownCameraMetaData = cameraMetaData;
                 break;
@@ -106,14 +97,14 @@ void CameraCalc::_cameraNameChanged(void)
 
         _disableRecalc = true;
 
-        sensorWidth()->setRawValue          (knownCameraMetaData->sensorWidth);
-        sensorHeight()->setRawValue         (knownCameraMetaData->sensorHeight);
-        imageWidth()->setRawValue           (knownCameraMetaData->imageWidth);
-        imageHeight()->setRawValue          (knownCameraMetaData->imageHeight);
-        focalLength()->setRawValue          (knownCameraMetaData->focalLength);
-        landscape()->setRawValue            (knownCameraMetaData->landscape);
-        fixedOrientation()->setRawValue     (knownCameraMetaData->fixedOrientation);
-        minTriggerInterval()->setRawValue   (knownCameraMetaData->minTriggerInterval);
+        sensorWidth()->setRawValue(knownCameraMetaData->sensorWidth);
+        sensorHeight()->setRawValue(knownCameraMetaData->sensorHeight);
+        imageWidth()->setRawValue(knownCameraMetaData->imageWidth);
+        imageHeight()->setRawValue(knownCameraMetaData->imageHeight);
+        focalLength()->setRawValue(knownCameraMetaData->focalLength);
+        landscape()->setRawValue(knownCameraMetaData->landscape);
+        fixedOrientation()->setRawValue(knownCameraMetaData->fixedOrientation);
+        minTriggerInterval()->setRawValue(knownCameraMetaData->minTriggerInterval);
 
         _disableRecalc = false;
     }
@@ -125,20 +116,19 @@ void CameraCalc::_cameraNameChanged(void)
     }
 }
 
-void CameraCalc::_recalcTriggerDistance(void)
-{
+void CameraCalc::_recalcTriggerDistance(void) {
     if (_disableRecalc || isManualCamera()) {
         return;
     }
 
     _disableRecalc = true;
 
-    double focalLength =    this->focalLength()->rawValue().toDouble();
-    double sensorWidth =    this->sensorWidth()->rawValue().toDouble();
-    double sensorHeight =   this->sensorHeight()->rawValue().toDouble();
-    double imageWidth =     this->imageWidth()->rawValue().toDouble();
-    double imageHeight =    this->imageHeight()->rawValue().toDouble();
-    double imageDensity =   _imageDensityFact.rawValue().toDouble();
+    double focalLength = this->focalLength()->rawValue().toDouble();
+    double sensorWidth = this->sensorWidth()->rawValue().toDouble();
+    double sensorHeight = this->sensorHeight()->rawValue().toDouble();
+    double imageWidth = this->imageWidth()->rawValue().toDouble();
+    double imageHeight = this->imageHeight()->rawValue().toDouble();
+    double imageDensity = _imageDensityFact.rawValue().toDouble();
 
     if (focalLength <= 0 || sensorWidth <= 0 || sensorHeight <= 0 || imageWidth <= 0 || imageHeight <= 0 || imageDensity <= 0) {
         return;
@@ -153,41 +143,39 @@ void CameraCalc::_recalcTriggerDistance(void)
     imageDensity = _imageDensityFact.rawValue().toDouble();
 
     if (landscape()->rawValue().toBool()) {
-        _imageFootprintSide =       (imageWidth  * imageDensity) / 100.0;
-        _imageFootprintFrontal =    (imageHeight * imageDensity) / 100.0;
+        _imageFootprintSide = (imageWidth * imageDensity) / 100.0;
+        _imageFootprintFrontal = (imageHeight * imageDensity) / 100.0;
     } else {
-        _imageFootprintSide  =      (imageHeight * imageDensity) / 100.0;
-        _imageFootprintFrontal =    (imageWidth  * imageDensity) / 100.0;
+        _imageFootprintSide = (imageHeight * imageDensity) / 100.0;
+        _imageFootprintFrontal = (imageWidth * imageDensity) / 100.0;
     }
-    _adjustedFootprintSideFact.setRawValue      (_imageFootprintSide * ((100.0 - _sideOverlapFact.rawValue().toDouble()) / 100.0));
-    _adjustedFootprintFrontalFact.setRawValue   (_imageFootprintFrontal * ((100.0 - _frontalOverlapFact.rawValue().toDouble()) / 100.0));
+    _adjustedFootprintSideFact.setRawValue(_imageFootprintSide * ((100.0 - _sideOverlapFact.rawValue().toDouble()) / 100.0));
+    _adjustedFootprintFrontalFact.setRawValue(_imageFootprintFrontal * ((100.0 - _frontalOverlapFact.rawValue().toDouble()) / 100.0));
 
-    emit imageFootprintSideChanged      (_imageFootprintSide);
-    emit imageFootprintFrontalChanged   (_imageFootprintFrontal);
+    emit imageFootprintSideChanged(_imageFootprintSide);
+    emit imageFootprintFrontalChanged(_imageFootprintFrontal);
 
     _disableRecalc = false;
 }
 
-void CameraCalc::save(QJsonObject& json) const
-{
-    json[JsonHelper::jsonVersionKey]    = 2;
-    json[adjustedFootprintSideName]     = _adjustedFootprintSideFact.rawValue().toDouble();
-    json[adjustedFootprintFrontalName]  = _adjustedFootprintFrontalFact.rawValue().toDouble();
-    json[distanceToSurfaceName]         = _distanceToSurfaceFact.rawValue().toDouble();
-    json[distanceModeName]              = _distanceMode;
-    json[cameraNameName]                = _cameraNameFact.rawValue().toString();
+void CameraCalc::save(QJsonObject &json) const {
+    json[JsonHelper::jsonVersionKey] = 2;
+    json[adjustedFootprintSideName] = _adjustedFootprintSideFact.rawValue().toDouble();
+    json[adjustedFootprintFrontalName] = _adjustedFootprintFrontalFact.rawValue().toDouble();
+    json[distanceToSurfaceName] = _distanceToSurfaceFact.rawValue().toDouble();
+    json[distanceModeName] = _distanceMode;
+    json[cameraNameName] = _cameraNameFact.rawValue().toString();
 
     if (!isManualCamera()) {
         CameraSpec::save(json);
         json[valueSetIsDistanceName] = _valueSetIsDistanceFact.rawValue().toBool();
-        json[imageDensityName] =       _imageDensityFact.rawValue().toDouble();
-        json[frontalOverlapName] =     _frontalOverlapFact.rawValue().toDouble();
-        json[sideOverlapName] =        _sideOverlapFact.rawValue().toDouble();
+        json[imageDensityName] = _imageDensityFact.rawValue().toDouble();
+        json[frontalOverlapName] = _frontalOverlapFact.rawValue().toDouble();
+        json[sideOverlapName] = _sideOverlapFact.rawValue().toDouble();
     }
 }
 
-bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerrain, QString& errorString, bool forPresets)
-{
+bool CameraCalc::load(const QJsonObject &originalJson, bool deprecatedFollowTerrain, QString &errorString, bool forPresets) {
     QJsonObject json = originalJson;
 
     int version = 0;
@@ -227,11 +215,8 @@ bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerr
     }
 
     QList<JsonHelper::KeyValidateInfo> keyInfoList1 = {
-        { cameraNameName,                   QJsonValue::String, true },
-        { adjustedFootprintSideName,        QJsonValue::Double, true },
-        { adjustedFootprintFrontalName,     QJsonValue::Double, true },
-        { distanceToSurfaceName,            QJsonValue::Double, true },
-        { distanceModeName,                 QJsonValue::Double, true },
+        { cameraNameName, QJsonValue::String, true },        { adjustedFootprintSideName, QJsonValue::Double, true }, { adjustedFootprintFrontalName, QJsonValue::Double, true },
+        { distanceToSurfaceName, QJsonValue::Double, true }, { distanceModeName, QJsonValue::Double, true },
     };
     if (!JsonHelper::validateKeys(json, keyInfoList1, errorString)) {
         return false;
@@ -246,26 +231,26 @@ bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerr
 
     setDistanceMode(static_cast<QGroundControlQmlGlobal::AltMode>(json[distanceModeName].toInt()));
 
-    _adjustedFootprintSideFact.setRawValue      (json[adjustedFootprintSideName].toDouble());
-    _adjustedFootprintFrontalFact.setRawValue   (json[adjustedFootprintFrontalName].toDouble());
-    _distanceToSurfaceFact.setRawValue          (json[distanceToSurfaceName].toDouble());
+    _adjustedFootprintSideFact.setRawValue(json[adjustedFootprintSideName].toDouble());
+    _adjustedFootprintFrontalFact.setRawValue(json[adjustedFootprintFrontalName].toDouble());
+    _distanceToSurfaceFact.setRawValue(json[distanceToSurfaceName].toDouble());
 
     if (!isManualCamera()) {
         QList<JsonHelper::KeyValidateInfo> keyInfoList2 = {
-            { valueSetIsDistanceName,   QJsonValue::Bool,   true },
-            { imageDensityName,         QJsonValue::Double, true },
-            { frontalOverlapName,       QJsonValue::Double, true },
-            { sideOverlapName,          QJsonValue::Double, true },
+            { valueSetIsDistanceName, QJsonValue::Bool, true },
+            { imageDensityName, QJsonValue::Double, true },
+            { frontalOverlapName, QJsonValue::Double, true },
+            { sideOverlapName, QJsonValue::Double, true },
         };
         if (!JsonHelper::validateKeys(json, keyInfoList2, errorString)) {
             _disableRecalc = false;
             return false;
         }
 
-        _valueSetIsDistanceFact.setRawValue (json[valueSetIsDistanceName].toBool());
-        _frontalOverlapFact.setRawValue     (json[frontalOverlapName].toDouble());
-        _sideOverlapFact.setRawValue        (json[sideOverlapName].toDouble());
-        _imageDensityFact.setRawValue       (json[imageDensityName].toDouble());
+        _valueSetIsDistanceFact.setRawValue(json[valueSetIsDistanceName].toBool());
+        _frontalOverlapFact.setRawValue(json[frontalOverlapName].toDouble());
+        _sideOverlapFact.setRawValue(json[sideOverlapName].toDouble());
+        _imageDensityFact.setRawValue(json[imageDensityName].toDouble());
 
         if (!CameraSpec::load(json, errorString)) {
             _disableRecalc = false;
@@ -280,43 +265,30 @@ bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerr
     return true;
 }
 
-QString CameraCalc::canonicalCustomCameraName(void)
-{
+QString CameraCalc::canonicalCustomCameraName(void) {
     // This string should NOT be translated
     return "Custom Camera";
 }
 
-QString CameraCalc::canonicalManualCameraName(void)
-{
+QString CameraCalc::canonicalManualCameraName(void) {
     // This string should NOT be translated
     return "Manual (no camera specs)";
 }
 
-QString CameraCalc::xlatCustomCameraName(void)
-{
-    return tr("Custom Camera");
-}
+QString CameraCalc::xlatCustomCameraName(void) { return tr("Custom Camera"); }
 
-QString CameraCalc::xlatManualCameraName(void)
-{
-    return tr("Manual (no camera specs)");
-}
+QString CameraCalc::xlatManualCameraName(void) { return tr("Manual (no camera specs)"); }
 
-void CameraCalc::setDistanceMode(QGroundControlQmlGlobal::AltMode altMode)
-{
+void CameraCalc::setDistanceMode(QGroundControlQmlGlobal::AltMode altMode) {
     if (altMode != _distanceMode) {
         _distanceMode = altMode;
         emit distanceModeChanged(_distanceMode);
     }
 }
 
-void CameraCalc::_setDirty(void)
-{
-    setDirty(true);
-}
+void CameraCalc::_setDirty(void) { setDirty(true); }
 
-void CameraCalc::setCameraBrand(const QString& cameraBrand)
-{
+void CameraCalc::setCameraBrand(const QString &cameraBrand) {
     // Note that cameraBrand can also be manual or custom camera
 
     if (cameraBrand != _cameraBrand) {
@@ -326,9 +298,9 @@ void CameraCalc::setCameraBrand(const QString& cameraBrand)
         _cameraModel.clear();
 
         if (_cameraBrand != xlatManualCameraName() && _cameraBrand != xlatCustomCameraName()) {
-            CameraMetaData* firstCameraMetaData = nullptr;
-            for (int cameraIndex=0; cameraIndex<_knownCameraList.count(); cameraIndex++) {
-                firstCameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData*>();
+            CameraMetaData *firstCameraMetaData = nullptr;
+            for (int cameraIndex = 0; cameraIndex < _knownCameraList.count(); cameraIndex++) {
+                firstCameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData *>();
                 if (firstCameraMetaData->brand == _cameraBrand) {
                     break;
                 }
@@ -345,32 +317,29 @@ void CameraCalc::setCameraBrand(const QString& cameraBrand)
     }
 }
 
-void CameraCalc::setCameraModel(const QString& cameraModel)
-{
+void CameraCalc::setCameraModel(const QString &cameraModel) {
     if (cameraModel != _cameraModel) {
         _cameraModel = cameraModel;
         emit cameraModelChanged();
 
-        for (int cameraIndex=0; cameraIndex<_knownCameraList.count(); cameraIndex++) {
-            CameraMetaData* cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData*>();
+        for (int cameraIndex = 0; cameraIndex < _knownCameraList.count(); cameraIndex++) {
+            CameraMetaData *cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData *>();
             if (cameraMetaData->brand == _cameraBrand && cameraMetaData->model == _cameraModel) {
                 _cameraNameFact.setRawValue(cameraMetaData->canonicalName);
                 break;
             }
         }
-
     }
 }
 
-void CameraCalc::_setBrandModelFromCanonicalName(const QString& cameraName)
-{
+void CameraCalc::_setBrandModelFromCanonicalName(const QString &cameraName) {
     _cameraBrand = cameraName;
     _cameraModel.clear();
     _cameraModelList.clear();
 
     if (cameraName != canonicalManualCameraName() && cameraName != canonicalCustomCameraName()) {
-        for (int cameraIndex=0; cameraIndex<_knownCameraList.count(); cameraIndex++) {
-            CameraMetaData* cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData*>();
+        for (int cameraIndex = 0; cameraIndex < _knownCameraList.count(); cameraIndex++) {
+            CameraMetaData *cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData *>();
             if (cameraMetaData->canonicalName == cameraName) {
                 _cameraBrand = cameraMetaData->brand;
                 _cameraModel = cameraMetaData->model;
@@ -384,12 +353,11 @@ void CameraCalc::_setBrandModelFromCanonicalName(const QString& cameraName)
     _rebuildCameraModelList();
 }
 
-void CameraCalc::_rebuildCameraModelList(void)
-{
+void CameraCalc::_rebuildCameraModelList(void) {
     _cameraModelList.clear();
 
-    for (int cameraIndex=0; cameraIndex<_knownCameraList.count(); cameraIndex++) {
-        CameraMetaData* cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData*>();
+    for (int cameraIndex = 0; cameraIndex < _knownCameraList.count(); cameraIndex++) {
+        CameraMetaData *cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData *>();
         if (cameraMetaData->brand == _cameraBrand) {
             _cameraModelList.append(cameraMetaData->model);
         }
@@ -398,8 +366,7 @@ void CameraCalc::_rebuildCameraModelList(void)
     emit cameraModelListChanged();
 }
 
-void CameraCalc::_setCameraNameFromV3TransectLoad(const QString& cameraName)
-{
+void CameraCalc::_setCameraNameFromV3TransectLoad(const QString &cameraName) {
     // We don't recalc here since the rest of the camera values are already loaded from the json
     _disableRecalc = true;
     QString canonicalCameraName = _validCanonicalCameraName(cameraName);
@@ -409,8 +376,7 @@ void CameraCalc::_setCameraNameFromV3TransectLoad(const QString& cameraName)
     _setBrandModelFromCanonicalName(canonicalCameraName);
 }
 
-QString CameraCalc::_validCanonicalCameraName(const QString& cameraName)
-{
+QString CameraCalc::_validCanonicalCameraName(const QString &cameraName) {
     QString canonicalCameraName = cameraName;
 
     if (canonicalCameraName != canonicalCustomCameraName() && canonicalCameraName != canonicalManualCameraName()) {
@@ -420,8 +386,8 @@ QString CameraCalc::_validCanonicalCameraName(const QString& cameraName)
             canonicalCameraName = canonicalCustomCameraName();
         } else {
             // Look for known camera
-            for (int cameraIndex=0; cameraIndex<_knownCameraList.count(); cameraIndex++) {
-                CameraMetaData* cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData*>();
+            for (int cameraIndex = 0; cameraIndex < _knownCameraList.count(); cameraIndex++) {
+                CameraMetaData *cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData *>();
                 if (cameraName == cameraMetaData->canonicalName || cameraName == cameraMetaData->deprecatedTranslatedName) {
                     return cameraMetaData->canonicalName;
                 }

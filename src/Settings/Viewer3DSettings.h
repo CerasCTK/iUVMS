@@ -13,11 +13,10 @@
 
 ///     @author Omid Esrafilian <esrafilian.omid@gmail.com>
 
-class Viewer3DSettings : public SettingsGroup
-{
+class Viewer3DSettings : public SettingsGroup {
     Q_OBJECT
-public:
-    Viewer3DSettings(QObject* parent = nullptr);
+  public:
+    Viewer3DSettings(QObject *parent = nullptr);
 
     DEFINE_SETTING_NAME_GROUP()
 

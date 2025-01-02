@@ -7,14 +7,13 @@
  *
  ****************************************************************************/
 
-
 /// @file
 ///     @author Don Gagne <don@thegagnes.com>
 
 #pragma once
 
-#include <QtCore/QObject>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QObject>
 
 class LinkInterface;
 class Vehicle;
@@ -23,20 +22,19 @@ class QTimer;
 
 Q_DECLARE_LOGGING_CATEGORY(MultiVehicleManagerLog)
 
-class MultiVehicleManager : public QObject
-{
+class MultiVehicleManager : public QObject {
     Q_OBJECT
     Q_MOC_INCLUDE("QmlObjectListModel.h")
     Q_MOC_INCLUDE("LinkInterface.h")
     Q_MOC_INCLUDE("Vehicle.h")
-    Q_PROPERTY(bool                 activeVehicleAvailable          READ _getActiveVehicleAvailable                                         NOTIFY activeVehicleAvailableChanged)
-    Q_PROPERTY(bool                 parameterReadyVehicleAvailable  READ _getParameterReadyVehicleAvailable                                 NOTIFY parameterReadyVehicleAvailableChanged)
-    Q_PROPERTY(Vehicle              *activeVehicle                  READ activeVehicle                      WRITE setActiveVehicle          NOTIFY activeVehicleChanged)
-    Q_PROPERTY(QmlObjectListModel   *vehicles                       READ vehicles                                                           CONSTANT)
-    Q_PROPERTY(bool                 gcsHeartBeatEnabled             READ _getGcsHeartbeatEnabled            WRITE _setGcsHeartbeatEnabled   NOTIFY gcsHeartBeatEnabledChanged)
-    Q_PROPERTY(Vehicle              *offlineEditingVehicle          READ offlineEditingVehicle                                              CONSTANT)
+    Q_PROPERTY(bool activeVehicleAvailable READ _getActiveVehicleAvailable NOTIFY activeVehicleAvailableChanged)
+    Q_PROPERTY(bool parameterReadyVehicleAvailable READ _getParameterReadyVehicleAvailable NOTIFY parameterReadyVehicleAvailableChanged)
+    Q_PROPERTY(Vehicle *activeVehicle READ activeVehicle WRITE setActiveVehicle NOTIFY activeVehicleChanged)
+    Q_PROPERTY(QmlObjectListModel *vehicles READ vehicles CONSTANT)
+    Q_PROPERTY(bool gcsHeartBeatEnabled READ _getGcsHeartbeatEnabled WRITE _setGcsHeartbeatEnabled NOTIFY gcsHeartBeatEnabledChanged)
+    Q_PROPERTY(Vehicle *offlineEditingVehicle READ offlineEditingVehicle CONSTANT)
 
-public:
+  public:
     explicit MultiVehicleManager(QObject *parent = nullptr);
     ~MultiVehicleManager();
 
@@ -45,12 +43,16 @@ public:
 
     void init();
     Q_INVOKABLE Vehicle *getVehicleById(int vehicleId) const;
+
     QmlObjectListModel *vehicles() const { return _vehicles; }
+
     Vehicle *offlineEditingVehicle() const { return _offlineEditingVehicle; }
+
     Vehicle *activeVehicle() const { return _activeVehicle; }
+
     void setActiveVehicle(Vehicle *vehicle);
 
-signals:
+  signals:
     void vehicleAdded(Vehicle *vehicle);
     void vehicleRemoved(Vehicle *vehicle);
     void activeVehicleAvailableChanged(bool activeVehicleAvailable);
@@ -58,7 +60,7 @@ signals:
     void activeVehicleChanged(Vehicle *activeVehicle);
     void gcsHeartBeatEnabledChanged(bool gcsHeartBeatEnabled);
 
-private slots:
+  private slots:
     void _deleteVehiclePhase1(Vehicle *vehicle); /// This slot is connected to the Vehicle::allLinksDestroyed signal such that the Vehicle is deleted and all other right things happen when the Vehicle goes away.
     void _deleteVehiclePhase2(Vehicle *vehicle);
     void _setActiveVehiclePhase2(Vehicle *vehicle);
@@ -67,26 +69,32 @@ private slots:
     void _vehicleHeartbeatInfo(LinkInterface *link, int vehicleId, int componentId, int vehicleFirmwareType, int vehicleType);
     void _requestProtocolVersion(unsigned version) const; /// This slot is connected to the Vehicle::requestProtocolVersion signal such that the vehicle manager tries to switch MAVLink to v2 if all vehicles support it
 
-private:
+  private:
     bool _vehicleExists(int vehicleId);
     void _setActiveVehicle(Vehicle *vehicle);
+
     bool _getGcsHeartbeatEnabled() const { return _gcsHeartbeatEnabled; }
+
     void _setGcsHeartbeatEnabled(bool gcsHeartBeatEnabled);
+
     bool _getActiveVehicleAvailable() const { return _activeVehicleAvailable; }
+
     void _setActiveVehicleAvailable(bool activeVehicleAvailable);
+
     bool _getParameterReadyVehicleAvailable() const { return _parameterReadyVehicleAvailable; }
+
     void _setParameterReadyVehicleAvailable(bool parametersReady);
 
-    QTimer *_gcsHeartbeatTimer = nullptr;           ///< Timer to emit heartbeats
-    Vehicle *_offlineEditingVehicle = nullptr;      ///< Disconnected vechicle used for offline editing
+    QTimer *_gcsHeartbeatTimer = nullptr;      ///< Timer to emit heartbeats
+    Vehicle *_offlineEditingVehicle = nullptr; ///< Disconnected vechicle used for offline editing
     QmlObjectListModel *_vehicles = nullptr;
-    bool _activeVehicleAvailable = false;           ///< true: An active vehicle is available
-    bool _gcsHeartbeatEnabled = false;              ///< Enabled/disable heartbeat emission
-    bool _parameterReadyVehicleAvailable = false;   ///< true: An active vehicle with ready parameters is available
-    Vehicle *_activeVehicle = nullptr;              ///< Currently active vehicle from a ui perspective
-    QList<int> _ignoreVehicleIds;                   ///< List of vehicle id for which we ignore further communication
+    bool _activeVehicleAvailable = false;         ///< true: An active vehicle is available
+    bool _gcsHeartbeatEnabled = false;            ///< Enabled/disable heartbeat emission
+    bool _parameterReadyVehicleAvailable = false; ///< true: An active vehicle with ready parameters is available
+    Vehicle *_activeVehicle = nullptr;            ///< Currently active vehicle from a ui perspective
+    QList<int> _ignoreVehicleIds;                 ///< List of vehicle id for which we ignore further communication
     bool _initialized = false;
 
-    static constexpr int kGCSHeartbeatRateMSecs = 1000;  ///< Heartbeat rate
+    static constexpr int kGCSHeartbeatRateMSecs = 1000; ///< Heartbeat rate
     static constexpr const char *kGCSHeartbeatEnabledKey = "gcsHeartbeatEnabled";
 };

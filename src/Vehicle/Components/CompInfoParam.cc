@@ -8,30 +8,25 @@
  ****************************************************************************/
 
 #include "CompInfoParam.h"
-#include "JsonHelper.h"
 #include "FactMetaData.h"
 #include "FirmwarePlugin.h"
 #include "FirmwarePluginManager.h"
+#include "JsonHelper.h"
 #include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
 #include "Vehicle.h"
 
-#include <QtCore/QJsonDocument>
+#include <QtCore/QDir>
 #include <QtCore/QJsonArray>
+#include <QtCore/QJsonDocument>
 #include <QtCore/QRegularExpression>
 #include <QtCore/QRegularExpressionMatch>
-#include <QtCore/QDir>
 
 QGC_LOGGING_CATEGORY(CompInfoParamLog, "CompInfoParamLog")
 
-CompInfoParam::CompInfoParam(uint8_t compId, Vehicle* vehicle, QObject* parent)
-    : CompInfo(COMP_METADATA_TYPE_PARAMETER, compId, vehicle, parent)
-{
+CompInfoParam::CompInfoParam(uint8_t compId, Vehicle *vehicle, QObject *parent) : CompInfo(COMP_METADATA_TYPE_PARAMETER, compId, vehicle, parent) {}
 
-}
-
-void CompInfoParam::setJson(const QString& metadataJsonFileName)
-{
+void CompInfoParam::setJson(const QString &metadataJsonFileName) {
     qCDebug(CompInfoParamLog) << "setJson: metadataJsonFileName" << metadataJsonFileName;
 
     if (metadataJsonFileName.isEmpty()) {
@@ -40,8 +35,8 @@ void CompInfoParam::setJson(const QString& metadataJsonFileName)
         return;
     }
 
-    QString         errorString;
-    QJsonDocument   jsonDoc;
+    QString errorString;
+    QJsonDocument jsonDoc;
 
     _noJsonMetadata = false;
 
@@ -52,8 +47,8 @@ void CompInfoParam::setJson(const QString& metadataJsonFileName)
     QJsonObject jsonObj = jsonDoc.object();
 
     QList<JsonHelper::KeyValidateInfo> keyInfoList = {
-        { JsonHelper::jsonVersionKey,   QJsonValue::Double, true },
-        { _jsonParametersKey,           QJsonValue::Array,  true },
+        { JsonHelper::jsonVersionKey, QJsonValue::Double, true },
+        { _jsonParametersKey, QJsonValue::Array, true },
     };
     if (!JsonHelper::validateKeys(jsonObj, keyInfoList, errorString)) {
         qCWarning(CompInfoParamLog) << "Metadata json validation failed: compid:" << compId << errorString;
@@ -67,7 +62,7 @@ void CompInfoParam::setJson(const QString& metadataJsonFileName)
     }
 
     QJsonArray rgParameters = jsonObj[_jsonParametersKey].toArray();
-    for (QJsonValue parameterValue: rgParameters) {
+    for (QJsonValue parameterValue : rgParameters) {
         QMap<QString, QString> emptyDefineMap;
 
         if (!parameterValue.isObject()) {
@@ -75,7 +70,7 @@ void CompInfoParam::setJson(const QString& metadataJsonFileName)
             return;
         }
 
-        FactMetaData* newMetaData = FactMetaData::createFromJsonObject(parameterValue.toObject(), emptyDefineMap, this);
+        FactMetaData *newMetaData = FactMetaData::createFromJsonObject(parameterValue.toObject(), emptyDefineMap, this);
 
         if (newMetaData->name().contains(_indexedNameTag)) {
             _indexedNameMetaDataList.append(RegexFactMetaDataPair_t(newMetaData->name(), newMetaData));
@@ -85,12 +80,11 @@ void CompInfoParam::setJson(const QString& metadataJsonFileName)
     }
 }
 
-FactMetaData* CompInfoParam::factMetaDataForName(const QString& name, FactMetaData::ValueType_t type)
-{
-    FactMetaData* factMetaData = nullptr;
+FactMetaData *CompInfoParam::factMetaDataForName(const QString &name, FactMetaData::ValueType_t type) {
+    FactMetaData *factMetaData = nullptr;
 
     if (_noJsonMetadata) {
-        QObject* opaqueMetaData = _getOpaqueParameterMetaData();
+        QObject *opaqueMetaData = _getOpaqueParameterMetaData();
         if (opaqueMetaData) {
             factMetaData = vehicle->firmwarePlugin()->_getMetaDataForFact(opaqueMetaData, name, type, vehicle->vehicleType());
         }
@@ -101,14 +95,14 @@ FactMetaData* CompInfoParam::factMetaDataForName(const QString& name, FactMetaDa
             factMetaData = _nameToMetaDataMap[name];
         } else {
             // We didn't get any direct matches. Try an indexed name.
-            for (int i=0; i<_indexedNameMetaDataList.count(); i++) {
-                const RegexFactMetaDataPair_t& pair = _indexedNameMetaDataList[i];
+            for (int i = 0; i < _indexedNameMetaDataList.count(); i++) {
+                const RegexFactMetaDataPair_t &pair = _indexedNameMetaDataList[i];
 
                 QString indexedName = pair.first;
                 const QString indexedRegex("(\\d+)");
                 indexedName.replace(_indexedNameTag, indexedRegex);
 
-                const QRegularExpression      regex(indexedName);
+                const QRegularExpression regex(indexedName);
                 const QRegularExpressionMatch match = regex.match(name);
 
                 const QStringList captured = match.capturedTexts();
@@ -142,8 +136,7 @@ FactMetaData* CompInfoParam::factMetaDataForName(const QString& name, FactMetaDa
     return factMetaData;
 }
 
-FirmwarePlugin* CompInfoParam::_anyVehicleTypeFirmwarePlugin(MAV_AUTOPILOT firmwareType)
-{
+FirmwarePlugin *CompInfoParam::_anyVehicleTypeFirmwarePlugin(MAV_AUTOPILOT firmwareType) {
     const QGCMAVLink::FirmwareClass_t firmwareClass = QGCMAVLink::firmwareClass(firmwareType);
     const QList<QGCMAVLink::VehicleClass_t> supportedClasses = FirmwarePluginManager::instance()->supportedVehicleClasses(firmwareClass);
     MAV_TYPE anySupportedVehicleType;
@@ -155,18 +148,17 @@ FirmwarePlugin* CompInfoParam::_anyVehicleTypeFirmwarePlugin(MAV_AUTOPILOT firmw
     return FirmwarePluginManager::instance()->firmwarePluginForAutopilot(firmwareType, anySupportedVehicleType);
 }
 
-QString CompInfoParam::_parameterMetaDataFile(Vehicle* vehicle, MAV_AUTOPILOT firmwareType, int& majorVersion, int& minorVersion)
-{
-    bool            cacheHit            = false;
-    int             wantedMajorVersion  = 1;
-    FirmwarePlugin* fwPlugin            = _anyVehicleTypeFirmwarePlugin(firmwareType);
+QString CompInfoParam::_parameterMetaDataFile(Vehicle *vehicle, MAV_AUTOPILOT firmwareType, int &majorVersion, int &minorVersion) {
+    bool cacheHit = false;
+    int wantedMajorVersion = 1;
+    FirmwarePlugin *fwPlugin = _anyVehicleTypeFirmwarePlugin(firmwareType);
 
     if (firmwareType != MAV_AUTOPILOT_PX4) {
         return fwPlugin->_internalParameterMetaDataFile(vehicle);
     } else {
         // Only PX4 support the old style cached metadata
-        QSettings   settings;
-        QDir        cacheDir = QFileInfo(settings.fileName()).dir();
+        QSettings settings;
+        QDir cacheDir = QFileInfo(settings.fileName()).dir();
 
         // First look for a direct cache hit
         int cacheMinorVersion, cacheMajorVersion;
@@ -259,9 +251,8 @@ QString CompInfoParam::_parameterMetaDataFile(Vehicle* vehicle, MAV_AUTOPILOT fi
     }
 }
 
-void CompInfoParam::_cachePX4MetaDataFile(const QString& metaDataFile)
-{
-    FirmwarePlugin* plugin = _anyVehicleTypeFirmwarePlugin(MAV_AUTOPILOT_PX4);
+void CompInfoParam::_cachePX4MetaDataFile(const QString &metaDataFile) {
+    FirmwarePlugin *plugin = _anyVehicleTypeFirmwarePlugin(MAV_AUTOPILOT_PX4);
 
     int newMajorVersion, newMinorVersion;
     plugin->_getParameterMetaDataVersionInfo(metaDataFile, newMajorVersion, newMinorVersion);
@@ -305,8 +296,7 @@ void CompInfoParam::_cachePX4MetaDataFile(const QString& metaDataFile)
     }
 }
 
-QObject* CompInfoParam::_getOpaqueParameterMetaData(void)
-{
+QObject *CompInfoParam::_getOpaqueParameterMetaData(void) {
     if (!_noJsonMetadata) {
         qWarning() << "CompInfoParam::_getOpaqueParameterMetaData _noJsonMetadata == false";
     }

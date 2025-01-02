@@ -8,17 +8,14 @@
  ****************************************************************************/
 
 #include "TransectStyleComplexItemTestBase.h"
-#include "SettingsManager.h"
+#include "MissionItem.h"
 #include "PlanMasterController.h"
 #include "PlanViewSettings.h"
-#include "MissionItem.h"
+#include "SettingsManager.h"
 
-TransectStyleComplexItemTestBase::TransectStyleComplexItemTestBase(void)
-{
-}
+TransectStyleComplexItemTestBase::TransectStyleComplexItemTestBase(void) {}
 
-void TransectStyleComplexItemTestBase::init(void)
-{
+void TransectStyleComplexItemTestBase::init(void) {
     UnitTest::init();
 
     _planViewSettings = SettingsManager::instance()->planViewSettings();
@@ -26,22 +23,20 @@ void TransectStyleComplexItemTestBase::init(void)
     _controllerVehicle = _masterController->controllerVehicle();
 }
 
-void TransectStyleComplexItemTestBase::cleanup(void)
-{
+void TransectStyleComplexItemTestBase::cleanup(void) {
     delete _masterController;
 
-    _planViewSettings   = nullptr;
-    _masterController   = nullptr;
-    _controllerVehicle  = nullptr;
+    _planViewSettings = nullptr;
+    _masterController = nullptr;
+    _controllerVehicle = nullptr;
 
     UnitTest::cleanup();
 }
 
-void TransectStyleComplexItemTestBase::_printItemCommands(QList<MissionItem*> items)
-{
+void TransectStyleComplexItemTestBase::_printItemCommands(QList<MissionItem *> items) {
     // Handy for debugging failures
-    for (int i=0; i<items.count(); i++) {
-        MissionItem* item = items[i];
+    for (int i = 0; i < items.count(); i++) {
+        MissionItem *item = items[i];
         qDebug() << "Index:Cmd" << i << item->command();
     }
 }

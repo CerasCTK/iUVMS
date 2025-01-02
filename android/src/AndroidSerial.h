@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QtCore/QString>
 #include <QtCore/QByteArray>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QString>
 
 #include <qserialport.h>
 #include <qserialportinfo.h>
@@ -13,45 +13,16 @@ Q_DECLARE_LOGGING_CATEGORY(AndroidSerialLog);
 
 class QSerialPortPrivate;
 
-namespace AndroidSerial
-{
-    enum DataBits {
-        Data5 = 5,
-        Data6 = 6,
-        Data7 = 7,
-        Data8 = 8
-    };
+namespace AndroidSerial {
+    enum DataBits { Data5 = 5, Data6 = 6, Data7 = 7, Data8 = 8 };
 
-    enum Parity {
-        NoParity = 0,
-        OddParity,
-        EvenParity,
-        MarkParity,
-        SpaceParity
-    };
+    enum Parity { NoParity = 0, OddParity, EvenParity, MarkParity, SpaceParity };
 
-    enum StopBits {
-        OneStop = 1,
-        OneAndHalfStop = 3,
-        TwoStop = 2
-    };
+    enum StopBits { OneStop = 1, OneAndHalfStop = 3, TwoStop = 2 };
 
-    enum ControlLine {
-        RtsControlLine = 0,
-        CtsControlLine,
-        DtrControlLine,
-        DsrControlLine,
-        CdControlLine,
-        RiControlLine
-    };
+    enum ControlLine { RtsControlLine = 0, CtsControlLine, DtrControlLine, DsrControlLine, CdControlLine, RiControlLine };
 
-    enum FlowControl {
-        NoFlowControl = 0,
-        RtsCtsFlowControl,
-        DtrDsrFlowControl,
-        XonXoffFlowControl,
-        XonXoffInlineFlowControl
-    };
+    enum FlowControl { NoFlowControl = 0, RtsCtsFlowControl, DtrDsrFlowControl, XonXoffFlowControl, XonXoffInlineFlowControl };
 
     constexpr char CHAR_XON = 17;
     constexpr char CHAR_XOFF = 19;

@@ -19,26 +19,27 @@
 
 QGC_LOGGING_CATEGORY(AirLinkLinkLog, "qgc.AirLink.AirLinklink");
 
-AirLinkLink::AirLinkLink(SharedLinkConfigurationPtr &config, QObject *parent)
-    : UDPLink(config)
-    , _AirLinkConfig(qobject_cast<const AirLinkConfiguration*>(config.get()))
-{
+AirLinkLink::AirLinkLink(SharedLinkConfigurationPtr &config, QObject *parent) : UDPLink(config), _AirLinkConfig(qobject_cast<const AirLinkConfiguration *>(config.get())) {
     // qCDebug(AirLinkLinkLog) << Q_FUNC_INFO << this;
 
-    (void) connect(this, &QThread::started, this, [this]() {
+    (void)connect(this, &QThread::started, this, [this]() {
         QTimer *const pendingTimer = new QTimer();
 
-        (void) connect(pendingTimer, &QTimer::timeout, this, [this, pendingTimer] {
-            pendingTimer->setInterval(3000);
-            if (_stillConnecting()) {
-                qCDebug(AirLinkLinkLog) << "Connecting...";
-                _sendLoginMsgToAirLink();
-            } else {
-                qCDebug(AirLinkLinkLog) << "Stopping...";
-                pendingTimer->stop();
-                pendingTimer->deleteLater();
-            }
-        }, Qt::QueuedConnection);
+        (void)connect(
+            pendingTimer, &QTimer::timeout, this,
+            [this, pendingTimer] {
+                pendingTimer->setInterval(3000);
+                if (_stillConnecting()) {
+                    qCDebug(AirLinkLinkLog) << "Connecting...";
+                    _sendLoginMsgToAirLink();
+                } else {
+                    qCDebug(AirLinkLinkLog) << "Stopping...";
+                    pendingTimer->stop();
+                    pendingTimer->deleteLater();
+                }
+            },
+            Qt::QueuedConnection
+        );
 
         pendingTimer->start(0);
     });
@@ -46,21 +47,18 @@ AirLinkLink::AirLinkLink(SharedLinkConfigurationPtr &config, QObject *parent)
     _configureUdpSettings();
 }
 
-AirLinkLink::~AirLinkLink()
-{
+AirLinkLink::~AirLinkLink() {
     // qCDebug(AirLinkLinkLog) << Q_FUNC_INFO << this;
 }
 
-void AirLinkLink::disconnect()
-{
+void AirLinkLink::disconnect() {
     _setConnectFlag(false);
-    (void) UDPLink::disconnect();
+    (void)UDPLink::disconnect();
 }
 
-bool AirLinkLink::_connect()
-{
+bool AirLinkLink::_connect() {
     std::shared_ptr<QMetaObject::Connection> conn = std::make_shared<QMetaObject::Connection>();
-    *conn = connect(MAVLinkProtocol::instance(), &MAVLinkProtocol::messageReceived, this, [this, conn] (const LinkInterface* linkSrc, const mavlink_message_t &message) {
+    *conn = connect(MAVLinkProtocol::instance(), &MAVLinkProtocol::messageReceived, this, [this, conn](const LinkInterface *linkSrc, const mavlink_message_t &message) {
         if (this != linkSrc || message.msgid != MAVLINK_MSG_ID_AIRLINK_AUTH_RESPONSE) {
             return;
         }
@@ -74,7 +72,7 @@ bool AirLinkLink::_connect()
         }
 
         qCDebug(AirLinkLinkLog) << "Connected successfully";
-        (void) QObject::disconnect(*conn);
+        (void)QObject::disconnect(*conn);
         _setConnectFlag(false);
     });
 
@@ -85,31 +83,29 @@ bool AirLinkLink::_connect()
     return true;
 }
 
-void AirLinkLink::_configureUdpSettings()
-{
+void AirLinkLink::_configureUdpSettings() {
     quint16 availablePort = 14550;
     QUdpSocket udpSocket;
     while (!udpSocket.bind(QHostAddress::LocalHost, availablePort)) {
         availablePort++;
     }
 
-    UDPConfiguration *const udpConfig = dynamic_cast<UDPConfiguration*>(UDPLink::_config.get());
+    UDPConfiguration *const udpConfig = dynamic_cast<UDPConfiguration *>(UDPLink::_config.get());
     udpConfig->addHost(_airLinkHost, _airLinkPort);
     udpConfig->setLocalPort(availablePort);
     udpConfig->setDynamic(false);
 }
 
-void AirLinkLink::_sendLoginMsgToAirLink()
-{
+void AirLinkLink::_sendLoginMsgToAirLink() {
     mavlink_airlink_auth_t auth{};
 
     const QString login = _AirLinkConfig->modemName(); ///< Connect not to account but to specific modem
     const QString pass = _AirLinkConfig->password();
-    (void) strcpy(auth.login, login.toUtf8().constData());
-    (void) strcpy(auth.password, pass.toUtf8().constData());
+    (void)strcpy(auth.login, login.toUtf8().constData());
+    (void)strcpy(auth.password, pass.toUtf8().constData());
 
     mavlink_message_t mavmsg;
-    (void) mavlink_msg_airlink_auth_pack(0, 0, &mavmsg, auth.login, auth.password);
+    (void)mavlink_msg_airlink_auth_pack(0, 0, &mavmsg, auth.login, auth.password);
 
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
     const uint16_t len = mavlink_msg_to_send_buffer(buffer, &mavmsg);
@@ -118,32 +114,26 @@ void AirLinkLink::_sendLoginMsgToAirLink()
         return;
     }
 
-    writeBytesThreadSafe(reinterpret_cast<const char*>(buffer), len);
+    writeBytesThreadSafe(reinterpret_cast<const char *>(buffer), len);
 }
 
-bool AirLinkLink::_stillConnecting()
-{
+bool AirLinkLink::_stillConnecting() {
     QMutexLocker locker(&_mutex);
     return _needToConnect;
 }
 
-void AirLinkLink::_setConnectFlag(bool connect)
-{
+void AirLinkLink::_setConnectFlag(bool connect) {
     QMutexLocker locker(&_mutex);
     _needToConnect = connect;
 }
 
 /*===========================================================================*/
 
-AirLinkConfiguration::AirLinkConfiguration(const QString &name, QObject *parent)
-    : UDPConfiguration(name)
-{
+AirLinkConfiguration::AirLinkConfiguration(const QString &name, QObject *parent) : UDPConfiguration(name) {
     // qCDebug(AirLinkLinkLog) << Q_FUNC_INFO << this;
 }
 
-AirLinkConfiguration::AirLinkConfiguration(const AirLinkConfiguration *copy, QObject *parent)
-    : UDPConfiguration(copy)
-{
+AirLinkConfiguration::AirLinkConfiguration(const AirLinkConfiguration *copy, QObject *parent) : UDPConfiguration(copy) {
     // qCDebug(AirLinkLinkLog) << Q_FUNC_INFO << this;
 
     Q_CHECK_PTR(copy);
@@ -151,37 +141,32 @@ AirLinkConfiguration::AirLinkConfiguration(const AirLinkConfiguration *copy, QOb
     copyFrom(copy);
 }
 
-AirLinkConfiguration::~AirLinkConfiguration()
-{
+AirLinkConfiguration::~AirLinkConfiguration() {
     // qCDebug(AirLinkLinkLog) << Q_FUNC_INFO << this;
 }
 
-void AirLinkConfiguration::setUsername(const QString &username)
-{
+void AirLinkConfiguration::setUsername(const QString &username) {
     if (username != _username) {
         _username = username;
         emit usernameChanged();
     }
 }
 
-void AirLinkConfiguration::setPassword(const QString &password)
-{
+void AirLinkConfiguration::setPassword(const QString &password) {
     if (password != _password) {
         _password = password;
         emit passwordChanged();
     }
 }
 
-void AirLinkConfiguration::setModemName(const QString &modemName)
-{
+void AirLinkConfiguration::setModemName(const QString &modemName) {
     if (modemName != _modemName) {
         _modemName = modemName;
         emit modemNameChanged();
     }
 }
 
-void AirLinkConfiguration::loadSettings(QSettings &settings, const QString &root)
-{
+void AirLinkConfiguration::loadSettings(QSettings &settings, const QString &root) {
     AppSettings *const appSettings = SettingsManager::instance()->appSettings();
 
     settings.beginGroup(root);
@@ -193,8 +178,7 @@ void AirLinkConfiguration::loadSettings(QSettings &settings, const QString &root
     settings.endGroup();
 }
 
-void AirLinkConfiguration::saveSettings(QSettings &settings, const QString &root)
-{
+void AirLinkConfiguration::saveSettings(QSettings &settings, const QString &root) {
     settings.beginGroup(root);
 
     settings.setValue(_usernameSettingsKey, _username);
@@ -204,11 +188,10 @@ void AirLinkConfiguration::saveSettings(QSettings &settings, const QString &root
     settings.endGroup();
 }
 
-void AirLinkConfiguration::copyFrom(const LinkConfiguration *source)
-{
+void AirLinkConfiguration::copyFrom(const LinkConfiguration *source) {
     Q_CHECK_PTR(source);
 
-    const AirLinkConfiguration *const AirLinkSource = qobject_cast<const AirLinkConfiguration*>(source);
+    const AirLinkConfiguration *const AirLinkSource = qobject_cast<const AirLinkConfiguration *>(source);
     if (AirLinkSource) {
         setUsername(AirLinkSource->username());
         setPassword(AirLinkSource->password());
@@ -217,7 +200,7 @@ void AirLinkConfiguration::copyFrom(const LinkConfiguration *source)
         qCWarning(AirLinkLinkLog) << "Internal error: cannot read AirLinkConfiguration from given source";
     }
 
-    const UDPConfiguration *const udpSource = qobject_cast<const UDPConfiguration*>(source);
+    const UDPConfiguration *const udpSource = qobject_cast<const UDPConfiguration *>(source);
     if (udpSource) {
         UDPConfiguration::copyFrom(udpSource);
     }

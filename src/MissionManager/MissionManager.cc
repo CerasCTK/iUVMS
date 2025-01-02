@@ -8,51 +8,41 @@
  ****************************************************************************/
 
 #include "MissionManager.h"
-#include "Vehicle.h"
 #include "FirmwarePlugin.h"
 #include "MAVLinkProtocol.h"
-#include "QGCApplication.h"
 #include "MissionCommandTree.h"
 #include "MissionCommandUIInfo.h"
+#include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
+#include "Vehicle.h"
 
 #include "CameraCalc.h"
 #include "GeoFenceController.h"
 #include "MissionController.h"
-#include "VisualMissionItem.h"
-#include "RallyPointController.h"
 #include "PlanMasterController.h"
+#include "RallyPointController.h"
+#include "VisualMissionItem.h"
 
 #include <QtQml/qqml.h>
 
 QGC_LOGGING_CATEGORY(MissionManagerLog, "MissionManagerLog")
 
-MissionManager::MissionManager(Vehicle* vehicle)
-    : PlanManager               (vehicle, MAV_MISSION_TYPE_MISSION)
-    , _cachedLastCurrentIndex   (-1)
-{
-    connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &MissionManager::_mavlinkMessageReceived);
+MissionManager::MissionManager(Vehicle *vehicle) : PlanManager(vehicle, MAV_MISSION_TYPE_MISSION), _cachedLastCurrentIndex(-1) { connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &MissionManager::_mavlinkMessageReceived); }
+
+MissionManager::~MissionManager() {}
+
+void MissionManager::registerQmlTypes() {
+    qmlRegisterUncreatableType<CameraCalc>("QGroundControl", 1, 0, "CameraCalc", "Reference only");
+    qmlRegisterUncreatableType<GeoFenceController>("QGroundControl.Controllers", 1, 0, "GeoFenceController", "Reference only");
+    qmlRegisterUncreatableType<MissionController>("QGroundControl.Controllers", 1, 0, "MissionController", "Reference only");
+    qmlRegisterUncreatableType<MissionItem>("QGroundControl", 1, 0, "MissionItem", "Reference only");
+    qmlRegisterUncreatableType<MissionManager>("QGroundControl.Vehicle", 1, 0, "MissionManager", "Reference only");
+    qmlRegisterUncreatableType<RallyPointController>("QGroundControl.Controllers", 1, 0, "RallyPointController", "Reference only");
+    qmlRegisterUncreatableType<VisualMissionItem>("QGroundControl", 1, 0, "VisualMissionItem", "Reference only");
+    qmlRegisterType<PlanMasterController>("QGroundControl.Controllers", 1, 0, "PlanMasterController");
 }
 
-MissionManager::~MissionManager()
-{
-
-}
-
-void MissionManager::registerQmlTypes()
-{
-    qmlRegisterUncreatableType<CameraCalc>          ("QGroundControl",              1, 0, "CameraCalc",           "Reference only");
-    qmlRegisterUncreatableType<GeoFenceController>  ("QGroundControl.Controllers",  1, 0, "GeoFenceController",   "Reference only");
-    qmlRegisterUncreatableType<MissionController>   ("QGroundControl.Controllers",  1, 0, "MissionController",    "Reference only");
-    qmlRegisterUncreatableType<MissionItem>         ("QGroundControl",              1, 0, "MissionItem",          "Reference only");
-    qmlRegisterUncreatableType<MissionManager>      ("QGroundControl.Vehicle",      1, 0, "MissionManager",       "Reference only");
-    qmlRegisterUncreatableType<RallyPointController>("QGroundControl.Controllers",  1, 0, "RallyPointController", "Reference only");
-    qmlRegisterUncreatableType<VisualMissionItem>   ("QGroundControl",              1, 0, "VisualMissionItem",    "Reference only");
-    qmlRegisterType<PlanMasterController>           ("QGroundControl.Controllers",  1, 0, "PlanMasterController");
-}
-
-void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoCoord, bool altChangeOnly)
-{
+void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate &gotoCoord, bool altChangeOnly) {
     if (inProgress()) {
         qCDebug(MissionManagerLog) << "writeArduPilotGuidedMissionItem called while transaction in progress";
         return;
@@ -64,30 +54,26 @@ void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoC
 
     SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
     if (sharedLink) {
-        mavlink_message_t       messageOut;
-        mavlink_mission_item_t  missionItem;
+        mavlink_message_t messageOut;
+        mavlink_mission_item_t missionItem;
 
         memset(&missionItem, 0, sizeof(missionItem));
-        missionItem.target_system =     _vehicle->id();
-        missionItem.target_component =  _vehicle->defaultComponentId();
-        missionItem.seq =               0;
-        missionItem.command =           MAV_CMD_NAV_WAYPOINT;
-        missionItem.param1 =            0;
-        missionItem.param2 =            0;
-        missionItem.param3 =            0;
-        missionItem.param4 =            0;
-        missionItem.x =                 gotoCoord.latitude();
-        missionItem.y =                 gotoCoord.longitude();
-        missionItem.z =                 gotoCoord.altitude();
-        missionItem.frame =             MAV_FRAME_GLOBAL_RELATIVE_ALT;
-        missionItem.current =           altChangeOnly ? 3 : 2;
-        missionItem.autocontinue =      true;
+        missionItem.target_system = _vehicle->id();
+        missionItem.target_component = _vehicle->defaultComponentId();
+        missionItem.seq = 0;
+        missionItem.command = MAV_CMD_NAV_WAYPOINT;
+        missionItem.param1 = 0;
+        missionItem.param2 = 0;
+        missionItem.param3 = 0;
+        missionItem.param4 = 0;
+        missionItem.x = gotoCoord.latitude();
+        missionItem.y = gotoCoord.longitude();
+        missionItem.z = gotoCoord.altitude();
+        missionItem.frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
+        missionItem.current = altChangeOnly ? 3 : 2;
+        missionItem.autocontinue = true;
 
-        mavlink_msg_mission_item_encode_chan(MAVLinkProtocol::instance()->getSystemId(),
-                                             MAVLinkProtocol::getComponentId(),
-                                             sharedLink->mavlinkChannel(),
-                                             &messageOut,
-                                             &missionItem);
+        mavlink_msg_mission_item_encode_chan(MAVLinkProtocol::instance()->getSystemId(), MAVLinkProtocol::getComponentId(), sharedLink->mavlinkChannel(), &messageOut, &missionItem);
 
         _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), messageOut);
     }
@@ -95,8 +81,7 @@ void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoC
     emit inProgressChanged(true);
 }
 
-void MissionManager::generateResumeMission(int resumeIndex)
-{
+void MissionManager::generateResumeMission(int resumeIndex) {
     if (_vehicle->isOfflineEditingVehicle()) {
         return;
     }
@@ -106,8 +91,8 @@ void MissionManager::generateResumeMission(int resumeIndex)
         return;
     }
 
-    for (int i=0; i<_missionItems.count(); i++) {
-        MissionItem* item = _missionItems[i];
+    for (int i = 0; i < _missionItems.count(); i++) {
+        MissionItem *item = _missionItems[i];
         if (item->command() == MAV_CMD_DO_JUMP) {
             qgcApp()->showAppMessage(tr("Unable to generate resume mission due to MAV_CMD_DO_JUMP command."));
             return;
@@ -118,7 +103,7 @@ void MissionManager::generateResumeMission(int resumeIndex)
     resumeIndex = qMax(0, qMin(resumeIndex, _missionItems.count() - 1));
 
     // Adjust resume index to be a location based command
-    const MissionCommandUIInfo* uiInfo = MissionCommandTree::instance()->getUIInfo(_vehicle, _vehicle->vehicleClass(), _missionItems[resumeIndex]->command());
+    const MissionCommandUIInfo *uiInfo = MissionCommandTree::instance()->getUIInfo(_vehicle, _vehicle->vehicleClass(), _missionItems[resumeIndex]->command());
     if (!uiInfo || uiInfo->isStandaloneCoordinate() || !uiInfo->specifiesCoordinate()) {
         // We have to back up to the last command which the vehicle flies through
         while (--resumeIndex > 0) {
@@ -127,94 +112,80 @@ void MissionManager::generateResumeMission(int resumeIndex)
                 // Found it
                 break;
             }
-
         }
     }
     resumeIndex = qMax(0, resumeIndex);
 
-    QList<MissionItem*> resumeMission;
+    QList<MissionItem *> resumeMission;
 
     QList<MAV_CMD> includedResumeCommands;
 
     // If any command in this list occurs before the resumeIndex it will be added to the front of the mission
-    includedResumeCommands << MAV_CMD_DO_CONTROL_VIDEO
-                           << MAV_CMD_DO_SET_ROI
-                           << MAV_CMD_DO_DIGICAM_CONFIGURE
-                           << MAV_CMD_DO_DIGICAM_CONTROL
-                           << MAV_CMD_DO_MOUNT_CONFIGURE
-                           << MAV_CMD_DO_MOUNT_CONTROL
-                           << MAV_CMD_DO_SET_CAM_TRIGG_DIST
-                           << MAV_CMD_DO_FENCE_ENABLE
-                           << MAV_CMD_IMAGE_START_CAPTURE
-                           << MAV_CMD_IMAGE_STOP_CAPTURE
-                           << MAV_CMD_VIDEO_START_CAPTURE
-                           << MAV_CMD_VIDEO_STOP_CAPTURE
-                           << MAV_CMD_DO_CHANGE_SPEED
-                           << MAV_CMD_SET_CAMERA_MODE;
+    includedResumeCommands << MAV_CMD_DO_CONTROL_VIDEO << MAV_CMD_DO_SET_ROI << MAV_CMD_DO_DIGICAM_CONFIGURE << MAV_CMD_DO_DIGICAM_CONTROL << MAV_CMD_DO_MOUNT_CONFIGURE << MAV_CMD_DO_MOUNT_CONTROL << MAV_CMD_DO_SET_CAM_TRIGG_DIST
+                           << MAV_CMD_DO_FENCE_ENABLE << MAV_CMD_IMAGE_START_CAPTURE << MAV_CMD_IMAGE_STOP_CAPTURE << MAV_CMD_VIDEO_START_CAPTURE << MAV_CMD_VIDEO_STOP_CAPTURE << MAV_CMD_DO_CHANGE_SPEED << MAV_CMD_SET_CAMERA_MODE;
 
     bool addHomePosition = _vehicle->firmwarePlugin()->sendHomePositionToVehicle();
 
     int prefixCommandCount = 0;
-    for (int i=0; i<_missionItems.count(); i++) {
-        MissionItem* oldItem = _missionItems[i];
-        const MissionCommandUIInfo* uiInfo = MissionCommandTree::instance()->getUIInfo(_vehicle, _vehicle->vehicleClass(), oldItem->command());
+    for (int i = 0; i < _missionItems.count(); i++) {
+        MissionItem *oldItem = _missionItems[i];
+        const MissionCommandUIInfo *uiInfo = MissionCommandTree::instance()->getUIInfo(_vehicle, _vehicle->vehicleClass(), oldItem->command());
         if ((i == 0 && addHomePosition) || i >= resumeIndex || includedResumeCommands.contains(oldItem->command()) || (uiInfo && uiInfo->isTakeoffCommand())) {
             if (i < resumeIndex) {
                 prefixCommandCount++;
             }
-            MissionItem* newItem = new MissionItem(*oldItem, this);
+            MissionItem *newItem = new MissionItem(*oldItem, this);
             newItem->setIsCurrentItem(false);
             resumeMission.append(newItem);
         }
     }
-    prefixCommandCount = qMax(0, qMin(prefixCommandCount, resumeMission.count()));  // Anal prevention against crashes
+    prefixCommandCount = qMax(0, qMin(prefixCommandCount, resumeMission.count())); // Anal prevention against crashes
 
     // De-dup and remove no-ops from the commands which were added to the front of the mission
     bool foundROI = false;
     bool foundCameraSetMode = false;
     bool foundCameraStartStop = false;
-    prefixCommandCount--;   // Change from count to array index
+    prefixCommandCount--; // Change from count to array index
     while (prefixCommandCount >= 0) {
-        MissionItem* resumeItem = resumeMission[prefixCommandCount];
+        MissionItem *resumeItem = resumeMission[prefixCommandCount];
         switch (resumeItem->command()) {
-        case MAV_CMD_SET_CAMERA_MODE:
-            // Only keep the last one
-            if (foundCameraSetMode) {
-                resumeMission.removeAt(prefixCommandCount);
-            }
-            foundCameraSetMode = true;
-            break;
-        case MAV_CMD_DO_SET_ROI:
-            // Only keep the last one
-            if (foundROI) {
-                resumeMission.removeAt(prefixCommandCount);
-            }
-            foundROI = true;
-            break;
-        case MAV_CMD_DO_SET_CAM_TRIGG_DIST:
-        case MAV_CMD_IMAGE_STOP_CAPTURE:
-        case MAV_CMD_VIDEO_START_CAPTURE:
-        case MAV_CMD_VIDEO_STOP_CAPTURE:
-            // Only keep the first of these commands that are found
-            if (foundCameraStartStop) {
-                resumeMission.removeAt(prefixCommandCount);
-            }
-            foundCameraStartStop = true;
-            break;
-        case MAV_CMD_IMAGE_START_CAPTURE:
-            if (resumeItem->param3() != 0) {
-                // Remove commands which do not trigger by time
-                resumeMission.removeAt(prefixCommandCount);
+            case MAV_CMD_SET_CAMERA_MODE:
+                // Only keep the last one
+                if (foundCameraSetMode) {
+                    resumeMission.removeAt(prefixCommandCount);
+                }
+                foundCameraSetMode = true;
                 break;
-            }
-            if (foundCameraStartStop) {
+            case MAV_CMD_DO_SET_ROI:
+                // Only keep the last one
+                if (foundROI) {
+                    resumeMission.removeAt(prefixCommandCount);
+                }
+                foundROI = true;
+                break;
+            case MAV_CMD_DO_SET_CAM_TRIGG_DIST:
+            case MAV_CMD_IMAGE_STOP_CAPTURE:
+            case MAV_CMD_VIDEO_START_CAPTURE:
+            case MAV_CMD_VIDEO_STOP_CAPTURE:
                 // Only keep the first of these commands that are found
-                resumeMission.removeAt(prefixCommandCount);
-            }
-            foundCameraStartStop = true;
-            break;
-        default:
-            break;
+                if (foundCameraStartStop) {
+                    resumeMission.removeAt(prefixCommandCount);
+                }
+                foundCameraStartStop = true;
+                break;
+            case MAV_CMD_IMAGE_START_CAPTURE:
+                if (resumeItem->param3() != 0) {
+                    // Remove commands which do not trigger by time
+                    resumeMission.removeAt(prefixCommandCount);
+                    break;
+                }
+                if (foundCameraStartStop) {
+                    // Only keep the first of these commands that are found
+                    resumeMission.removeAt(prefixCommandCount);
+                }
+                foundCameraStartStop = true;
+                break;
+            default: break;
         }
 
         prefixCommandCount--;
@@ -222,7 +193,7 @@ void MissionManager::generateResumeMission(int resumeIndex)
 
     // Adjust sequence numbers and current item
     int seqNum = 0;
-    for (int i=0; i<resumeMission.count(); i++) {
+    for (int i = 0; i < resumeMission.count(); i++) {
         resumeMission[i]->setSequenceNumber(seqNum++);
     }
     int setCurrentIndex = addHomePosition ? 1 : 0;
@@ -230,7 +201,7 @@ void MissionManager::generateResumeMission(int resumeIndex)
 
     // Send to vehicle
     _clearAndDeleteWriteMissionItems();
-    for (int i=0; i<resumeMission.count(); i++) {
+    for (int i = 0; i < resumeMission.count(); i++) {
         _writeMissionItems.append(new MissionItem(*resumeMission[i], this));
     }
     _resumeMission = true;
@@ -238,29 +209,19 @@ void MissionManager::generateResumeMission(int resumeIndex)
 }
 
 /// Called when a new mavlink message for out vehicle is received
-void MissionManager::_mavlinkMessageReceived(const mavlink_message_t& message)
-{
+void MissionManager::_mavlinkMessageReceived(const mavlink_message_t &message) {
     switch (message.msgid) {
-    case MAVLINK_MSG_ID_HIGH_LATENCY:
-        _handleHighLatency(message);
-        break;
+        case MAVLINK_MSG_ID_HIGH_LATENCY: _handleHighLatency(message); break;
 
-    case MAVLINK_MSG_ID_HIGH_LATENCY2:
-        _handleHighLatency2(message);
-        break;
+        case MAVLINK_MSG_ID_HIGH_LATENCY2: _handleHighLatency2(message); break;
 
-    case MAVLINK_MSG_ID_MISSION_CURRENT:
-        _handleMissionCurrent(message);
-        break;
+        case MAVLINK_MSG_ID_MISSION_CURRENT: _handleMissionCurrent(message); break;
 
-    case MAVLINK_MSG_ID_HEARTBEAT:
-        _handleHeartbeat(message);
-        break;
+        case MAVLINK_MSG_ID_HEARTBEAT: _handleHeartbeat(message); break;
     }
 }
 
-void MissionManager::_updateMissionIndex(int index)
-{
+void MissionManager::_updateMissionIndex(int index) {
     if (index != _currentMissionIndex) {
         qCDebug(MissionManagerLog) << "_updateMissionIndex currentIndex:" << index;
         _currentMissionIndex = index;
@@ -279,36 +240,31 @@ void MissionManager::_updateMissionIndex(int index)
     }
 }
 
-void MissionManager::_handleHighLatency(const mavlink_message_t& message) 
-{
+void MissionManager::_handleHighLatency(const mavlink_message_t &message) {
     mavlink_high_latency_t highLatency;
     mavlink_msg_high_latency_decode(&message, &highLatency);
     _updateMissionIndex(highLatency.wp_num);
 }
 
-void MissionManager::_handleHighLatency2(const mavlink_message_t& message) 
-{
+void MissionManager::_handleHighLatency2(const mavlink_message_t &message) {
     mavlink_high_latency2_t highLatency2;
     mavlink_msg_high_latency2_decode(&message, &highLatency2);
     _updateMissionIndex(highLatency2.wp_num);
 }
 
-void MissionManager::_handleMissionCurrent(const mavlink_message_t& message)
-{
+void MissionManager::_handleMissionCurrent(const mavlink_message_t &message) {
     mavlink_mission_current_t missionCurrent;
     mavlink_msg_mission_current_decode(&message, &missionCurrent);
     _updateMissionIndex(missionCurrent.seq);
 }
 
-void MissionManager::_handleHeartbeat(const mavlink_message_t& message)
-{
+void MissionManager::_handleHeartbeat(const mavlink_message_t &message) {
     Q_UNUSED(message);
 
-    if (_cachedLastCurrentIndex != -1 &&  _vehicle->flightMode() == _vehicle->missionFlightMode()) {
+    if (_cachedLastCurrentIndex != -1 && _vehicle->flightMode() == _vehicle->missionFlightMode()) {
         qCDebug(MissionManagerLog) << "_handleHeartbeat updating lastCurrentIndex from cached value:" << _cachedLastCurrentIndex;
         _lastCurrentIndex = _cachedLastCurrentIndex;
         _cachedLastCurrentIndex = -1;
         emit lastCurrentIndexChanged(_lastCurrentIndex);
     }
 }
-

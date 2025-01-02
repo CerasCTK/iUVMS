@@ -8,93 +8,78 @@
  ****************************************************************************/
 
 #include "GeoFenceManager.h"
-#include "Vehicle.h"
-#include "QmlObjectListModel.h"
 #include "QGCLoggingCategory.h"
+#include "QmlObjectListModel.h"
+#include "Vehicle.h"
 
 QGC_LOGGING_CATEGORY(GeoFenceManagerLog, "GeoFenceManagerLog")
 
-GeoFenceManager::GeoFenceManager(Vehicle* vehicle)
-    : PlanManager       (vehicle, MAV_MISSION_TYPE_FENCE)
-{
-    connect(this, &PlanManager::inProgressChanged,          this, &GeoFenceManager::inProgressChanged);
-    connect(this, &PlanManager::error,                      this, &GeoFenceManager::error);
-    connect(this, &PlanManager::removeAllComplete,          this, &GeoFenceManager::removeAllComplete);
-    connect(this, &PlanManager::sendComplete,               this, &GeoFenceManager::_sendComplete);
-    connect(this, &PlanManager::newMissionItemsAvailable,   this, &GeoFenceManager::_planManagerLoadComplete);
+GeoFenceManager::GeoFenceManager(Vehicle *vehicle) : PlanManager(vehicle, MAV_MISSION_TYPE_FENCE) {
+    connect(this, &PlanManager::inProgressChanged, this, &GeoFenceManager::inProgressChanged);
+    connect(this, &PlanManager::error, this, &GeoFenceManager::error);
+    connect(this, &PlanManager::removeAllComplete, this, &GeoFenceManager::removeAllComplete);
+    connect(this, &PlanManager::sendComplete, this, &GeoFenceManager::_sendComplete);
+    connect(this, &PlanManager::newMissionItemsAvailable, this, &GeoFenceManager::_planManagerLoadComplete);
 }
 
-GeoFenceManager::~GeoFenceManager()
-{
+GeoFenceManager::~GeoFenceManager() {}
 
-}
-
-void GeoFenceManager::sendToVehicle(const QGeoCoordinate&   breachReturn,
-                                    QmlObjectListModel&     polygons,
-                                    QmlObjectListModel&     circles)
-{
-    QList<MissionItem*> fenceItems;
+void GeoFenceManager::sendToVehicle(const QGeoCoordinate &breachReturn, QmlObjectListModel &polygons, QmlObjectListModel &circles) {
+    QList<MissionItem *> fenceItems;
 
     _sendPolygons.clear();
     _sendCircles.clear();
 
-    for (int i=0; i<polygons.count(); i++) {
-        _sendPolygons.append(*polygons.value<QGCFencePolygon*>(i));
+    for (int i = 0; i < polygons.count(); i++) {
+        _sendPolygons.append(*polygons.value<QGCFencePolygon *>(i));
     }
-    for (int i=0; i<circles.count(); i++) {
-        _sendCircles.append(*circles.value<QGCFenceCircle*>(i));
+    for (int i = 0; i < circles.count(); i++) {
+        _sendCircles.append(*circles.value<QGCFenceCircle *>(i));
     }
     _breachReturnPoint = breachReturn;
 
-    for (int i=0; i<_sendPolygons.count(); i++) {
-        const QGCFencePolygon& polygon = _sendPolygons[i];
+    for (int i = 0; i < _sendPolygons.count(); i++) {
+        const QGCFencePolygon &polygon = _sendPolygons[i];
 
-        for (int j=0; j<polygon.count(); j++) {
-            const QGeoCoordinate& vertex = polygon.path()[j].value<QGeoCoordinate>();
+        for (int j = 0; j < polygon.count(); j++) {
+            const QGeoCoordinate &vertex = polygon.path()[j].value<QGeoCoordinate>();
 
-            MissionItem* item = new MissionItem(0,
-                                                polygon.inclusion() ? MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION : MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION,
-                                                MAV_FRAME_GLOBAL,
-                                                polygon.count(),    // vertex count
-                                                0, 0, 0,            // param 2-4 unused
-                                                vertex.latitude(),
-                                                vertex.longitude(),
-                                                0,                  // param 7 unused
-                                                false,              // autocontinue
-                                                false,              // isCurrentItem
-                                                this);              // parent
+            MissionItem *item = new MissionItem(
+                0, polygon.inclusion() ? MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION : MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION, MAV_FRAME_GLOBAL,
+                polygon.count(), // vertex count
+                0, 0, 0,         // param 2-4 unused
+                vertex.latitude(), vertex.longitude(),
+                0,     // param 7 unused
+                false, // autocontinue
+                false, // isCurrentItem
+                this
+            ); // parent
             fenceItems.append(item);
         }
     }
 
-    for (int i=0; i<_sendCircles.count(); i++) {
-        QGCFenceCircle& circle = _sendCircles[i];
+    for (int i = 0; i < _sendCircles.count(); i++) {
+        QGCFenceCircle &circle = _sendCircles[i];
 
-        MissionItem* item = new MissionItem(0,
-                                            circle.inclusion() ? MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION : MAV_CMD_NAV_FENCE_CIRCLE_EXCLUSION,
-                                            MAV_FRAME_GLOBAL,
-                                            circle.radius()->rawValue().toDouble(),
-                                            0, 0, 0,                    // param 2-4 unused
-                                            circle.center().latitude(),
-                                            circle.center().longitude(),
-                                            0,                          // param 7 unused
-                                            false,                      // autocontinue
-                                            false,                      // isCurrentItem
-                                            this);                      // parent
+        MissionItem *item = new MissionItem(
+            0, circle.inclusion() ? MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION : MAV_CMD_NAV_FENCE_CIRCLE_EXCLUSION, MAV_FRAME_GLOBAL, circle.radius()->rawValue().toDouble(), 0, 0, 0, // param 2-4 unused
+            circle.center().latitude(), circle.center().longitude(),
+            0,     // param 7 unused
+            false, // autocontinue
+            false, // isCurrentItem
+            this
+        ); // parent
         fenceItems.append(item);
     }
 
     if (_breachReturnPoint.isValid()) {
-        MissionItem* item = new MissionItem(0,
-                                            MAV_CMD_NAV_FENCE_RETURN_POINT,
-                                            MAV_FRAME_GLOBAL_RELATIVE_ALT,
-                                            0, 0, 0, 0,                    // param 1-4 unused
-                                            breachReturn.latitude(),
-                                            breachReturn.longitude(),
-                                            breachReturn.altitude(),
-                                            false,                      // autocontinue
-                                            false,                      // isCurrentItem
-                                            this);                      // parent
+        MissionItem *item = new MissionItem(
+            0, MAV_CMD_NAV_FENCE_RETURN_POINT, MAV_FRAME_GLOBAL_RELATIVE_ALT, 0, 0, 0, 0, // param 1-4 unused
+            breachReturn.latitude(), breachReturn.longitude(), breachReturn.altitude(),
+            false, // autocontinue
+            false, // isCurrentItem
+            this
+        ); // parent
         fenceItems.append(item);
     }
 
@@ -102,8 +87,7 @@ void GeoFenceManager::sendToVehicle(const QGeoCoordinate&   breachReturn,
     writeMissionItems(fenceItems);
 }
 
-void GeoFenceManager::removeAll(void)
-{
+void GeoFenceManager::removeAll(void) {
     _polygons.clear();
     _circles.clear();
     _breachReturnPoint = QGeoCoordinate();
@@ -111,8 +95,7 @@ void GeoFenceManager::removeAll(void)
     PlanManager::removeAll();
 }
 
-void GeoFenceManager::_sendComplete(bool error)
-{
+void GeoFenceManager::_sendComplete(bool error) {
     if (error) {
         _polygons.clear();
         _circles.clear();
@@ -126,8 +109,7 @@ void GeoFenceManager::_sendComplete(bool error)
     emit sendComplete(error);
 }
 
-void GeoFenceManager::_planManagerLoadComplete(bool removeAllRequested)
-{
+void GeoFenceManager::_planManagerLoadComplete(bool removeAllRequested) {
     bool loadFailed = false;
 
     Q_UNUSED(removeAllRequested);
@@ -138,10 +120,10 @@ void GeoFenceManager::_planManagerLoadComplete(bool removeAllRequested)
     MAV_CMD expectedCommand = (MAV_CMD)0;
     int expectedVertexCount = 0;
     QGCFencePolygon nextPolygon(true /* inclusion */);
-    const QList<MissionItem*>& fenceItems = missionItems();
+    const QList<MissionItem *> &fenceItems = missionItems();
 
-    for (int i=0; i<fenceItems.count(); i++) {
-        MissionItem* item = fenceItems[i];
+    for (int i = 0; i < fenceItems.count(); i++) {
+        MissionItem *item = fenceItems[i];
 
         MAV_CMD command = item->command();
 
@@ -150,11 +132,12 @@ void GeoFenceManager::_planManagerLoadComplete(bool removeAllRequested)
                 // Starting a new polygon
                 expectedVertexCount = item->param1();
                 expectedCommand = command;
-            } else if (expectedVertexCount != item->param1()){
+            } else if (expectedVertexCount != item->param1()) {
                 // In the middle of a polygon, but count suddenly changed
                 emit error(BadPolygonItemFormat, tr("GeoFence load: Vertex count change mid-polygon - actual:expected").arg(item->param1()).arg(expectedVertexCount));
                 break;
-            } if (expectedCommand != command) {
+            }
+            if (expectedCommand != command) {
                 // Command changed before last polygon was completely loaded
                 emit error(BadPolygonItemFormat, tr("GeoFence load: Polygon type changed before last load complete - actual:expected").arg(command).arg(expectedCommand));
                 break;
@@ -191,7 +174,4 @@ void GeoFenceManager::_planManagerLoadComplete(bool removeAllRequested)
     emit loadComplete();
 }
 
-bool GeoFenceManager::supported(void) const
-{
-    return (_vehicle->capabilityBits() & MAV_PROTOCOL_CAPABILITY_MISSION_FENCE) && (_vehicle->maxProtoVersion() >= 200);
-}
+bool GeoFenceManager::supported(void) const { return (_vehicle->capabilityBits() & MAV_PROTOCOL_CAPABILITY_MISSION_FENCE) && (_vehicle->maxProtoVersion() >= 200); }

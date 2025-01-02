@@ -25,14 +25,10 @@ namespace {
 
 } // namespace
 
-RunGuard::RunGuard(const QString &key)
-    : key(key), memLockKey(generateKeyHash(key, "_memLockKey")),
-      sharedmemKey(generateKeyHash(key, "_sharedmemKey")),
-      sharedMem(sharedmemKey), memLock(memLockKey, 1) {
+RunGuard::RunGuard(const QString &key) : key(key), memLockKey(generateKeyHash(key, "_memLockKey")), sharedmemKey(generateKeyHash(key, "_sharedmemKey")), sharedMem(sharedmemKey), memLock(memLockKey, 1) {
     memLock.acquire();
     {
-        QSharedMemory fix(sharedmemKey
-        ); // Fix for *nix: http://habrahabr.ru/post/173281/
+        QSharedMemory fix(sharedmemKey); // Fix for *nix: http://habrahabr.ru/post/173281/
         fix.attach();
     }
     memLock.release();

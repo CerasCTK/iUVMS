@@ -7,23 +7,21 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include "VehicleComponent.h"
 
 class Actuators;
 
-class ActuatorComponent : public VehicleComponent
-{
+class ActuatorComponent : public VehicleComponent {
     Q_OBJECT
-    
-public:
-    ActuatorComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent = nullptr);
+
+  public:
+    ActuatorComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent = nullptr);
 
     // Virtuals from VehicleComponent
     QStringList setupCompleteChangedTriggerList(void) const final;
-    
+
     // Virtuals from VehicleComponent
     QString name(void) const final;
     QString description(void) const final;
@@ -33,7 +31,7 @@ public:
     virtual QUrl setupSource(void) const;
     QUrl summaryQmlSource(void) const final;
 
-private:
-    const QString   _name;
-    Actuators& _actuators;
+  private:
+    const QString _name;
+    Actuators &_actuators;
 };

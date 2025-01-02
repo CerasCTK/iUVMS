@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include "AutoPilotPlugin.h"
@@ -17,14 +16,13 @@
 ///             we do not have a specific AutoPilotPlugin implementation.
 ///     @author Don Gagne <don@thegagnes.com>
 
-class GenericAutoPilotPlugin : public AutoPilotPlugin
-{
+class GenericAutoPilotPlugin : public AutoPilotPlugin {
     Q_OBJECT
 
-public:
-    GenericAutoPilotPlugin(Vehicle* vehicle, QObject* parent = nullptr);
-    
+  public:
+    GenericAutoPilotPlugin(Vehicle *vehicle, QObject *parent = nullptr);
+
     // Overrides from AutoPilotPlugin
-    const QVariantList& vehicleComponents(void) final;
-    QString prerequisiteSetup(VehicleComponent* component) const final;
+    const QVariantList &vehicleComponents(void) final;
+    QString prerequisiteSetup(VehicleComponent *component) const final;
 };

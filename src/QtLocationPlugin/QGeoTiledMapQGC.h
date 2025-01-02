@@ -9,23 +9,22 @@
 
 #pragma once
 
-#include <QtLocation/private/qgeotiledmap_p.h>
 #include <QtCore/QLoggingCategory>
+#include <QtLocation/private/qgeotiledmap_p.h>
 
 Q_DECLARE_LOGGING_CATEGORY(QGeoTiledMapQGCLog)
 
 class QGeoTiledMappingManagerEngineQGC;
 
-class QGeoTiledMapQGC : public QGeoTiledMap
-{
+class QGeoTiledMapQGC : public QGeoTiledMap {
     Q_OBJECT
 
-public:
+  public:
     explicit QGeoTiledMapQGC(QGeoTiledMappingManagerEngineQGC *engine, QObject *parent = nullptr);
     ~QGeoTiledMapQGC();
 
     QGeoMap::Capabilities capabilities() const final;
 
-private:
+  private:
     // void evaluateCopyrights(const QSet<QGeoTileSpec> &visibleTiles) final;
 };

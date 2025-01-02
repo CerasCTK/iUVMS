@@ -13,7 +13,4 @@
 
 #include <QtTest/QTest>
 
-void GpsTest::_testGpsRTCM()
-{
-
-}
+void GpsTest::_testGpsRTCM() {}

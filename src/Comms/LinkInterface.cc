@@ -8,12 +8,12 @@
  ****************************************************************************/
 
 #include "LinkInterface.h"
+#include "AppSettings.h"
 #include "LinkManager.h"
+#include "MAVLinkSigning.h"
 #include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
-#include "MAVLinkSigning.h"
 #include "SettingsManager.h"
-#include "AppSettings.h"
 
 #ifdef QT_DEBUG
 #include "MockLink.h"
@@ -23,15 +23,9 @@
 
 QGC_LOGGING_CATEGORY(LinkInterfaceLog, "LinkInterfaceLog")
 
-LinkInterface::LinkInterface(SharedLinkConfigurationPtr &config, QObject *parent)
-    : QThread(parent)
-    , _config(config)
-{
-    QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
-}
+LinkInterface::LinkInterface(SharedLinkConfigurationPtr &config, QObject *parent) : QThread(parent), _config(config) { QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership); }
 
-LinkInterface::~LinkInterface()
-{
+LinkInterface::~LinkInterface() {
     if (_vehicleReferenceCount != 0) {
         qCWarning(LinkInterfaceLog) << Q_FUNC_INFO << "still have vehicle references:" << _vehicleReferenceCount;
     }
@@ -39,8 +33,7 @@ LinkInterface::~LinkInterface()
     _config.reset();
 }
 
-uint8_t LinkInterface::mavlinkChannel() const
-{
+uint8_t LinkInterface::mavlinkChannel() const {
     if (!mavlinkChannelIsSet()) {
         qCWarning(LinkInterfaceLog) << Q_FUNC_INFO << "mavlinkChannelIsSet() == false";
     }
@@ -48,13 +41,9 @@ uint8_t LinkInterface::mavlinkChannel() const
     return _mavlinkChannel;
 }
 
-bool LinkInterface::mavlinkChannelIsSet() const
-{
-    return (LinkManager::invalidMavlinkChannel() != _mavlinkChannel);
-}
+bool LinkInterface::mavlinkChannelIsSet() const { return (LinkManager::invalidMavlinkChannel() != _mavlinkChannel); }
 
-bool LinkInterface::initMavlinkSigning(void)
-{
+bool LinkInterface::initMavlinkSigning(void) {
     if (!isSecureConnection()) {
         auto appSettings = SettingsManager::instance()->appSettings();
         QByteArray signingKeyBytes = appSettings->mavlink2SigningKey()->rawValue().toByteArray();
@@ -74,8 +63,7 @@ bool LinkInterface::initMavlinkSigning(void)
     return true;
 }
 
-bool LinkInterface::_allocateMavlinkChannel()
-{
+bool LinkInterface::_allocateMavlinkChannel() {
     Q_ASSERT(!mavlinkChannelIsSet());
 
     if (mavlinkChannelIsSet()) {
@@ -97,8 +85,7 @@ bool LinkInterface::_allocateMavlinkChannel()
     return true;
 }
 
-void LinkInterface::_freeMavlinkChannel()
-{
+void LinkInterface::_freeMavlinkChannel() {
     qCDebug(LinkInterfaceLog) << Q_FUNC_INFO << _mavlinkChannel;
 
     if (!mavlinkChannelIsSet()) {
@@ -109,14 +96,12 @@ void LinkInterface::_freeMavlinkChannel()
     _mavlinkChannel = LinkManager::invalidMavlinkChannel();
 }
 
-void LinkInterface::writeBytesThreadSafe(const char *bytes, int length)
-{
+void LinkInterface::writeBytesThreadSafe(const char *bytes, int length) {
     const QByteArray data(bytes, length);
-    (void) QMetaObject::invokeMethod(this, "_writeBytes", Qt::AutoConnection, data);
+    (void)QMetaObject::invokeMethod(this, "_writeBytes", Qt::AutoConnection, data);
 }
 
-void LinkInterface::removeVehicleReference()
-{
+void LinkInterface::removeVehicleReference() {
     if (_vehicleReferenceCount != 0) {
         _vehicleReferenceCount--;
         _connectionRemoved();
@@ -125,8 +110,7 @@ void LinkInterface::removeVehicleReference()
     }
 }
 
-void LinkInterface::_connectionRemoved()
-{
+void LinkInterface::_connectionRemoved() {
     if (_vehicleReferenceCount == 0) {
         // Since there are no vehicles on the link we can disconnect it right now
         disconnect();
@@ -135,8 +119,7 @@ void LinkInterface::_connectionRemoved()
     }
 }
 
-void LinkInterface::setSigningSignatureFailure(bool failure)
-{
+void LinkInterface::setSigningSignatureFailure(bool failure) {
     if (_signingSignatureFailure != failure) {
         _signingSignatureFailure = failure;
         if (_signingSignatureFailure) {

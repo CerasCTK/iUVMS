@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include <QtCore/QFile>
@@ -23,28 +22,33 @@ class QNetworkAccessManager;
 class MAVLinkLogManager;
 class Vehicle;
 
-class MAVLinkLogFiles : public QObject
-{
+class MAVLinkLogFiles : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY(QString  name        READ name                            CONSTANT)
-    Q_PROPERTY(bool     selected    READ selected    WRITE setSelected   NOTIFY selectedChanged)
-    Q_PROPERTY(bool     uploaded    READ uploaded                        NOTIFY uploadedChanged)
-    Q_PROPERTY(bool     uploading   READ uploading                       NOTIFY uploadingChanged)
-    Q_PROPERTY(bool     writing     READ writing                         NOTIFY writingChanged)
-    Q_PROPERTY(qreal    progress    READ progress                        NOTIFY progressChanged)
-    Q_PROPERTY(quint32  size        READ size                            NOTIFY sizeChanged)
+    Q_PROPERTY(QString name READ name CONSTANT)
+    Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectedChanged)
+    Q_PROPERTY(bool uploaded READ uploaded NOTIFY uploadedChanged)
+    Q_PROPERTY(bool uploading READ uploading NOTIFY uploadingChanged)
+    Q_PROPERTY(bool writing READ writing NOTIFY writingChanged)
+    Q_PROPERTY(qreal progress READ progress NOTIFY progressChanged)
+    Q_PROPERTY(quint32 size READ size NOTIFY sizeChanged)
 
-public:
+  public:
     MAVLinkLogFiles(MAVLinkLogManager *manager, const QString &filePath, bool newFile = false);
     ~MAVLinkLogFiles();
 
     QString name() const { return _name; }
+
     bool selected() const { return _selected; }
+
     bool uploaded() const { return _uploaded; }
+
     bool uploading() const { return _uploading; }
+
     bool writing() const { return _writing; }
+
     qreal progress() const { return _progress; }
+
     quint32 size() const { return _size; }
 
     void setProgress(qreal progress);
@@ -54,7 +58,7 @@ public:
     void setUploading(bool uploading);
     void setWriting(bool writing);
 
-signals:
+  signals:
     void progressChanged();
     void selectedChanged();
     void sizeChanged();
@@ -62,7 +66,7 @@ signals:
     void uploadingChanged();
     void writingChanged();
 
-private:
+  private:
     bool _selected = false;
     bool _uploaded = false;
     bool _uploading = false;
@@ -74,23 +78,27 @@ private:
 
 /*===========================================================================*/
 
-class MAVLinkLogProcessor
-{
-public:
+class MAVLinkLogProcessor {
+  public:
     MAVLinkLogProcessor();
     ~MAVLinkLogProcessor();
 
     void close();
+
     bool valid() const { return ((_file.exists()) && (_record != nullptr)); }
+
     bool create(MAVLinkLogManager *manager, QStringView path, uint8_t id);
+
     MAVLinkLogFiles *record() { return _record; }
+
     QString fileName() const { return _fileName; }
+
     bool processStreamData(uint16_t _sequence, uint8_t first_message, const QByteArray &in);
 
-private:
+  private:
     bool _checkSequence(uint16_t seq, int &num_drops);
     QByteArray _writeUlogMessage(QByteArray &data);
-    void _writeData(const void* data, int len);
+    void _writeData(const void *data, int len);
 
     bool _error = false;
     bool _gotHeader = false;
@@ -108,30 +116,28 @@ private:
 
 /*===========================================================================*/
 
-
-class MAVLinkLogManager : public QObject
-{
+class MAVLinkLogManager : public QObject {
     Q_OBJECT
     QML_ELEMENT
     QML_UNCREATABLE("")
     Q_MOC_INCLUDE("QmlObjectListModel.h")
-    Q_PROPERTY(QString              emailAddress        READ emailAddress       WRITE setEmailAddress       NOTIFY emailAddressChanged)
-    Q_PROPERTY(QString              description         READ description        WRITE setDescription        NOTIFY descriptionChanged)
-    Q_PROPERTY(QString              uploadURL           READ uploadURL          WRITE setUploadURL          NOTIFY uploadURLChanged)
-    Q_PROPERTY(QString              feedback            READ feedback           WRITE setFeedback           NOTIFY feedbackChanged)
-    Q_PROPERTY(QString              videoURL            READ videoURL           WRITE setVideoURL           NOTIFY videoURLChanged)
-    Q_PROPERTY(bool                 enableAutoUpload    READ enableAutoUpload   WRITE setEnableAutoUpload   NOTIFY enableAutoUploadChanged)
-    Q_PROPERTY(bool                 enableAutoStart     READ enableAutoStart    WRITE setEnableAutoStart    NOTIFY enableAutoStartChanged)
-    Q_PROPERTY(bool                 deleteAfterUpload   READ deleteAfterUpload  WRITE setDeleteAfterUpload  NOTIFY deleteAfterUploadChanged)
-    Q_PROPERTY(bool                 publicLog           READ publicLog          WRITE setPublicLog          NOTIFY publicLogChanged)
-    Q_PROPERTY(bool                 uploading           READ uploading                                      NOTIFY uploadingChanged)
-    Q_PROPERTY(bool                 logRunning          READ logRunning                                     NOTIFY logRunningChanged)
-    Q_PROPERTY(bool                 canStartLog         READ canStartLog                                    NOTIFY canStartLogChanged)
-    Q_PROPERTY(QmlObjectListModel   *logFiles           READ logFiles                                       NOTIFY logFilesChanged)
-    Q_PROPERTY(int                  windSpeed           READ windSpeed          WRITE setWindSpeed          NOTIFY windSpeedChanged)
-    Q_PROPERTY(QString              rating              READ rating             WRITE setRating             NOTIFY ratingChanged)
+    Q_PROPERTY(QString emailAddress READ emailAddress WRITE setEmailAddress NOTIFY emailAddressChanged)
+    Q_PROPERTY(QString description READ description WRITE setDescription NOTIFY descriptionChanged)
+    Q_PROPERTY(QString uploadURL READ uploadURL WRITE setUploadURL NOTIFY uploadURLChanged)
+    Q_PROPERTY(QString feedback READ feedback WRITE setFeedback NOTIFY feedbackChanged)
+    Q_PROPERTY(QString videoURL READ videoURL WRITE setVideoURL NOTIFY videoURLChanged)
+    Q_PROPERTY(bool enableAutoUpload READ enableAutoUpload WRITE setEnableAutoUpload NOTIFY enableAutoUploadChanged)
+    Q_PROPERTY(bool enableAutoStart READ enableAutoStart WRITE setEnableAutoStart NOTIFY enableAutoStartChanged)
+    Q_PROPERTY(bool deleteAfterUpload READ deleteAfterUpload WRITE setDeleteAfterUpload NOTIFY deleteAfterUploadChanged)
+    Q_PROPERTY(bool publicLog READ publicLog WRITE setPublicLog NOTIFY publicLogChanged)
+    Q_PROPERTY(bool uploading READ uploading NOTIFY uploadingChanged)
+    Q_PROPERTY(bool logRunning READ logRunning NOTIFY logRunningChanged)
+    Q_PROPERTY(bool canStartLog READ canStartLog NOTIFY canStartLogChanged)
+    Q_PROPERTY(QmlObjectListModel *logFiles READ logFiles NOTIFY logFilesChanged)
+    Q_PROPERTY(int windSpeed READ windSpeed WRITE setWindSpeed NOTIFY windSpeedChanged)
+    Q_PROPERTY(QString rating READ rating WRITE setRating NOTIFY ratingChanged)
 
-public:
+  public:
     /// Constructs an MAVLinkLogManager object.
     ///     @param parent The parent QObject.
     explicit MAVLinkLogManager(Vehicle *vehicle, QObject *parent = nullptr);
@@ -146,19 +152,33 @@ public:
     Q_INVOKABLE void uploadLog();
 
     QString emailAddress() const { return _emailAddress; }
+
     QString description() const { return _description; }
+
     QString uploadURL() const { return _uploadURL; }
+
     QString feedback() const { return _feedback; }
+
     QString videoURL() const { return _videoURL; }
+
     bool enableAutoUpload() const { return _enableAutoUpload; }
+
     bool enableAutoStart() const { return _enableAutoStart; }
+
     bool uploading() const { return (_currentLogfile != nullptr); }
+
     bool logRunning() const { return _logRunning; }
+
     bool canStartLog() const { return !_loggingDenied; }
+
     bool deleteAfterUpload() const { return _deleteAfterUpload; }
+
     bool publicLog() const { return _publicLog; }
+
     int windSpeed() const { return _windSpeed; }
+
     QString rating() const { return _rating; }
+
     QString logExtension() const { return _ulogExtension; }
 
     QmlObjectListModel *logFiles() { return _logFiles; }
@@ -175,7 +195,7 @@ public:
     void setVideoURL(const QString &url);
     void setWindSpeed(int speed);
 
-signals:
+  signals:
     void abortUpload();
     void canStartLogChanged();
     void deleteAfterUploadChanged();
@@ -197,7 +217,7 @@ signals:
     void videoURLChanged();
     void windSpeedChanged();
 
-private slots:
+  private slots:
     void _uploadFinished();
     void _dataAvailable();
     void _uploadProgress(qint64 bytesSent, qint64 bytesTotal);
@@ -205,11 +225,11 @@ private slots:
     void _armedChanged(bool armed);
     void _mavCommandResult(int vehicleId, int component, int command, int result, bool noReponseFromVehicle);
 
-private:
+  private:
     bool _sendLog(const QString &logFile);
     bool _processUploadResponse(int http_code, const QByteArray &data);
     bool _createNewLog();
-    int  _getFirstSelected() const;
+    int _getFirstSelected() const;
     void _insertNewLog(MAVLinkLogFiles *newLog);
     void _deleteLog(MAVLinkLogFiles *log);
     void _discardLog();

@@ -24,11 +24,10 @@ class FactGroup;
 class RTCMMavlink;
 class GPSProvider;
 
-class GPSRtk : public QObject
-{
+class GPSRtk : public QObject {
     Q_OBJECT
 
-public:
+  public:
     GPSRtk(QObject *parent = nullptr);
     ~GPSRtk();
 
@@ -39,7 +38,7 @@ public:
     bool connected() const;
     FactGroup *gpsRtkFactGroup();
 
-private slots:
+  private slots:
     void _satelliteInfoUpdate(const satellite_info_s &msg);
     void _sensorGnssRelativeUpdate(const sensor_gnss_relative_s &msg);
     void _sensorGpsUpdate(const sensor_gps_s &msg);
@@ -47,7 +46,7 @@ private slots:
     void _onGPSDisconnect();
     void _onGPSSurveyInStatus(float duration, float accuracyMM, double latitude, double longitude, float altitude, bool valid, bool active);
 
-private:
+  private:
     GPSProvider *_gpsProvider = nullptr;
     RTCMMavlink *_rtcmMavlink = nullptr;
     GPSRTKFactGroup *_gpsRtkFactGroup = nullptr;

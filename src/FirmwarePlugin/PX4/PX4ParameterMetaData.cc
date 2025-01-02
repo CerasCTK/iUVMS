@@ -7,76 +7,62 @@
  *
  ****************************************************************************/
 
-
 /// @file
 ///     @author Don Gagne <don@thegagnes.com>
 
 #include "PX4ParameterMetaData.h"
 #include "QGCLoggingCategory.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QXmlStreamReader>
 
 QGC_LOGGING_CATEGORY(PX4ParameterMetaDataLog, "PX4ParameterMetaDataLog")
 
-PX4ParameterMetaData::PX4ParameterMetaData(void)
-{
-
-}
+PX4ParameterMetaData::PX4ParameterMetaData(void) {}
 
 /// Converts a string to a typed QVariant
 ///     @param string String to convert
 ///     @param type Type for Fact which dictates the QVariant type as well
 ///     @param convertOk Returned: true: conversion success, false: conversion failure
 /// @return Returns the correctly type QVariant
-QVariant PX4ParameterMetaData::_stringToTypedVariant(const QString& string, FactMetaData::ValueType_t type, bool* convertOk)
-{
+QVariant PX4ParameterMetaData::_stringToTypedVariant(const QString &string, FactMetaData::ValueType_t type, bool *convertOk) {
     QVariant var(string);
 
     QMetaType::Type convertTo = QMetaType::Int; // keep compiler warning happy
     switch (type) {
-    case FactMetaData::valueTypeUint8:
-    case FactMetaData::valueTypeUint16:
-    case FactMetaData::valueTypeUint32:
-    case FactMetaData::valueTypeUint64:
-        convertTo = QMetaType::UInt;
-        break;
-    case FactMetaData::valueTypeInt8:
-    case FactMetaData::valueTypeInt16:
-    case FactMetaData::valueTypeInt32:
-    case FactMetaData::valueTypeInt64:
-        convertTo = QMetaType::Int;
-        break;
-    case FactMetaData::valueTypeFloat:
-        convertTo = QMetaType::Float;
-        break;
-    case FactMetaData::valueTypeElapsedTimeInSeconds:
-    case FactMetaData::valueTypeDouble:
-        convertTo = QMetaType::Double;
-        break;
-    case FactMetaData::valueTypeString:
-        qWarning() << kInvalidConverstion;
-        convertTo = QMetaType::QString;
-        break;
-    case FactMetaData::valueTypeBool:
-        qWarning() << kInvalidConverstion;
-        convertTo = QMetaType::Bool;
-        break;
-    case FactMetaData::valueTypeCustom:
-        qWarning() << kInvalidConverstion;
-        convertTo = QMetaType::QByteArray;
-        break;
+        case FactMetaData::valueTypeUint8:
+        case FactMetaData::valueTypeUint16:
+        case FactMetaData::valueTypeUint32:
+        case FactMetaData::valueTypeUint64: convertTo = QMetaType::UInt; break;
+        case FactMetaData::valueTypeInt8:
+        case FactMetaData::valueTypeInt16:
+        case FactMetaData::valueTypeInt32:
+        case FactMetaData::valueTypeInt64: convertTo = QMetaType::Int; break;
+        case FactMetaData::valueTypeFloat: convertTo = QMetaType::Float; break;
+        case FactMetaData::valueTypeElapsedTimeInSeconds:
+        case FactMetaData::valueTypeDouble: convertTo = QMetaType::Double; break;
+        case FactMetaData::valueTypeString:
+            qWarning() << kInvalidConverstion;
+            convertTo = QMetaType::QString;
+            break;
+        case FactMetaData::valueTypeBool:
+            qWarning() << kInvalidConverstion;
+            convertTo = QMetaType::Bool;
+            break;
+        case FactMetaData::valueTypeCustom:
+            qWarning() << kInvalidConverstion;
+            convertTo = QMetaType::QByteArray;
+            break;
     }
-    
+
     *convertOk = var.convert(QMetaType(convertTo));
-    
+
     return var;
 }
 
-void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaDataFile)
-{
+void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString &metaDataFile) {
     qCDebug(ParameterManagerLog) << "PX4ParameterMetaData::loadParameterFactMetaDataFile" << metaDataFile;
 
     if (_parameterMetaDataLoaded) {
@@ -93,43 +79,43 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
         qWarning() << "Internal error: metaDataFile mission" << metaDataFile;
         return;
     }
-    
+
     if (!xmlFile.open(QIODevice::ReadOnly)) {
         qWarning() << "Internal error: Unable to open parameter file:" << metaDataFile << xmlFile.errorString();
         return;
     }
-    
+
     QXmlStreamReader xml(xmlFile.readAll());
     xmlFile.close();
     if (xml.hasError()) {
         qWarning() << "Badly formed XML" << xml.errorString();
         return;
     }
-    
-    QString         factGroup;
-    QString         errorString;
-    FactMetaData*   metaData = nullptr;
-    int             xmlState = XmlStateNone;
-    bool            badMetaData = true;
-    
+
+    QString factGroup;
+    QString errorString;
+    FactMetaData *metaData = nullptr;
+    int xmlState = XmlStateNone;
+    bool badMetaData = true;
+
     while (!xml.atEnd()) {
         if (xml.isStartElement()) {
             QString elementName = xml.name().toString();
-            
+
             if (elementName == "parameters") {
                 if (xmlState != XmlStateNone) {
                     qWarning() << "Badly formed XML";
                     return;
                 }
                 xmlState = XmlStateFoundParameters;
-                
+
             } else if (elementName == "version") {
                 if (xmlState != XmlStateFoundParameters) {
                     qWarning() << "Badly formed XML";
                     return;
                 }
                 xmlState = XmlStateFoundVersion;
-                
+
                 bool convertOk;
                 QString strVersion = xml.readElementText();
                 int intVersion = strVersion.toInt(&convertOk);
@@ -142,7 +128,7 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
                     qDebug() << "Parameter version stamp too old, skipping load. Found:" << intVersion << "Want: 3 File:" << metaDataFile;
                     return;
                 }
-                
+
             } else if (elementName == "parameter_version_major") {
                 // Just skip over for now
             } else if (elementName == "parameter_version_minor") {
@@ -155,30 +141,30 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
                     return;
                 }
                 xmlState = XmlStateFoundGroup;
-                
+
                 if (!xml.attributes().hasAttribute("name")) {
                     qWarning() << "Badly formed XML";
                     return;
                 }
                 factGroup = xml.attributes().value("name").toString();
                 qCDebug(PX4ParameterMetaDataLog) << "Found group: " << factGroup;
-                
+
             } else if (elementName == "parameter") {
                 if (xmlState != XmlStateFoundGroup) {
                     qWarning() << "Badly formed XML";
                     return;
                 }
                 xmlState = XmlStateFoundParameter;
-                
+
                 if (!xml.attributes().hasAttribute("name") || !xml.attributes().hasAttribute("type")) {
                     qWarning() << "Badly formed XML";
                     return;
                 }
-                
+
                 QString name = xml.attributes().value("name").toString();
                 QString type = xml.attributes().value("type").toString();
-                QString strDefault =    xml.attributes().value("default").toString();
-                
+                QString strDefault = xml.attributes().value("default").toString();
+
                 QString category = xml.attributes().value("category").toString();
                 if (category.isEmpty()) {
                     category = QStringLiteral("Standard");
@@ -207,7 +193,7 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
                     qWarning() << "Parameter meta data with bad type:" << type << " name:" << name;
                     return;
                 }
-                
+
                 // Now that we know type we can create meta data object and add it to the system
                 metaData = new FactMetaData(foundType, this);
                 if (_mapParameterName2FactMetaData.contains(name)) {
@@ -223,10 +209,10 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
                     metaData->setGroup(factGroup);
                     metaData->setReadOnly(readOnly);
                     metaData->setVolatileValue(volatileValue);
-                    
+
                     if (xml.attributes().hasAttribute("default") && !strDefault.isEmpty()) {
                         QVariant varDefault;
-                        
+
                         if (metaData->convertAndValidateRaw(strDefault, false, varDefault, errorString)) {
                             metaData->setRawDefaultValue(varDefault);
                         } else {
@@ -234,7 +220,7 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
                         }
                     }
                 }
-                
+
             } else {
                 // We should be getting meta data now
                 if (xmlState != XmlStateFoundParameter) {
@@ -308,21 +294,18 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
                         } else if (elementName == "value") {
                             QString enumValueStr = xml.attributes().value("code").toString();
                             QString enumString = xml.readElementText();
-                            qCDebug(PX4ParameterMetaDataLog) << "parameter value:"
-                                                             << "value desc:" << enumString << "code:" << enumValueStr;
+                            qCDebug(PX4ParameterMetaDataLog) << "parameter value:" << "value desc:" << enumString << "code:" << enumValueStr;
 
-                            QVariant    enumValue;
-                            QString     errorString;
+                            QVariant enumValue;
+                            QString errorString;
                             if (metaData->convertAndValidateRaw(enumValueStr, false /* validate */, enumValue, errorString)) {
                                 metaData->addEnumInfo(enumString, enumValue);
                             } else {
-                                qCDebug(PX4ParameterMetaDataLog) << "Invalid enum value, name:" << metaData->name()
-                                                                 << " type:" << metaData->type() << " value:" << enumValueStr
-                                                                 << " error:" << errorString;
+                                qCDebug(PX4ParameterMetaDataLog) << "Invalid enum value, name:" << metaData->name() << " type:" << metaData->type() << " value:" << enumValueStr << " error:" << errorString;
                             }
                         } else if (elementName == "increment") {
-                            double  increment;
-                            bool    ok;
+                            double increment;
+                            bool ok;
                             QString text = xml.readElementText();
                             increment = text.toDouble(&ok);
                             if (ok) {
@@ -332,7 +315,7 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
                             }
 
                         } else if (elementName == "boolean") {
-                            QVariant    enumValue;
+                            QVariant enumValue;
                             metaData->convertAndValidateRaw(1, false /* validate */, enumValue, errorString);
                             metaData->addEnumInfo(tr("Enabled"), enumValue);
                             metaData->convertAndValidateRaw(0, false /* validate */, enumValue, errorString);
@@ -346,8 +329,7 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
                             unsigned char bit = xml.attributes().value("index").toString().toUInt(&ok);
                             if (ok) {
                                 QString bitDescription = xml.readElementText();
-                                qCDebug(PX4ParameterMetaDataLog) << "parameter value:"
-                                                                 << "index:" << bit << "description:" << bitDescription;
+                                qCDebug(PX4ParameterMetaDataLog) << "parameter value:" << "index:" << bit << "description:" << bitDescription;
 
                                 if (bit < 31) {
                                     QVariant bitmaskRawValue = 1 << bit;
@@ -356,9 +338,7 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
                                     if (metaData->convertAndValidateRaw(bitmaskRawValue, true, bitmaskValue, errorString)) {
                                         metaData->addBitmaskInfo(bitDescription, bitmaskValue);
                                     } else {
-                                        qCDebug(PX4ParameterMetaDataLog) << "Invalid bitmask value, name:" << metaData->name()
-                                                                         << " type:" << metaData->type() << " value:" << bitmaskValue
-                                                                         << " error:" << errorString;
+                                        qCDebug(PX4ParameterMetaDataLog) << "Invalid bitmask value, name:" << metaData->name() << " type:" << metaData->type() << " value:" << bitmaskValue << " error:" << errorString;
                                     }
                                 } else {
                                     qCWarning(PX4ParameterMetaDataLog) << "Invalid value for bitmask, bit:" << bit;
@@ -404,8 +384,7 @@ void PX4ParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
 }
 
 #ifdef GENERATE_PARAMETER_JSON
-void _jsonWriteLine(QFile& file, int indent, const QString& line)
-{
+void _jsonWriteLine(QFile &file, int indent, const QString &line) {
     while (indent--) {
         file.write("  ");
     }
@@ -413,8 +392,7 @@ void _jsonWriteLine(QFile& file, int indent, const QString& line)
     file.write("\n");
 }
 
-void PX4ParameterMetaData::_generateParameterJson()
-{
+void PX4ParameterMetaData::_generateParameterJson() {
     qCDebug(ParameterManagerLog) << "PX4ParameterMetaData::_generateParameterJson";
 
     int indentLevel = 0;
@@ -428,8 +406,8 @@ void PX4ParameterMetaData::_generateParameterJson()
     _jsonWriteLine(jsonFile, indentLevel++, "\"parameters\": [");
 
     int keyIndex = 0;
-    for (const QString& paramName: _mapParameterName2FactMetaData.keys()) {
-        const FactMetaData* metaData = _mapParameterName2FactMetaData[paramName];
+    for (const QString &paramName : _mapParameterName2FactMetaData.keys()) {
+        const FactMetaData *metaData = _mapParameterName2FactMetaData[paramName];
         _jsonWriteLine(jsonFile, indentLevel++, "{");
         _jsonWriteLine(jsonFile, indentLevel, QStringLiteral("\"name\": \"%1\",").arg(paramName));
         _jsonWriteLine(jsonFile, indentLevel, QStringLiteral("\"type\": \"%1\",").arg(metaData->typeToString(metaData->type())));
@@ -460,7 +438,7 @@ void PX4ParameterMetaData::_generateParameterJson()
         }
         if (metaData->enumValues().count()) {
             _jsonWriteLine(jsonFile, indentLevel++, "\"values\": [");
-            for (int i=0; i<metaData->enumValues().count(); i++) {
+            for (int i = 0; i < metaData->enumValues().count(); i++) {
                 _jsonWriteLine(jsonFile, indentLevel++, "{");
                 _jsonWriteLine(jsonFile, indentLevel, QStringLiteral("\"value\": %1,").arg(metaData->enumValues()[i].toDouble()));
                 QString text = metaData->enumStrings()[i];
@@ -487,21 +465,19 @@ void PX4ParameterMetaData::_generateParameterJson()
 }
 #endif
 
-FactMetaData* PX4ParameterMetaData::getMetaDataForFact(const QString& name, MAV_TYPE vehicleType, FactMetaData::ValueType_t type)
-{
+FactMetaData *PX4ParameterMetaData::getMetaDataForFact(const QString &name, MAV_TYPE vehicleType, FactMetaData::ValueType_t type) {
     Q_UNUSED(vehicleType)
 
     if (!_mapParameterName2FactMetaData.contains(name)) {
         qCDebug(PX4ParameterMetaDataLog) << "No metaData for " << name << "using generic metadata";
-        FactMetaData* metaData = new FactMetaData(type, this);
+        FactMetaData *metaData = new FactMetaData(type, this);
         _mapParameterName2FactMetaData[name] = metaData;
     }
 
     return _mapParameterName2FactMetaData[name];
 }
 
-void PX4ParameterMetaData::getParameterMetaDataVersionInfo(const QString& metaDataFile, int& majorVersion, int& minorVersion)
-{
+void PX4ParameterMetaData::getParameterMetaDataVersionInfo(const QString &metaDataFile, int &majorVersion, int &minorVersion) {
     QFile xmlFile(metaDataFile);
     QString errorString;
 
@@ -558,7 +534,6 @@ void PX4ParameterMetaData::getParameterMetaDataVersionInfo(const QString& metaDa
     }
 }
 
-void PX4ParameterMetaData::_outputFileWarning(const QString& metaDataFile, const QString& error1, const QString& error2)
-{
+void PX4ParameterMetaData::_outputFileWarning(const QString &metaDataFile, const QString &error1, const QString &error2) {
     qWarning() << QStringLiteral("Internal Error: Parameter meta data file '%1'. %2. error: %3").arg(metaDataFile).arg(error1).arg(error2);
 }

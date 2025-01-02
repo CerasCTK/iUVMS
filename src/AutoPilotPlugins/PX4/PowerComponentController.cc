@@ -10,47 +10,34 @@
 #include "PowerComponentController.h"
 #include "Vehicle.h"
 
-PowerComponentController::PowerComponentController(void)
-{
+PowerComponentController::PowerComponentController(void) {}
 
-}
-
-void PowerComponentController::calibrateEsc(void)
-{
+void PowerComponentController::calibrateEsc(void) {
     _warningMessages.clear();
     connect(_vehicle, &Vehicle::textMessageReceived, this, &PowerComponentController::_handleVehicleTextMessage);
     _vehicle->startCalibration(QGCMAVLink::CalibrationEsc);
 }
 
-void PowerComponentController::startBusConfigureActuators(void)
-{
+void PowerComponentController::startBusConfigureActuators(void) {
     _warningMessages.clear();
     connect(_vehicle, &Vehicle::textMessageReceived, this, &PowerComponentController::_handleVehicleTextMessage);
     _vehicle->startUAVCANBusConfig();
 }
 
-void PowerComponentController::stopBusConfigureActuators(void)
-{
+void PowerComponentController::stopBusConfigureActuators(void) {
     disconnect(_vehicle, &Vehicle::textMessageReceived, this, &PowerComponentController::_handleVehicleTextMessage);
     _vehicle->stopUAVCANBusConfig();
 }
 
-void PowerComponentController::_stopCalibration(void)
-{
-    disconnect(_vehicle, &Vehicle::textMessageReceived, this, &PowerComponentController::_handleVehicleTextMessage);
-}
+void PowerComponentController::_stopCalibration(void) { disconnect(_vehicle, &Vehicle::textMessageReceived, this, &PowerComponentController::_handleVehicleTextMessage); }
 
-void PowerComponentController::_stopBusConfig(void)
-{
-    _stopCalibration();
-}
+void PowerComponentController::_stopBusConfig(void) { _stopCalibration(); }
 
-void PowerComponentController::_handleVehicleTextMessage(int vehicleId, int /* compId */, int /* severity */, QString text)
-{
+void PowerComponentController::_handleVehicleTextMessage(int vehicleId, int /* compId */, int /* severity */, QString text) {
     if (vehicleId != _vehicle->id()) {
         return;
     }
-    
+
     // All calibration messages start with [cal]
     QString calPrefix("[cal] ");
     if (!text.startsWith(calPrefix)) {
@@ -62,14 +49,14 @@ void PowerComponentController::_handleVehicleTextMessage(int vehicleId, int /* c
     QString calStartPrefix("calibration started: ");
     if (text.startsWith(calStartPrefix)) {
         text = text.right(text.length() - calStartPrefix.length());
-        
+
         // Split version number and cal type
         QStringList parts = text.split(" ");
         if (parts.count() != 2) {
             emit incorrectFirmwareRevReporting();
             return;
         }
-        
+
 #if 0
         // FIXME: Cal version check is not working. Needs to be able to cancel, calibration
         
@@ -89,13 +76,12 @@ void PowerComponentController::_handleVehicleTextMessage(int vehicleId, int /* c
         emit connectBattery();
         return;
     }
-    
+
     if (text == "Battery connected") {
         emit batteryConnected();
         return;
     }
 
-    
     QString failedPrefix("calibration failed: ");
     if (text.startsWith(failedPrefix)) {
         QString failureText = text.right(text.length() - failedPrefix.length());
@@ -104,18 +90,18 @@ void PowerComponentController::_handleVehicleTextMessage(int vehicleId, int /* c
             emit disconnectBattery();
             return;
         }
-        
+
         emit calibrationFailed(text.right(text.length() - failedPrefix.length()));
         return;
     }
-    
+
     QString calCompletePrefix("calibration done:");
     if (text.startsWith(calCompletePrefix)) {
         _stopCalibration();
         emit calibrationSuccess(_warningMessages);
         return;
     }
-    
+
     QString warningPrefix("config warning: ");
     if (text.startsWith(warningPrefix)) {
         _warningMessages << text.right(text.length() - warningPrefix.length());

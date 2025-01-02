@@ -27,17 +27,11 @@ Q_DECLARE_LOGGING_CATEGORY(GPSProviderLog)
 class QSerialPort;
 class GPSBaseStationSupport;
 
-class GPSProvider : public QThread
-{
+class GPSProvider : public QThread {
     Q_OBJECT
 
-public:
-    enum class GPSType {
-        u_blox,
-        trimble,
-        septentrio,
-        femto
-    };
+  public:
+    enum class GPSType { u_blox, trimble, septentrio, femto };
 
     struct rtk_data_s {
         double surveyInAccMeters = 0;
@@ -54,14 +48,14 @@ public:
 
     int callback(GPSCallbackType type, void *data1, int data2);
 
-signals:
+  signals:
     void satelliteInfoUpdate(const satellite_info_s &message);
     void sensorGnssRelativeUpdate(const sensor_gnss_relative_s &message);
     void sensorGpsUpdate(const sensor_gps_s &message);
     void RTCMDataUpdate(const QByteArray &message);
     void surveyInStatus(float duration, float accuracyMM, double latitude, double longitude, float altitude, bool valid, bool active);
 
-private:
+  private:
     void run() final;
 
     bool _connectSerial();
@@ -81,16 +75,15 @@ private:
     rtk_data_s _rtkData{};
     GPSHelper::GPSConfig _gpsConfig{};
 
-    struct satellite_info_s _satelliteInfo{};
-    struct sensor_gnss_relative_s _sensorGnssRelative{};
-    struct sensor_gps_s _sensorGps{};
+    struct satellite_info_s _satelliteInfo {};
+
+    struct sensor_gnss_relative_s _sensorGnssRelative {};
+
+    struct sensor_gps_s _sensorGps {};
 
     QSerialPort *_serial = nullptr;
 
-    enum GPSReceiveType {
-        Position = 1,
-        Satellite = 2
-    };
+    enum GPSReceiveType { Position = 1, Satellite = 2 };
 
     static constexpr uint32_t kGPSReceiveTimeout = 1200;
     static constexpr float kGPSHeadingOffset = 5.f;

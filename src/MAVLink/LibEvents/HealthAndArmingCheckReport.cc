@@ -11,11 +11,7 @@
 #include "QGCMAVLink.h"
 #include "QmlObjectListModel.h"
 
-
-HealthAndArmingCheckReport::HealthAndArmingCheckReport(QObject *parent)
-    : QObject(parent)
-    , _problemsForCurrentMode(new QmlObjectListModel(this))
-{
+HealthAndArmingCheckReport::HealthAndArmingCheckReport(QObject *parent) : QObject(parent), _problemsForCurrentMode(new QmlObjectListModel(this)) {
 #if 0 // to test the UI
     _problemsForCurrentMode->append(new HealthAndArmingCheckProblem("No global position", "", "error"));
     _problemsForCurrentMode->append(new HealthAndArmingCheckProblem("No RC", "Details", "warning"));
@@ -29,14 +25,9 @@ HealthAndArmingCheckReport::HealthAndArmingCheckReport(QObject *parent)
 #endif
 }
 
-HealthAndArmingCheckReport::~HealthAndArmingCheckReport()
-{
-    _problemsForCurrentMode->clearAndDeleteContents();
-}
+HealthAndArmingCheckReport::~HealthAndArmingCheckReport() { _problemsForCurrentMode->clearAndDeleteContents(); }
 
-void HealthAndArmingCheckReport::update(uint8_t compid, const events::HealthAndArmingChecks::Results& results,
-        int flightModeGroup)
-{
+void HealthAndArmingCheckReport::update(uint8_t compid, const events::HealthAndArmingChecks::Results &results, int flightModeGroup) {
     if (compid != MAV_COMP_ID_AUTOPILOT1) {
         // only autopilot supported atm
         return;
@@ -49,7 +40,7 @@ void HealthAndArmingCheckReport::update(uint8_t compid, const events::HealthAndA
 
     _problemsForCurrentMode->clearAndDeleteContents();
     _hasWarningsOrErrors = false;
-    for (const auto& check : results.checks(flightModeGroup)) {
+    for (const auto &check : results.checks(flightModeGroup)) {
         QString severity = "";
         if (events::externalLogLevel(check.log_levels) <= events::Log::Error) {
             severity = "error";
@@ -59,8 +50,7 @@ void HealthAndArmingCheckReport::update(uint8_t compid, const events::HealthAndA
             _hasWarningsOrErrors = true;
         }
         QString description = QString::fromStdString(check.description);
-        _problemsForCurrentMode->append(new HealthAndArmingCheckProblem(QString::fromStdString(check.message),
-                description.replace("\n", "<br/>"), severity));
+        _problemsForCurrentMode->append(new HealthAndArmingCheckProblem(QString::fromStdString(check.message), description.replace("\n", "<br/>"), severity));
     }
 
     _canArm = results.canArm(flightModeGroup);
@@ -72,12 +62,12 @@ void HealthAndArmingCheckReport::update(uint8_t compid, const events::HealthAndA
         _canTakeoff = results.canArm(_takeoffModeGroup);
     }
 
-    const auto& healthComponents = results.healthComponents().health_components;
+    const auto &healthComponents = results.healthComponents().health_components;
 
     // GPS state
     const auto gpsStateIter = healthComponents.find("gps");
     if (gpsStateIter != healthComponents.end()) {
-        const events::HealthAndArmingChecks::HealthComponent& gpsState = gpsStateIter->second;
+        const events::HealthAndArmingChecks::HealthComponent &gpsState = gpsStateIter->second;
         if (gpsState.health.error || gpsState.arming_check.error) {
             _gpsState = "red";
         } else if (gpsState.health.warning || gpsState.arming_check.warning) {
@@ -90,8 +80,7 @@ void HealthAndArmingCheckReport::update(uint8_t compid, const events::HealthAndA
     emit updated();
 }
 
-void HealthAndArmingCheckReport::setModeGroups(int takeoffModeGroup, int missionModeGroup)
-{
+void HealthAndArmingCheckReport::setModeGroups(int takeoffModeGroup, int missionModeGroup) {
     _takeoffModeGroup = takeoffModeGroup;
     _missionModeGroup = missionModeGroup;
 }

@@ -16,19 +16,23 @@
 
 Q_DECLARE_LOGGING_CATEGORY(GeoTagWorkerLog)
 
-class GeoTagWorker : public QObject
-{
+class GeoTagWorker : public QObject {
     Q_OBJECT
 
-public:
+  public:
     explicit GeoTagWorker(QObject *parent = nullptr);
     ~GeoTagWorker();
 
     QString logFile() const { return _logFile; }
+
     void setLogFile(const QString &logFile) { _logFile = logFile; }
+
     QString imageDirectory() const { return _imageDirectory; }
+
     void setImageDirectory(const QString &imageDirectory) { _imageDirectory = imageDirectory; }
+
     QString saveDirectory() const { return _saveDirectory; }
+
     void setSaveDirectory(const QString &saveDirectory) { _saveDirectory = saveDirectory; }
 
     struct CameraFeedbackPacket {
@@ -43,16 +47,17 @@ public:
         uint8_t captureResult = 0;
     };
 
-signals:
+  signals:
     void error(const QString &errorMsg);
     void progressChanged(double progress);
     void taggingComplete();
 
-public slots:
+  public slots:
     bool process();
+
     void cancelTagging() { _cancel = true; }
 
-private:
+  private:
     bool _loadImages();
     bool _parseExif();
     bool _parseLogs();

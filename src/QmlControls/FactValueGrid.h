@@ -9,24 +9,23 @@
 
 #pragma once
 
-#include "QmlObjectListModel.h"
 #include "QGCMAVLink.h"
+#include "QmlObjectListModel.h"
 
 #include <QtCore/QSettings>
 #include <QtQuick/QQuickItem>
 
 class InstrumentValueData;
 
-class FactValueGrid : public QQuickItem
-{
+class FactValueGrid : public QQuickItem {
     Q_OBJECT
 
-public:
+  public:
     FactValueGrid(QQuickItem *parent = nullptr);
-    FactValueGrid(const QString& defaultSettingsGroup);
+    FactValueGrid(const QString &defaultSettingsGroup);
 
     enum FontSize {
-        DefaultFontSize=0,
+        DefaultFontSize = 0,
         SmallFontSize,
         MediumFontSize,
         LargeFontSize,
@@ -43,24 +42,27 @@ public:
 
     // The combination of the two valuePage*SettingsGroup values allows each FactValueGrid to have it's own persistence space.
 
-    Q_PROPERTY(QmlObjectListModel*  columns                         MEMBER _columns                                         NOTIFY columnsChanged)
-    Q_PROPERTY(int                  rowCount                        MEMBER _rowCount                                        NOTIFY rowCountChanged)
-    Q_PROPERTY(QString              userSettingsGroup               MEMBER _userSettingsGroup                               NOTIFY userSettingsGroupChanged)
-    Q_PROPERTY(QString              defaultSettingsGroup            MEMBER _defaultSettingsGroup                            NOTIFY defaultSettingsGroupChanged)
-    Q_PROPERTY(QStringList          iconNames                       READ iconNames                                          CONSTANT)
-    Q_PROPERTY(FontSize             fontSize                        READ fontSize                       WRITE setFontSize   NOTIFY fontSizeChanged)
-    Q_PROPERTY(QStringList          fontSizeNames                   MEMBER _fontSizeNames                                   CONSTANT)
+    Q_PROPERTY(QmlObjectListModel *columns MEMBER _columns NOTIFY columnsChanged)
+    Q_PROPERTY(int rowCount MEMBER _rowCount NOTIFY rowCountChanged)
+    Q_PROPERTY(QString userSettingsGroup MEMBER _userSettingsGroup NOTIFY userSettingsGroupChanged)
+    Q_PROPERTY(QString defaultSettingsGroup MEMBER _defaultSettingsGroup NOTIFY defaultSettingsGroupChanged)
+    Q_PROPERTY(QStringList iconNames READ iconNames CONSTANT)
+    Q_PROPERTY(FontSize fontSize READ fontSize WRITE setFontSize NOTIFY fontSizeChanged)
+    Q_PROPERTY(QStringList fontSizeNames MEMBER _fontSizeNames CONSTANT)
 
-    Q_INVOKABLE void                resetToDefaults (void);
-    Q_INVOKABLE QmlObjectListModel* appendColumn    (void);
-    Q_INVOKABLE void                deleteLastColumn(void);
-    Q_INVOKABLE void                appendRow       (void);
-    Q_INVOKABLE void                deleteLastRow   (void);
+    Q_INVOKABLE void resetToDefaults(void);
+    Q_INVOKABLE QmlObjectListModel *appendColumn(void);
+    Q_INVOKABLE void deleteLastColumn(void);
+    Q_INVOKABLE void appendRow(void);
+    Q_INVOKABLE void deleteLastRow(void);
 
-    QmlObjectListModel*         columns     (void) const { return _columns; }
-    FontSize                    fontSize    (void) const { return _fontSize; }
-    QStringList                 iconNames   (void) const { return _iconNames; }
-    QGCMAVLink::VehicleClass_t  vehicleClass(void) const { return _vehicleClass; }
+    QmlObjectListModel *columns(void) const { return _columns; }
+
+    FontSize fontSize(void) const { return _fontSize; }
+
+    QStringList iconNames(void) const { return _iconNames; }
+
+    QGCMAVLink::VehicleClass_t vehicleClass(void) const { return _vehicleClass; }
 
     void setFontSize(FontSize fontSize);
 
@@ -73,57 +75,57 @@ public:
     // Override from QQmlParserStatus
     void componentComplete(void) final;
 
-signals:
-    void userSettingsGroupChanged   (const QString& userSettingsGroup);
-    void defaultSettingsGroupChanged(const QString& defaultSettingsGroup);
-    void fontSizeChanged            (FontSize fontSize);
-    void columnsChanged             (QmlObjectListModel* model);
-    void rowCountChanged            (int rowCount);
+  signals:
+    void userSettingsGroupChanged(const QString &userSettingsGroup);
+    void defaultSettingsGroupChanged(const QString &defaultSettingsGroup);
+    void fontSizeChanged(FontSize fontSize);
+    void columnsChanged(QmlObjectListModel *model);
+    void rowCountChanged(int rowCount);
 
-protected:
+  protected:
     Q_DISABLE_COPY(FactValueGrid)
 
-    QGCMAVLink::VehicleClass_t  _vehicleClass           = QGCMAVLink::VehicleClassGeneric;
-    QString                     _defaultSettingsGroup;                                      // Settings group to read from if the user has not modified from the default settings
-    QString                     _userSettingsGroup;                                         // Settings group to read from for user modified settings
-    FontSize                    _fontSize               = DefaultFontSize;
-    bool                        _preventSaveSettings    = false;
-    QmlObjectListModel*         _columns                = nullptr;
-    int                         _rowCount               = 0;
+    QGCMAVLink::VehicleClass_t _vehicleClass = QGCMAVLink::VehicleClassGeneric;
+    QString _defaultSettingsGroup; // Settings group to read from if the user has not modified from the default settings
+    QString _userSettingsGroup;    // Settings group to read from for user modified settings
+    FontSize _fontSize = DefaultFontSize;
+    bool _preventSaveSettings = false;
+    QmlObjectListModel *_columns = nullptr;
+    int _rowCount = 0;
 
-private slots:
+  private slots:
     void _offlineVehicleTypeChanged(void);
 
-private:
-    InstrumentValueData*    _createNewInstrumentValueWorker (QObject* parent);
-    void                    _saveSettings                   (void);
-    void                    _init                           (void);
-    void                    _connectSaveSignals             (InstrumentValueData* value);
-    QString                 _pascalCase                     (const QString& text);
-    void                    _saveValueData                  (QSettings& settings, InstrumentValueData* value);
-    void                    _loadValueData                  (QSettings& settings, InstrumentValueData* value);
+  private:
+    InstrumentValueData *_createNewInstrumentValueWorker(QObject *parent);
+    void _saveSettings(void);
+    void _init(void);
+    void _connectSaveSignals(InstrumentValueData *value);
+    QString _pascalCase(const QString &text);
+    void _saveValueData(QSettings &settings, InstrumentValueData *value);
+    void _loadValueData(QSettings &settings, InstrumentValueData *value);
 
     // These are user facing string for the various enums.
-    static       QStringList _iconNames;
+    static QStringList _iconNames;
     static const QStringList _fontSizeNames;
 
-    static constexpr const char* _columnsKey          = "columns";
-    static constexpr const char* _rowsKey             = "rows";
-    static constexpr const char* _rowCountKey         = "rowCount";
-    static constexpr const char* _fontSizeKey         = "fontSize";
-    static constexpr const char* _versionKey          = "version";
-    static constexpr const char* _factGroupNameKey    = "factGroupName";
-    static constexpr const char* _factNameKey         = "factName";
-    static constexpr const char* _textKey             = "text";
-    static constexpr const char* _showUnitsKey        = "showUnits";
-    static constexpr const char* _iconKey             = "icon";
-    static constexpr const char* _rangeTypeKey        = "rangeType";
-    static constexpr const char* _rangeValuesKey      = "rangeValues";
-    static constexpr const char* _rangeColorsKey      = "rangeColors";
-    static constexpr const char* _rangeIconsKey       = "rangeIcons";
-    static constexpr const char* _rangeOpacitiesKey   = "rangeOpacities";
+    static constexpr const char *_columnsKey = "columns";
+    static constexpr const char *_rowsKey = "rows";
+    static constexpr const char *_rowCountKey = "rowCount";
+    static constexpr const char *_fontSizeKey = "fontSize";
+    static constexpr const char *_versionKey = "version";
+    static constexpr const char *_factGroupNameKey = "factGroupName";
+    static constexpr const char *_factNameKey = "factName";
+    static constexpr const char *_textKey = "text";
+    static constexpr const char *_showUnitsKey = "showUnits";
+    static constexpr const char *_iconKey = "icon";
+    static constexpr const char *_rangeTypeKey = "rangeType";
+    static constexpr const char *_rangeValuesKey = "rangeValues";
+    static constexpr const char *_rangeColorsKey = "rangeColors";
+    static constexpr const char *_rangeIconsKey = "rangeIcons";
+    static constexpr const char *_rangeOpacitiesKey = "rangeOpacities";
 
-    static constexpr const char* _deprecatedGroupKey =  "ValuesWidget";
+    static constexpr const char *_deprecatedGroupKey = "ValuesWidget";
 };
 
 QML_DECLARE_TYPE(FactValueGrid)

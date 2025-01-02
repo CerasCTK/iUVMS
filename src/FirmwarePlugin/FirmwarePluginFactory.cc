@@ -10,19 +10,12 @@
 #include "FirmwarePluginFactory.h"
 #include "FirmwarePlugin.h"
 
-FirmwarePluginFactory::FirmwarePluginFactory(void)
-{
-    FirmwarePluginFactoryRegister::instance()->registerPluginFactory(this);
-}
+FirmwarePluginFactory::FirmwarePluginFactory(void) { FirmwarePluginFactoryRegister::instance()->registerPluginFactory(this); }
 
-QList<QGCMAVLink::VehicleClass_t> FirmwarePluginFactory::supportedVehicleClasses(void) const
-{
-    return QGCMAVLink::allVehicleClasses();
-}
+QList<QGCMAVLink::VehicleClass_t> FirmwarePluginFactory::supportedVehicleClasses(void) const { return QGCMAVLink::allVehicleClasses(); }
 
-FirmwarePluginFactoryRegister* FirmwarePluginFactoryRegister::instance(void)
-{
-    static FirmwarePluginFactoryRegister* _instance = nullptr;
+FirmwarePluginFactoryRegister *FirmwarePluginFactoryRegister::instance(void) {
+    static FirmwarePluginFactoryRegister *_instance = nullptr;
 
     if (!_instance) {
         _instance = new FirmwarePluginFactoryRegister;

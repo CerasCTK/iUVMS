@@ -9,44 +9,48 @@
 
 #pragma once
 
-#include <QtGui/QColor>
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QUrl>
+#include <QtGui/QColor>
 #include <QtQmlIntegration/QtQmlIntegration>
 
 class QGCOptions;
 
 Q_DECLARE_LOGGING_CATEGORY(QGCFlyViewOptionsLog)
 
-class QGCFlyViewOptions : public QObject
-{
+class QGCFlyViewOptions : public QObject {
     Q_OBJECT
     QML_ELEMENT
     QML_UNCREATABLE("")
-    Q_PROPERTY(bool showMultiVehicleList        READ showMultiVehicleList       CONSTANT)
-    Q_PROPERTY(bool showInstrumentPanel         READ showInstrumentPanel        CONSTANT)
-    Q_PROPERTY(bool showMapScale                READ showMapScale               CONSTANT)
-    Q_PROPERTY(bool guidedBarShowEmergencyStop  READ guidedBarShowEmergencyStop NOTIFY guidedBarShowEmergencyStopChanged)
-    Q_PROPERTY(bool guidedBarShowOrbit          READ guidedBarShowOrbit         NOTIFY guidedBarShowOrbitChanged)
-    Q_PROPERTY(bool guidedBarShowROI            READ guidedBarShowROI           NOTIFY guidedBarShowROIChanged)
+    Q_PROPERTY(bool showMultiVehicleList READ showMultiVehicleList CONSTANT)
+    Q_PROPERTY(bool showInstrumentPanel READ showInstrumentPanel CONSTANT)
+    Q_PROPERTY(bool showMapScale READ showMapScale CONSTANT)
+    Q_PROPERTY(bool guidedBarShowEmergencyStop READ guidedBarShowEmergencyStop NOTIFY guidedBarShowEmergencyStopChanged)
+    Q_PROPERTY(bool guidedBarShowOrbit READ guidedBarShowOrbit NOTIFY guidedBarShowOrbitChanged)
+    Q_PROPERTY(bool guidedBarShowROI READ guidedBarShowROI NOTIFY guidedBarShowROIChanged)
 
-public:
+  public:
     explicit QGCFlyViewOptions(QGCOptions *options, QObject *parent = nullptr);
     ~QGCFlyViewOptions();
 
-signals:
+  signals:
     void guidedBarShowEmergencyStopChanged(bool show);
     void guidedBarShowOrbitChanged(bool show);
     void guidedBarShowROIChanged(bool show);
 
-protected:
+  protected:
     virtual bool showMultiVehicleList() const { return true; }
+
     virtual bool showMapScale() const { return true; }
+
     virtual bool showInstrumentPanel() const { return true; }
+
     virtual bool guidedBarShowEmergencyStop() const { return true; }
+
     virtual bool guidedBarShowOrbit() const { return true; }
+
     virtual bool guidedBarShowROI() const { return true; }
 
     const QGCOptions *_options = nullptr;
@@ -56,44 +60,43 @@ protected:
 
 Q_DECLARE_LOGGING_CATEGORY(QGCOptionsLog)
 
-class QGCOptions : public QObject
-{
+class QGCOptions : public QObject {
     Q_OBJECT
     QML_ELEMENT
     QML_UNCREATABLE("")
-    Q_PROPERTY(bool allowJoystickSelection          READ allowJoystickSelection         NOTIFY allowJoystickSelectionChanged)
-    Q_PROPERTY(bool checkFirmwareVersion            READ checkFirmwareVersion           CONSTANT)
-    Q_PROPERTY(bool combineSettingsAndSetup         READ combineSettingsAndSetup        CONSTANT)
-    Q_PROPERTY(bool disableVehicleConnection        READ disableVehicleConnection       CONSTANT)
-    Q_PROPERTY(bool enablePlanViewSelector          READ enablePlanViewSelector         CONSTANT)
-    Q_PROPERTY(bool enableSaveMainWindowPosition    READ enableSaveMainWindowPosition   CONSTANT)
-    Q_PROPERTY(bool guidedActionsRequireRCRSSI      READ guidedActionsRequireRCRSSI     CONSTANT)
-    Q_PROPERTY(bool missionWaypointsOnly            READ missionWaypointsOnly           NOTIFY missionWaypointsOnlyChanged)
-    Q_PROPERTY(bool multiVehicleEnabled             READ multiVehicleEnabled            NOTIFY multiVehicleEnabledChanged)
-    Q_PROPERTY(bool sensorsHaveFixedOrientation     READ sensorsHaveFixedOrientation    CONSTANT)
-    Q_PROPERTY(bool showFirmwareUpgrade             READ showFirmwareUpgrade            NOTIFY showFirmwareUpgradeChanged)
-    Q_PROPERTY(bool showMissionAbsoluteAltitude     READ showMissionAbsoluteAltitude    NOTIFY showMissionAbsoluteAltitudeChanged)
-    Q_PROPERTY(bool showMissionStatus               READ showMissionStatus              CONSTANT)
-    Q_PROPERTY(bool showOfflineMapExport            READ showOfflineMapExport           NOTIFY showOfflineMapExportChanged)
-    Q_PROPERTY(bool showOfflineMapImport            READ showOfflineMapImport           NOTIFY showOfflineMapImportChanged)
-    Q_PROPERTY(bool showPX4LogTransferOptions       READ showPX4LogTransferOptions      CONSTANT)
-    Q_PROPERTY(bool showSensorCalibrationAccel      READ showSensorCalibrationAccel     NOTIFY showSensorCalibrationAccelChanged)
-    Q_PROPERTY(bool showSensorCalibrationAirspeed   READ showSensorCalibrationAirspeed  NOTIFY showSensorCalibrationAirspeedChanged)
-    Q_PROPERTY(bool showSensorCalibrationCompass    READ showSensorCalibrationCompass   NOTIFY showSensorCalibrationCompassChanged)
-    Q_PROPERTY(bool showSensorCalibrationGyro       READ showSensorCalibrationGyro      NOTIFY showSensorCalibrationGyroChanged)
-    Q_PROPERTY(bool showSensorCalibrationLevel      READ showSensorCalibrationLevel     NOTIFY showSensorCalibrationLevelChanged)
-    Q_PROPERTY(bool showSimpleMissionStart          READ showSimpleMissionStart         NOTIFY showSimpleMissionStartChanged)
-    Q_PROPERTY(bool useMobileFileDialog             READ useMobileFileDialog            CONSTANT)
-    Q_PROPERTY(bool wifiReliableForCalibration      READ wifiReliableForCalibration     CONSTANT)
-    Q_PROPERTY(double toolbarHeightMultiplier       READ toolbarHeightMultiplier        CONSTANT)
-    Q_PROPERTY(float devicePixelDensity             READ devicePixelDensity             NOTIFY devicePixelDensityChanged)
-    Q_PROPERTY(float devicePixelRatio               READ devicePixelRatio               NOTIFY devicePixelRatioChanged)
-    Q_PROPERTY(const QGCFlyViewOptions *flyView     READ flyViewOptions                 CONSTANT)
-    Q_PROPERTY(QString firmwareUpgradeSingleURL     READ firmwareUpgradeSingleURL       CONSTANT)
-    Q_PROPERTY(QStringList surveyBuiltInPresetNames READ surveyBuiltInPresetNames       CONSTANT)
-    Q_PROPERTY(QUrl preFlightChecklistUrl           READ preFlightChecklistUrl          CONSTANT)
+    Q_PROPERTY(bool allowJoystickSelection READ allowJoystickSelection NOTIFY allowJoystickSelectionChanged)
+    Q_PROPERTY(bool checkFirmwareVersion READ checkFirmwareVersion CONSTANT)
+    Q_PROPERTY(bool combineSettingsAndSetup READ combineSettingsAndSetup CONSTANT)
+    Q_PROPERTY(bool disableVehicleConnection READ disableVehicleConnection CONSTANT)
+    Q_PROPERTY(bool enablePlanViewSelector READ enablePlanViewSelector CONSTANT)
+    Q_PROPERTY(bool enableSaveMainWindowPosition READ enableSaveMainWindowPosition CONSTANT)
+    Q_PROPERTY(bool guidedActionsRequireRCRSSI READ guidedActionsRequireRCRSSI CONSTANT)
+    Q_PROPERTY(bool missionWaypointsOnly READ missionWaypointsOnly NOTIFY missionWaypointsOnlyChanged)
+    Q_PROPERTY(bool multiVehicleEnabled READ multiVehicleEnabled NOTIFY multiVehicleEnabledChanged)
+    Q_PROPERTY(bool sensorsHaveFixedOrientation READ sensorsHaveFixedOrientation CONSTANT)
+    Q_PROPERTY(bool showFirmwareUpgrade READ showFirmwareUpgrade NOTIFY showFirmwareUpgradeChanged)
+    Q_PROPERTY(bool showMissionAbsoluteAltitude READ showMissionAbsoluteAltitude NOTIFY showMissionAbsoluteAltitudeChanged)
+    Q_PROPERTY(bool showMissionStatus READ showMissionStatus CONSTANT)
+    Q_PROPERTY(bool showOfflineMapExport READ showOfflineMapExport NOTIFY showOfflineMapExportChanged)
+    Q_PROPERTY(bool showOfflineMapImport READ showOfflineMapImport NOTIFY showOfflineMapImportChanged)
+    Q_PROPERTY(bool showPX4LogTransferOptions READ showPX4LogTransferOptions CONSTANT)
+    Q_PROPERTY(bool showSensorCalibrationAccel READ showSensorCalibrationAccel NOTIFY showSensorCalibrationAccelChanged)
+    Q_PROPERTY(bool showSensorCalibrationAirspeed READ showSensorCalibrationAirspeed NOTIFY showSensorCalibrationAirspeedChanged)
+    Q_PROPERTY(bool showSensorCalibrationCompass READ showSensorCalibrationCompass NOTIFY showSensorCalibrationCompassChanged)
+    Q_PROPERTY(bool showSensorCalibrationGyro READ showSensorCalibrationGyro NOTIFY showSensorCalibrationGyroChanged)
+    Q_PROPERTY(bool showSensorCalibrationLevel READ showSensorCalibrationLevel NOTIFY showSensorCalibrationLevelChanged)
+    Q_PROPERTY(bool showSimpleMissionStart READ showSimpleMissionStart NOTIFY showSimpleMissionStartChanged)
+    Q_PROPERTY(bool useMobileFileDialog READ useMobileFileDialog CONSTANT)
+    Q_PROPERTY(bool wifiReliableForCalibration READ wifiReliableForCalibration CONSTANT)
+    Q_PROPERTY(double toolbarHeightMultiplier READ toolbarHeightMultiplier CONSTANT)
+    Q_PROPERTY(float devicePixelDensity READ devicePixelDensity NOTIFY devicePixelDensityChanged)
+    Q_PROPERTY(float devicePixelRatio READ devicePixelRatio NOTIFY devicePixelRatioChanged)
+    Q_PROPERTY(const QGCFlyViewOptions *flyView READ flyViewOptions CONSTANT)
+    Q_PROPERTY(QString firmwareUpgradeSingleURL READ firmwareUpgradeSingleURL CONSTANT)
+    Q_PROPERTY(QStringList surveyBuiltInPresetNames READ surveyBuiltInPresetNames CONSTANT)
+    Q_PROPERTY(QUrl preFlightChecklistUrl READ preFlightChecklistUrl CONSTANT)
 
-public:
+  public:
     explicit QGCOptions(QObject *parent = nullptr);
     ~QGCOptions();
 
@@ -124,9 +127,13 @@ public:
 
     /// By returning false you can hide the following sensor calibration pages
     virtual bool showSensorCalibrationAccel() const { return true; }
+
     virtual bool showSensorCalibrationAirspeed() const { return true; }
+
     virtual bool showSensorCalibrationCompass() const { return true; }
+
     virtual bool showSensorCalibrationGyro() const { return true; }
+
     virtual bool showSensorCalibrationLevel() const { return true; }
 
     /// @return false: custom build has automatically enabled a specific joystick
@@ -149,10 +156,15 @@ public:
     virtual bool sensorsHaveFixedOrientation() const { return false; }
 
     virtual bool showFirmwareUpgrade() const { return true; }
+
     virtual bool showMissionAbsoluteAltitude() const { return true; }
+
     virtual bool showOfflineMapExport() const { return true; }
+
     virtual bool showOfflineMapImport() const { return true; }
+
     virtual bool showPX4LogTransferOptions() const { return true; }
+
     virtual bool showSimpleMissionStart() const { return false; }
 
     virtual bool wifiReliableForCalibration() const { return false; }
@@ -162,7 +174,7 @@ public:
 
     virtual QStringList surveyBuiltInPresetNames() const { return QStringList(); } ///< Built in presets cannot be deleted
 
-#if defined (Q_OS_ANDROID) || defined(Q_OS_IOS)
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
     virtual bool useMobileFileDialog() const { return true; }
 #else
     virtual bool useMobileFileDialog() const { return false; }
@@ -175,11 +187,12 @@ public:
 
     /// Device specific pixel ratio/density (for when Qt doesn't properly read it from the hardware)
     virtual float devicePixelRatio() const { return 0.0f; }
+
     virtual float devicePixelDensity() const { return 0.0f; }
 
     virtual const QGCFlyViewOptions *flyViewOptions() const { return _defaultFlyViewOptions; }
 
-signals:
+  signals:
     void allowJoystickSelectionChanged(bool allow);
     void devicePixelDensityChanged();
     void devicePixelRatioChanged();
@@ -196,6 +209,6 @@ signals:
     void showSensorCalibrationLevelChanged(bool show);
     void showSimpleMissionStartChanged();
 
-protected:
+  protected:
     const QGCFlyViewOptions *_defaultFlyViewOptions = nullptr;
 };

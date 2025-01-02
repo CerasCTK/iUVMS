@@ -8,46 +8,29 @@
  ****************************************************************************/
 
 #include "GenericMapProvider.h"
-#include "SettingsManager.h"
 #include "AppSettings.h"
+#include "SettingsManager.h"
 
-QString CustomURLMapProvider::_getURL(int x, int y, int zoom) const
-{
+QString CustomURLMapProvider::_getURL(int x, int y, int zoom) const {
     QString url = SettingsManager::instance()->appSettings()->customURL()->rawValue().toString();
-    (void) url.replace("{x}", QString::number(x));
-    (void) url.replace("{y}", QString::number(y));
+    (void)url.replace("{x}", QString::number(x));
+    (void)url.replace("{y}", QString::number(y));
     static const QRegularExpression zoomRegExp("\\{(z|zoom)\\}");
-    (void) url.replace(zoomRegExp, QString::number(zoom));
+    (void)url.replace(zoomRegExp, QString::number(zoom));
     return url;
 }
 
-QString CyberJapanMapProvider::_getURL(int x, int y, int zoom) const
-{
-    return _mapUrl.arg(_mapName).arg(zoom).arg(x).arg(y).arg(_imageFormat);
-}
+QString CyberJapanMapProvider::_getURL(int x, int y, int zoom) const { return _mapUrl.arg(_mapName).arg(zoom).arg(x).arg(y).arg(_imageFormat); }
 
-QString LINZBasemapMapProvider::_getURL(int x, int y, int zoom) const
-{
-    return _mapUrl.arg(zoom).arg(x).arg(y).arg(_imageFormat);
-}
+QString LINZBasemapMapProvider::_getURL(int x, int y, int zoom) const { return _mapUrl.arg(zoom).arg(x).arg(y).arg(_imageFormat); }
 
-QString StatkartMapProvider::_getURL(int x, int y, int zoom) const
-{
-    return _mapUrl.arg(_mapName).arg(zoom).arg(x).arg(y);
-}
+QString StatkartMapProvider::_getURL(int x, int y, int zoom) const { return _mapUrl.arg(_mapName).arg(zoom).arg(x).arg(y); }
 
-QString EniroMapProvider::_getURL(int x, int y, int zoom) const
-{
-    return _mapUrl.arg(zoom).arg(x).arg((1 << zoom) - 1 - y).arg(_imageFormat);
-}
+QString EniroMapProvider::_getURL(int x, int y, int zoom) const { return _mapUrl.arg(zoom).arg(x).arg((1 << zoom) - 1 - y).arg(_imageFormat); }
 
-QString MapQuestMapProvider::_getURL(int x, int y, int zoom) const
-{
-    return _mapUrl.arg(_getServerNum(x, y, 4)).arg(_mapName).arg(zoom).arg(x).arg(y).arg(_imageFormat);
-}
+QString MapQuestMapProvider::_getURL(int x, int y, int zoom) const { return _mapUrl.arg(_getServerNum(x, y, 4)).arg(_mapName).arg(zoom).arg(x).arg(y).arg(_imageFormat); }
 
-QString VWorldMapProvider::_getURL(int x, int y, int zoom) const
-{
+QString VWorldMapProvider::_getURL(int x, int y, int zoom) const {
     if ((zoom < 5) || (zoom > 19)) {
         return QString();
     }

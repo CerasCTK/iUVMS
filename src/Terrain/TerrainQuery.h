@@ -35,11 +35,10 @@ Q_DECLARE_LOGGING_CATEGORY(TerrainQueryVerboseLog)
 
 class TerrainAtCoordinateQuery;
 
-class TerrainAtCoordinateBatchManager : public QObject
-{
+class TerrainAtCoordinateBatchManager : public QObject {
     Q_OBJECT
 
-public:
+  public:
     explicit TerrainAtCoordinateBatchManager(QObject *parent = nullptr);
     ~TerrainAtCoordinateBatchManager();
 
@@ -47,12 +46,12 @@ public:
 
     void addQuery(TerrainAtCoordinateQuery *terrainAtCoordinateQuery, const QList<QGeoCoordinate> &coordinates);
 
-private slots:
+  private slots:
     void _sendNextBatch();
     void _queryObjectDestroyed(QObject *elevationProvider);
     void _coordinateHeights(bool success, const QList<double> &heights);
 
-private:
+  private:
     struct QueuedRequestInfo_t {
         TerrainAtCoordinateQuery *terrainAtCoordinateQuery;
         QList<QGeoCoordinate> coordinates;
@@ -78,11 +77,10 @@ private:
 /*===========================================================================*/
 
 /// NOTE: TerrainAtCoordinateQuery is not thread safe. All instances/calls to ElevationProvider must be on main thread.
-class TerrainAtCoordinateQuery : public QObject
-{
+class TerrainAtCoordinateQuery : public QObject {
     Q_OBJECT
 
-public:
+  public:
     /// @param autoDelete true: object will delete itself after it signals results
     explicit TerrainAtCoordinateQuery(bool autoDelete, QObject *parent = nullptr);
     ~TerrainAtCoordinateQuery();
@@ -99,20 +97,19 @@ public:
 
     void signalTerrainData(bool success, const QList<double> &heights);
 
-signals:
+  signals:
     void terrainDataReceived(bool success, const QList<double> &heights);
 
-private:
+  private:
     bool _autoDelete = false;
 };
 
 /*===========================================================================*/
 
-class TerrainPathQuery : public QObject
-{
+class TerrainPathQuery : public QObject {
     Q_OBJECT
 
-public:
+  public:
     /// @param autoDelete true: object will delete itself after it signals results
     explicit TerrainPathQuery(bool autoDelete, QObject *parent = nullptr);
     ~TerrainPathQuery();
@@ -123,19 +120,19 @@ public:
     void requestData(const QGeoCoordinate &fromCoord, const QGeoCoordinate &toCoord);
 
     struct PathHeightInfo_t {
-        double distanceBetween;        ///< Distance between each height value
-        double finalDistanceBetween;   ///< Distance between final two height values
-        QList<double> heights;                ///< Terrain heights along path
+        double distanceBetween;      ///< Distance between each height value
+        double finalDistanceBetween; ///< Distance between final two height values
+        QList<double> heights;       ///< Terrain heights along path
     };
 
-signals:
+  signals:
     /// Signalled when terrain data comes back from server
     void terrainDataReceived(bool success, const TerrainPathQuery::PathHeightInfo_t &pathHeightInfo);
 
-private slots:
+  private slots:
     void _pathHeights(bool success, double distanceBetween, double finalDistanceBetween, const QList<double> &heights);
 
-private:
+  private:
     bool _autoDelete = false;
     TerrainQueryInterface *_terrainQuery = nullptr;
 };
@@ -143,11 +140,10 @@ Q_DECLARE_METATYPE(TerrainPathQuery::PathHeightInfo_t)
 
 /*===========================================================================*/
 
-class TerrainPolyPathQuery : public QObject
-{
+class TerrainPolyPathQuery : public QObject {
     Q_OBJECT
 
-public:
+  public:
     ///     @param autoDelete true: object will delete itself after it signals results
     explicit TerrainPolyPathQuery(bool autoDelete, QObject *parent = nullptr);
     ~TerrainPolyPathQuery();
@@ -158,14 +154,14 @@ public:
     void requestData(const QVariantList &polyPath);
     void requestData(const QList<QGeoCoordinate> &polyPath);
 
-signals:
+  signals:
     /// Signalled when terrain data comes back from server
     void terrainDataReceived(bool success, const QList<TerrainPathQuery::PathHeightInfo_t> &rgPathHeightInfo);
 
-private slots:
+  private slots:
     void _terrainDataReceived(bool success, const TerrainPathQuery::PathHeightInfo_t &pathHeightInfo);
 
-private:
+  private:
     bool _autoDelete = false;
     int _curIndex = 0;
     QList<QGeoCoordinate> _rgCoords;

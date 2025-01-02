@@ -8,8 +8,8 @@
  ****************************************************************************/
 
 #include "UnitTestList.h"
-#include "UnitTest.h"
 #include "QGCLoggingCategory.h"
+#include "UnitTest.h"
 
 // ADSB
 #include "ADSBTest.h"
@@ -49,8 +49,8 @@
 #include "GpsTest.h"
 
 // MAVLink
-#include "StatusTextHandlerTest.h"
 #include "SigningTest.h"
+#include "StatusTextHandlerTest.h"
 
 // MissionManager
 #include "CameraCalcTest.h"
@@ -112,8 +112,7 @@
 
 QGC_LOGGING_CATEGORY(UnitTestsLog, "qgc.test.unittestlist")
 
-int runTests(bool stress, QStringView unitTestOptions)
-{
+int runTests(bool stress, QStringView unitTestOptions) {
     // ADSB
     UT_REGISTER_TEST(ADSBTest)
 
@@ -213,7 +212,7 @@ int runTests(bool stress, QStringView unitTestOptions)
 
     int result = 0;
 
-    for (int i=0; i < (stress ? 20 : 1); i++) {
+    for (int i = 0; i < (stress ? 20 : 1); i++) {
         // Run the test
         const int failures = UnitTest::run(unitTestOptions);
         if (failures == 0) {

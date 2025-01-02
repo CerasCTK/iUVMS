@@ -9,13 +9,10 @@
 
 #include "QGCImageProvider.h"
 
-#include <QtGui/QPainter>
 #include <QtGui/QFont>
+#include <QtGui/QPainter>
 
-QGCImageProvider::QGCImageProvider(QQmlImageProviderBase::ImageType imageType)
-    : QQuickImageProvider(imageType)
-    , _dummy(320, 240, QImage::Format_RGBA8888)
-{
+QGCImageProvider::QGCImageProvider(QQmlImageProviderBase::ImageType imageType) : QQuickImageProvider(imageType), _dummy(320, 240, QImage::Format_RGBA8888) {
     // qCDebug(ImageProtocolManagerLog) << Q_FUNC_INFO << this;
 
     Q_ASSERT(imageType == QQmlImageProviderBase::ImageType::Image);
@@ -31,13 +28,11 @@ QGCImageProvider::QGCImageProvider(QQmlImageProviderBase::ImageType imageType)
     _images[0] = _dummy;
 }
 
-QGCImageProvider::~QGCImageProvider()
-{
+QGCImageProvider::~QGCImageProvider() {
     // qCDebug(ImageProtocolManagerLog) << Q_FUNC_INFO << this;
 }
 
-QImage QGCImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
-{
+QImage QGCImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize) {
     Q_UNUSED(requestedSize);
 
     if (id.isEmpty()) {

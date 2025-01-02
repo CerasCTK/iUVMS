@@ -7,35 +7,32 @@
  *
  ****************************************************************************/
 
-
 /// @file
 ///     @author Don Gagne <don@thegagnes.com>
 
 #include "PX4AirframeLoader.h"
-#include "QGCApplication.h"
-#include "QGCLoggingCategory.h"
 #include "AirframeComponentAirframes.h"
 #include "AutoPilotPlugin.h"
+#include "QGCApplication.h"
+#include "QGCLoggingCategory.h"
 
+#include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QDir>
-#include <QDebug>
-#include <QtCore/QXmlStreamReader>
 #include <QtCore/QSettings>
+#include <QtCore/QXmlStreamReader>
 
 QGC_LOGGING_CATEGORY(PX4AirframeLoaderLog, "PX4AirframeLoaderLog")
 
 bool PX4AirframeLoader::_airframeMetaDataLoaded = false;
 
-PX4AirframeLoader::PX4AirframeLoader(AutoPilotPlugin* autopilot, QObject* parent)
-{
+PX4AirframeLoader::PX4AirframeLoader(AutoPilotPlugin *autopilot, QObject *parent) {
     Q_UNUSED(autopilot);
     Q_UNUSED(parent);
 }
 
-QString PX4AirframeLoader::aiframeMetaDataFile(void)
-{
+QString PX4AirframeLoader::aiframeMetaDataFile(void) {
     QSettings settings;
     QDir parameterDir = QFileInfo(settings.fileName()).dir();
     return parameterDir.filePath("PX4AirframeFactMetaData.xml");
@@ -44,8 +41,7 @@ QString PX4AirframeLoader::aiframeMetaDataFile(void)
 /// Load Airframe Fact meta data
 ///
 /// The meta data comes from firmware airframes.xml file.
-void PX4AirframeLoader::loadAirframeMetaData(void)
-{
+void PX4AirframeLoader::loadAirframeMetaData(void) {
     if (_airframeMetaDataLoaded) {
         return;
     }
@@ -90,9 +86,9 @@ void PX4AirframeLoader::loadAirframeMetaData(void)
         return;
     }
 
-    QString         airframeGroup;
-    QString         image;
-    int             xmlState = XmlStateNone;
+    QString airframeGroup;
+    QString image;
+    int xmlState = XmlStateNone;
 
     while (!xml.atEnd()) {
         if (xml.isStartElement()) {

@@ -16,18 +16,17 @@
 
 class FirmwarePlugin;
 
-class FirmwarePluginFactory : public QObject
-{
+class FirmwarePluginFactory : public QObject {
     Q_OBJECT
 
-public:
+  public:
     FirmwarePluginFactory(void);
 
     /// Returns appropriate plugin for autopilot type.
     ///     @param autopilotType Type of autopilot to return plugin for.
     ///     @param vehicleType Vehicle type of autopilot to return plugin for.
     /// @return Singleton FirmwarePlugin instance for the specified MAV_AUTOPILOT.
-    virtual FirmwarePlugin* firmwarePluginForAutopilot(MAV_AUTOPILOT autopilotType, MAV_TYPE vehicleType) = 0;
+    virtual FirmwarePlugin *firmwarePluginForAutopilot(MAV_AUTOPILOT autopilotType, MAV_TYPE vehicleType) = 0;
 
     /// @return List of firmware classes this plugin supports.
     virtual QList<QGCMAVLink::FirmwareClass_t> supportedFirmwareClasses(void) const = 0;
@@ -36,18 +35,17 @@ public:
     virtual QList<QGCMAVLink::VehicleClass_t> supportedVehicleClasses(void) const;
 };
 
-class FirmwarePluginFactoryRegister : public QObject
-{
+class FirmwarePluginFactoryRegister : public QObject {
     Q_OBJECT
 
-public:
-    static FirmwarePluginFactoryRegister* instance(void);
+  public:
+    static FirmwarePluginFactoryRegister *instance(void);
 
     /// Registers the specified logging category to the system.
-    void registerPluginFactory(FirmwarePluginFactory* pluginFactory) { _factoryList.append(pluginFactory); }
+    void registerPluginFactory(FirmwarePluginFactory *pluginFactory) { _factoryList.append(pluginFactory); }
 
-    QList<FirmwarePluginFactory*> pluginFactories(void) const { return _factoryList; }
+    QList<FirmwarePluginFactory *> pluginFactories(void) const { return _factoryList; }
 
-private:
-    QList<FirmwarePluginFactory*> _factoryList;
+  private:
+    QList<FirmwarePluginFactory *> _factoryList;
 };

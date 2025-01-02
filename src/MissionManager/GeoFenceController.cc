@@ -7,36 +7,31 @@
  *
  ****************************************************************************/
 
-
 /// @file
 ///     @author Don Gagne <don@thegagnes.com>
 
 #include "GeoFenceController.h"
-#include "Vehicle.h"
-#include "ParameterManager.h"
-#include "JsonHelper.h"
-#include "PlanMasterController.h"
-#include "SettingsManager.h"
 #include "AppSettings.h"
 #include "GeoFenceManager.h"
+#include "JsonHelper.h"
+#include "ParameterManager.h"
+#include "PlanMasterController.h"
 #include "QGCFenceCircle.h"
 #include "QGCFencePolygon.h"
 #include "QGCLoggingCategory.h"
+#include "SettingsManager.h"
+#include "Vehicle.h"
 
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
 
 QGC_LOGGING_CATEGORY(GeoFenceControllerLog, "GeoFenceControllerLog")
 
-QMap<QString, FactMetaData*> GeoFenceController::_metaDataMap;
+QMap<QString, FactMetaData *> GeoFenceController::_metaDataMap;
 
-GeoFenceController::GeoFenceController(PlanMasterController* masterController, QObject* parent)
-    : PlanElementController         (masterController, parent)
-    , _managerVehicle               (masterController->managerVehicle())
-    , _geoFenceManager              (masterController->managerVehicle()->geoFenceManager())
-    , _breachReturnAltitudeFact     (0, _breachReturnAltitudeFactName, FactMetaData::valueTypeDouble)
-    , _breachReturnDefaultAltitude  (SettingsManager::instance()->appSettings()->defaultMissionItemAltitude()->rawValue().toDouble())
-{
+GeoFenceController::GeoFenceController(PlanMasterController *masterController, QObject *parent)
+    : PlanElementController(masterController, parent), _managerVehicle(masterController->managerVehicle()), _geoFenceManager(masterController->managerVehicle()->geoFenceManager()),
+      _breachReturnAltitudeFact(0, _breachReturnAltitudeFactName, FactMetaData::valueTypeDouble), _breachReturnDefaultAltitude(SettingsManager::instance()->appSettings()->defaultMissionItemAltitude()->rawValue().toDouble()) {
     if (_metaDataMap.isEmpty()) {
         _metaDataMap = FactMetaData::createMapFromJsonFile(QStringLiteral(":/json/BreachReturn.FactMetaData.json"), nullptr /* metaDataParent */);
     }
@@ -45,21 +40,17 @@ GeoFenceController::GeoFenceController(PlanMasterController* masterController, Q
     _breachReturnAltitudeFact.setRawValue(_breachReturnDefaultAltitude);
 
     connect(&_polygons, &QmlObjectListModel::countChanged, this, &GeoFenceController::_updateContainsItems);
-    connect(&_circles,  &QmlObjectListModel::countChanged, this, &GeoFenceController::_updateContainsItems);
+    connect(&_circles, &QmlObjectListModel::countChanged, this, &GeoFenceController::_updateContainsItems);
 
-    connect(this,                       &GeoFenceController::breachReturnPointChanged,  this, &GeoFenceController::_setDirty);
-    connect(&_breachReturnAltitudeFact, &Fact::rawValueChanged,                         this, &GeoFenceController::_setDirty);
-    connect(&_polygons,                 &QmlObjectListModel::dirtyChanged,              this, &GeoFenceController::_setDirty);
-    connect(&_circles,                  &QmlObjectListModel::dirtyChanged,              this, &GeoFenceController::_setDirty);
+    connect(this, &GeoFenceController::breachReturnPointChanged, this, &GeoFenceController::_setDirty);
+    connect(&_breachReturnAltitudeFact, &Fact::rawValueChanged, this, &GeoFenceController::_setDirty);
+    connect(&_polygons, &QmlObjectListModel::dirtyChanged, this, &GeoFenceController::_setDirty);
+    connect(&_circles, &QmlObjectListModel::dirtyChanged, this, &GeoFenceController::_setDirty);
 }
 
-GeoFenceController::~GeoFenceController()
-{
+GeoFenceController::~GeoFenceController() {}
 
-}
-
-void GeoFenceController::start(bool flyView)
-{
+void GeoFenceController::start(bool flyView) {
     qCDebug(GeoFenceControllerLog) << "start flyView" << flyView;
 
     _managerVehicleChanged(_masterController->managerVehicle());
@@ -69,13 +60,9 @@ void GeoFenceController::start(bool flyView)
     _init();
 }
 
-void GeoFenceController::_init(void)
-{
+void GeoFenceController::_init(void) {}
 
-}
-
-void GeoFenceController::setBreachReturnPoint(const QGeoCoordinate& breachReturnPoint)
-{
+void GeoFenceController::setBreachReturnPoint(const QGeoCoordinate &breachReturnPoint) {
     if (_breachReturnPoint != breachReturnPoint) {
         _breachReturnPoint = breachReturnPoint;
         setDirty(true);
@@ -83,8 +70,7 @@ void GeoFenceController::setBreachReturnPoint(const QGeoCoordinate& breachReturn
     }
 }
 
-void GeoFenceController::_managerVehicleChanged(Vehicle* managerVehicle)
-{
+void GeoFenceController::_managerVehicleChanged(Vehicle *managerVehicle) {
     if (_managerVehicle) {
         _geoFenceManager->disconnect(this);
         _managerVehicle->disconnect(this);
@@ -100,14 +86,14 @@ void GeoFenceController::_managerVehicleChanged(Vehicle* managerVehicle)
     }
 
     _geoFenceManager = _managerVehicle->geoFenceManager();
-    connect(_geoFenceManager, &GeoFenceManager::loadComplete,                   this, &GeoFenceController::_managerLoadComplete);
-    connect(_geoFenceManager, &GeoFenceManager::sendComplete,                   this, &GeoFenceController::_managerSendComplete);
-    connect(_geoFenceManager, &GeoFenceManager::removeAllComplete,              this, &GeoFenceController::_managerRemoveAllComplete);
-    connect(_geoFenceManager, &GeoFenceManager::inProgressChanged,              this, &GeoFenceController::syncInProgressChanged);
+    connect(_geoFenceManager, &GeoFenceManager::loadComplete, this, &GeoFenceController::_managerLoadComplete);
+    connect(_geoFenceManager, &GeoFenceManager::sendComplete, this, &GeoFenceController::_managerSendComplete);
+    connect(_geoFenceManager, &GeoFenceManager::removeAllComplete, this, &GeoFenceController::_managerRemoveAllComplete);
+    connect(_geoFenceManager, &GeoFenceManager::inProgressChanged, this, &GeoFenceController::syncInProgressChanged);
 
     //-- GeoFenceController::supported() tests both the capability bit AND the protocol version.
-    connect(_managerVehicle,  &Vehicle::capabilityBitsChanged,                  this, &GeoFenceController::supportedChanged);
-    connect(_managerVehicle,  &Vehicle::requestProtocolVersion,                 this, &GeoFenceController::supportedChanged);
+    connect(_managerVehicle, &Vehicle::capabilityBitsChanged, this, &GeoFenceController::supportedChanged);
+    connect(_managerVehicle, &Vehicle::requestProtocolVersion, this, &GeoFenceController::supportedChanged);
 
     connect(_managerVehicle->parameterManager(), &ParameterManager::parametersReadyChanged, this, &GeoFenceController::_parametersReady);
     _parametersReady();
@@ -115,23 +101,21 @@ void GeoFenceController::_managerVehicleChanged(Vehicle* managerVehicle)
     emit supportedChanged(supported());
 }
 
-bool GeoFenceController::load(const QJsonObject& json, QString& errorString)
-{
+bool GeoFenceController::load(const QJsonObject &json, QString &errorString) {
     removeAll();
 
     errorString.clear();
 
-    if (!json.contains(JsonHelper::jsonVersionKey) ||
-            (json.contains(JsonHelper::jsonVersionKey) && json[JsonHelper::jsonVersionKey].toInt() == 1)) {
+    if (!json.contains(JsonHelper::jsonVersionKey) || (json.contains(JsonHelper::jsonVersionKey) && json[JsonHelper::jsonVersionKey].toInt() == 1)) {
         // We just ignore old version 1 or prior data
         return true;
     }
 
     QList<JsonHelper::KeyValidateInfo> keyInfoList = {
-        { JsonHelper::jsonVersionKey,   QJsonValue::Double, true },
-        { _jsonCirclesKey,              QJsonValue::Array,  true },
-        { _jsonPolygonsKey,             QJsonValue::Array,  true },
-        { _jsonBreachReturnKey,         QJsonValue::Array,  false },
+        { JsonHelper::jsonVersionKey, QJsonValue::Double, true },
+        { _jsonCirclesKey, QJsonValue::Array, true },
+        { _jsonPolygonsKey, QJsonValue::Array, true },
+        { _jsonBreachReturnKey, QJsonValue::Array, false },
     };
     if (!JsonHelper::validateKeys(json, keyInfoList, errorString)) {
         return false;
@@ -143,13 +127,13 @@ bool GeoFenceController::load(const QJsonObject& json, QString& errorString)
     }
 
     QJsonArray jsonPolygonArray = json[_jsonPolygonsKey].toArray();
-    for (const QJsonValue jsonPolygonValue: jsonPolygonArray) {
+    for (const QJsonValue jsonPolygonValue : jsonPolygonArray) {
         if (jsonPolygonValue.type() != QJsonValue::Object) {
             errorString = tr("GeoFence polygon not stored as object");
             return false;
         }
 
-        QGCFencePolygon* fencePolygon = new QGCFencePolygon(false /* inclusion */, this /* parent */);
+        QGCFencePolygon *fencePolygon = new QGCFencePolygon(false /* inclusion */, this /* parent */);
         if (!fencePolygon->loadFromJson(jsonPolygonValue.toObject(), true /* required */, errorString)) {
             return false;
         }
@@ -157,13 +141,13 @@ bool GeoFenceController::load(const QJsonObject& json, QString& errorString)
     }
 
     QJsonArray jsonCircleArray = json[_jsonCirclesKey].toArray();
-    for (const QJsonValue jsonCircleValue: jsonCircleArray) {
+    for (const QJsonValue jsonCircleValue : jsonCircleArray) {
         if (jsonCircleValue.type() != QJsonValue::Object) {
             errorString = tr("GeoFence circle not stored as object");
             return false;
         }
 
-        QGCFenceCircle* fenceCircle = new QGCFenceCircle(this /* parent */);
+        QGCFenceCircle *fenceCircle = new QGCFenceCircle(this /* parent */);
         if (!fenceCircle->loadFromJson(jsonCircleValue.toObject(), errorString)) {
             return false;
         }
@@ -186,23 +170,22 @@ bool GeoFenceController::load(const QJsonObject& json, QString& errorString)
     return true;
 }
 
-void GeoFenceController::save(QJsonObject& json)
-{
+void GeoFenceController::save(QJsonObject &json) {
     json[JsonHelper::jsonVersionKey] = _jsonCurrentVersion;
 
     QJsonArray jsonPolygonArray;
-    for (int i=0; i<_polygons.count(); i++) {
+    for (int i = 0; i < _polygons.count(); i++) {
         QJsonObject jsonPolygon;
-        QGCFencePolygon* fencePolygon = _polygons.value<QGCFencePolygon*>(i);
+        QGCFencePolygon *fencePolygon = _polygons.value<QGCFencePolygon *>(i);
         fencePolygon->saveToJson(jsonPolygon);
         jsonPolygonArray.append(jsonPolygon);
     }
     json[_jsonPolygonsKey] = jsonPolygonArray;
 
     QJsonArray jsonCircleArray;
-    for (int i=0; i<_circles.count(); i++) {
+    for (int i = 0; i < _circles.count(); i++) {
         QJsonObject jsonCircle;
-        QGCFenceCircle* fenceCircle = _circles.value<QGCFenceCircle*>(i);
+        QGCFenceCircle *fenceCircle = _circles.value<QGCFenceCircle *>(i);
         fenceCircle->saveToJson(jsonCircle);
         jsonCircleArray.append(jsonCircle);
     }
@@ -217,15 +200,13 @@ void GeoFenceController::save(QJsonObject& json)
     }
 }
 
-void GeoFenceController::removeAll(void)
-{    
+void GeoFenceController::removeAll(void) {
     setBreachReturnPoint(QGeoCoordinate());
     _polygons.clearAndDeleteContents();
     _circles.clearAndDeleteContents();
 }
 
-void GeoFenceController::removeAllFromVehicle(void)
-{
+void GeoFenceController::removeAllFromVehicle(void) {
     if (_masterController->offline()) {
         qCWarning(GeoFenceControllerLog) << "GeoFenceController::removeAllFromVehicle called while offline";
     } else if (syncInProgress()) {
@@ -235,8 +216,7 @@ void GeoFenceController::removeAllFromVehicle(void)
     }
 }
 
-void GeoFenceController::loadFromVehicle(void)
-{
+void GeoFenceController::loadFromVehicle(void) {
     if (_masterController->offline()) {
         qCWarning(GeoFenceControllerLog) << "GeoFenceController::loadFromVehicle called while offline";
     } else if (syncInProgress()) {
@@ -247,8 +227,7 @@ void GeoFenceController::loadFromVehicle(void)
     }
 }
 
-void GeoFenceController::sendToVehicle(void)
-{
+void GeoFenceController::sendToVehicle(void) {
     if (_masterController->offline()) {
         qCWarning(GeoFenceControllerLog) << "GeoFenceController::sendToVehicle called while offline";
     } else if (syncInProgress()) {
@@ -260,28 +239,20 @@ void GeoFenceController::sendToVehicle(void)
     }
 }
 
-bool GeoFenceController::syncInProgress(void) const
-{
-    return _geoFenceManager->inProgress();
-}
+bool GeoFenceController::syncInProgress(void) const { return _geoFenceManager->inProgress(); }
 
-bool GeoFenceController::dirty(void) const
-{
-    return _dirty;
-}
+bool GeoFenceController::dirty(void) const { return _dirty; }
 
-
-void GeoFenceController::setDirty(bool dirty)
-{
+void GeoFenceController::setDirty(bool dirty) {
     if (dirty != _dirty) {
         _dirty = dirty;
         if (!dirty) {
-            for (int i=0; i<_polygons.count(); i++) {
-                QGCFencePolygon* polygon = _polygons.value<QGCFencePolygon*>(i);
+            for (int i = 0; i < _polygons.count(); i++) {
+                QGCFencePolygon *polygon = _polygons.value<QGCFencePolygon *>(i);
                 polygon->setDirty(false);
             }
-            for (int i=0; i<_circles.count(); i++) {
-                QGCFenceCircle* circle = _circles.value<QGCFenceCircle*>(i);
+            for (int i = 0; i < _circles.count(); i++) {
+                QGCFenceCircle *circle = _circles.value<QGCFenceCircle *>(i);
                 circle->setDirty(false);
             }
         }
@@ -289,37 +260,30 @@ void GeoFenceController::setDirty(bool dirty)
     }
 }
 
-void GeoFenceController::_polygonDirtyChanged(bool dirty)
-{
+void GeoFenceController::_polygonDirtyChanged(bool dirty) {
     if (dirty) {
         setDirty(true);
     }
 }
 
-void GeoFenceController::_setDirty(void)
-{
-    setDirty(true);
-}
+void GeoFenceController::_setDirty(void) { setDirty(true); }
 
-void GeoFenceController::_setFenceFromManager(const QList<QGCFencePolygon>& polygons,
-                                              const QList<QGCFenceCircle>&  circles)
-{
+void GeoFenceController::_setFenceFromManager(const QList<QGCFencePolygon> &polygons, const QList<QGCFenceCircle> &circles) {
     _polygons.clearAndDeleteContents();
     _circles.clearAndDeleteContents();
 
-    for (int i=0; i<polygons.count(); i++) {
+    for (int i = 0; i < polygons.count(); i++) {
         _polygons.append(new QGCFencePolygon(polygons[i], this));
     }
 
-    for (int i=0; i<circles.count(); i++) {
+    for (int i = 0; i < circles.count(); i++) {
         _circles.append(new QGCFenceCircle(circles[i], this));
     }
 
     setDirty(false);
 }
 
-void GeoFenceController::_setReturnPointFromManager(QGeoCoordinate breachReturnPoint)
-{
+void GeoFenceController::_setReturnPointFromManager(QGeoCoordinate breachReturnPoint) {
     _breachReturnPoint = breachReturnPoint;
     emit breachReturnPointChanged(_breachReturnPoint);
     if (_breachReturnPoint.isValid()) {
@@ -329,8 +293,7 @@ void GeoFenceController::_setReturnPointFromManager(QGeoCoordinate breachReturnP
     }
 }
 
-void GeoFenceController::_managerLoadComplete(void)
-{
+void GeoFenceController::_managerLoadComplete(void) {
     // Fly view always reloads on _loadComplete
     // Plan view only reloads if:
     //  - Load was specifically requested
@@ -344,38 +307,29 @@ void GeoFenceController::_managerLoadComplete(void)
     _itemsRequested = false;
 }
 
-void GeoFenceController::_managerSendComplete(bool error)
-{
+void GeoFenceController::_managerSendComplete(bool error) {
     // Fly view always reloads on manager sendComplete
     if (!error && _flyView) {
         showPlanFromManagerVehicle();
     }
 }
 
-void GeoFenceController::_managerRemoveAllComplete(bool error)
-{
+void GeoFenceController::_managerRemoveAllComplete(bool error) {
     if (!error) {
         // Remove all from vehicle so we always update
         showPlanFromManagerVehicle();
     }
 }
 
-bool GeoFenceController::containsItems(void) const
-{
-    return _polygons.count() > 0 || _circles.count() > 0;
-}
+bool GeoFenceController::containsItems(void) const { return _polygons.count() > 0 || _circles.count() > 0; }
 
-void GeoFenceController::_updateContainsItems(void)
-{
-    emit containsItemsChanged(containsItems());
-}
+void GeoFenceController::_updateContainsItems(void) { emit containsItemsChanged(containsItems()); }
 
-bool GeoFenceController::showPlanFromManagerVehicle(void)
-{
+bool GeoFenceController::showPlanFromManagerVehicle(void) {
     qCDebug(GeoFenceControllerLog) << "showPlanFromManagerVehicle _flyView" << _flyView;
     if (_masterController->offline()) {
         qCWarning(GeoFenceControllerLog) << "GeoFenceController::showPlanFromManagerVehicle called while offline";
-        return true;    // stops further propagation of showPlanFromManagerVehicle due to error
+        return true; // stops further propagation of showPlanFromManagerVehicle due to error
     } else {
         _itemsRequested = true;
         if (!_managerVehicle->initialPlanRequestComplete()) {
@@ -396,8 +350,7 @@ bool GeoFenceController::showPlanFromManagerVehicle(void)
     }
 }
 
-void GeoFenceController::addInclusionPolygon(QGeoCoordinate topLeft, QGeoCoordinate bottomRight)
-{
+void GeoFenceController::addInclusionPolygon(QGeoCoordinate topLeft, QGeoCoordinate bottomRight) {
     QGeoCoordinate topRight(topLeft.latitude(), bottomRight.longitude());
     QGeoCoordinate bottomLeft(bottomRight.latitude(), topLeft.longitude());
 
@@ -409,16 +362,16 @@ void GeoFenceController::addInclusionPolygon(QGeoCoordinate topLeft, QGeoCoordin
     QGeoCoordinate center(centerLeftEdge.latitude(), centerTopEdge.longitude());
 
     // Initial polygon is inset to take 3/4s of viewport with max width/height of 3000 meters
-    halfWidthMeters =   qMin(halfWidthMeters * 0.75, 1500.0);
-    halfHeightMeters =  qMin(halfHeightMeters * 0.75, 1500.0);
+    halfWidthMeters = qMin(halfWidthMeters * 0.75, 1500.0);
+    halfHeightMeters = qMin(halfHeightMeters * 0.75, 1500.0);
 
     // Initial polygon has max width and height of 3000 meters
-    topLeft =           center.atDistanceAndAzimuth(halfWidthMeters, -90).atDistanceAndAzimuth(halfHeightMeters, 0);
-    topRight =          center.atDistanceAndAzimuth(halfWidthMeters, 90).atDistanceAndAzimuth(halfHeightMeters, 0);
-    bottomLeft =        center.atDistanceAndAzimuth(halfWidthMeters, -90).atDistanceAndAzimuth(halfHeightMeters, 180);
-    bottomRight =       center.atDistanceAndAzimuth(halfWidthMeters, 90).atDistanceAndAzimuth(halfHeightMeters, 180);
+    topLeft = center.atDistanceAndAzimuth(halfWidthMeters, -90).atDistanceAndAzimuth(halfHeightMeters, 0);
+    topRight = center.atDistanceAndAzimuth(halfWidthMeters, 90).atDistanceAndAzimuth(halfHeightMeters, 0);
+    bottomLeft = center.atDistanceAndAzimuth(halfWidthMeters, -90).atDistanceAndAzimuth(halfHeightMeters, 180);
+    bottomRight = center.atDistanceAndAzimuth(halfWidthMeters, 90).atDistanceAndAzimuth(halfHeightMeters, 180);
 
-    QGCFencePolygon* polygon = new QGCFencePolygon(true /* inclusion */, this);
+    QGCFencePolygon *polygon = new QGCFencePolygon(true /* inclusion */, this);
     polygon->appendVertex(topLeft);
     polygon->appendVertex(topRight);
     polygon->appendVertex(bottomRight);
@@ -429,8 +382,7 @@ void GeoFenceController::addInclusionPolygon(QGeoCoordinate topLeft, QGeoCoordin
     polygon->setInteractive(true);
 }
 
-void GeoFenceController::addInclusionCircle(QGeoCoordinate topLeft, QGeoCoordinate bottomRight)
-{
+void GeoFenceController::addInclusionCircle(QGeoCoordinate topLeft, QGeoCoordinate bottomRight) {
     QGeoCoordinate topRight(topLeft.latitude(), bottomRight.longitude());
     QGeoCoordinate bottomLeft(bottomRight.latitude(), topLeft.longitude());
 
@@ -443,77 +395,69 @@ void GeoFenceController::addInclusionCircle(QGeoCoordinate topLeft, QGeoCoordina
     QGeoCoordinate centerTopEdge = topLeft.atDistanceAndAzimuth(halfWidthMeters, 90);
     QGeoCoordinate center(centerLeftEdge.latitude(), centerTopEdge.longitude());
 
-    QGCFenceCircle* circle = new QGCFenceCircle(center, radius, true /* inclusion */, this);
+    QGCFenceCircle *circle = new QGCFenceCircle(center, radius, true /* inclusion */, this);
     _circles.append(circle);
 
     clearAllInteractive();
     circle->setInteractive(true);
 }
 
-void GeoFenceController::deletePolygon(int index)
-{
+void GeoFenceController::deletePolygon(int index) {
     if (index < 0 || index > _polygons.count() - 1) {
         return;
     }
 
-    QGCFencePolygon* polygon = qobject_cast<QGCFencePolygon*>(_polygons.removeAt(index));
+    QGCFencePolygon *polygon = qobject_cast<QGCFencePolygon *>(_polygons.removeAt(index));
     polygon->deleteLater();
 }
 
-void GeoFenceController::deleteCircle(int index)
-{
+void GeoFenceController::deleteCircle(int index) {
     if (index < 0 || index > _circles.count() - 1) {
         return;
     }
 
-    QGCFenceCircle* circle = qobject_cast<QGCFenceCircle*>(_circles.removeAt(index));
+    QGCFenceCircle *circle = qobject_cast<QGCFenceCircle *>(_circles.removeAt(index));
     circle->deleteLater();
 }
 
-void GeoFenceController::clearAllInteractive(void)
-{
-    for (int i=0; i<_polygons.count(); i++) {
-        _polygons.value<QGCFencePolygon*>(i)->setInteractive(false);
+void GeoFenceController::clearAllInteractive(void) {
+    for (int i = 0; i < _polygons.count(); i++) {
+        _polygons.value<QGCFencePolygon *>(i)->setInteractive(false);
     }
-    for (int i=0; i<_circles.count(); i++) {
-        _circles.value<QGCFenceCircle*>(i)->setInteractive(false);
+    for (int i = 0; i < _circles.count(); i++) {
+        _circles.value<QGCFenceCircle *>(i)->setInteractive(false);
     }
 }
 
-bool GeoFenceController::supported(void) const
-{
-    return (_managerVehicle->capabilityBits() & MAV_PROTOCOL_CAPABILITY_MISSION_FENCE) && (_managerVehicle->maxProtoVersion() >= 200);
-}
+bool GeoFenceController::supported(void) const { return (_managerVehicle->capabilityBits() & MAV_PROTOCOL_CAPABILITY_MISSION_FENCE) && (_managerVehicle->maxProtoVersion() >= 200); }
 
 /* Returns the radius of the "paramCircularFence"
  * which is called the "Geofence Failsafe" in PX4 and the "Circular Geofence" on Ardupilot
  * this code should ideally live in the firmware plugin since it is specific to apm and px4 firmwares */
-double GeoFenceController::paramCircularFence(void)
-{
-    if(_managerVehicle->isOfflineEditingVehicle()){
+double GeoFenceController::paramCircularFence(void) {
+    if (_managerVehicle->isOfflineEditingVehicle()) {
         return 0;
     }
 
-    if(_managerVehicle->px4Firmware()){
-        if(!_managerVehicle->parameterManager()->parameterExists(ParameterManager::defaultComponentId, _px4ParamCircularFence)){
+    if (_managerVehicle->px4Firmware()) {
+        if (!_managerVehicle->parameterManager()->parameterExists(ParameterManager::defaultComponentId, _px4ParamCircularFence)) {
             return 0;
         }
 
         return _managerVehicle->parameterManager()->getParameter(ParameterManager::defaultComponentId, _px4ParamCircularFence)->rawValue().toDouble();
     }
 
-    if(_managerVehicle->apmFirmware())
-    {
-        if (!_managerVehicle->parameterManager()->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceRadius) ||
-            !_managerVehicle->parameterManager()->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceEnabled) ||
-            !_managerVehicle->parameterManager()->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceType)){
+    if (_managerVehicle->apmFirmware()) {
+        if (!_managerVehicle->parameterManager()->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceRadius)
+            || !_managerVehicle->parameterManager()->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceEnabled)
+            || !_managerVehicle->parameterManager()->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceType)) {
             return 0;
         }
 
         bool apm_fence_enabled = _managerVehicle->parameterManager()->getParameter(ParameterManager::defaultComponentId, _apmParamCircularFenceEnabled)->rawValue().toBool();
         bool apm_fence_type_circle = (1 << 1) & _managerVehicle->parameterManager()->getParameter(ParameterManager::defaultComponentId, _apmParamCircularFenceType)->rawValue().toUInt();
 
-        if(!apm_fence_enabled || !apm_fence_type_circle)
+        if (!apm_fence_enabled || !apm_fence_type_circle)
             return 0;
 
         return _managerVehicle->parameterManager()->getParameter(ParameterManager::defaultComponentId, _apmParamCircularFenceRadius)->rawValue().toDouble();
@@ -522,8 +466,7 @@ double GeoFenceController::paramCircularFence(void)
     return 0;
 }
 
-void GeoFenceController::_parametersReady(void)
-{
+void GeoFenceController::_parametersReady(void) {
     /* When parameters are ready we setup notifications of param changes
      * so that if a param changes we can emit paramCircularFenceChanged
      * and trigger an update to the UI */
@@ -548,27 +491,24 @@ void GeoFenceController::_parametersReady(void)
 
     // then connect to needed paremters
     // While checking they exist to avoid errors
-    ParameterManager* _paramManager = _managerVehicle->parameterManager();
+    ParameterManager *_paramManager = _managerVehicle->parameterManager();
 
-    if(_managerVehicle->isOfflineEditingVehicle()){
+    if (_managerVehicle->isOfflineEditingVehicle()) {
         emit paramCircularFenceChanged();
         return;
     }
 
-    if(_managerVehicle->px4Firmware()){
-        if(!_paramManager->parameterExists(ParameterManager::defaultComponentId, _px4ParamCircularFence)){
+    if (_managerVehicle->px4Firmware()) {
+        if (!_paramManager->parameterExists(ParameterManager::defaultComponentId, _px4ParamCircularFence)) {
             emit paramCircularFenceChanged();
             return;
         }
 
         _px4ParamCircularFenceFact = _paramManager->getParameter(ParameterManager::defaultComponentId, _px4ParamCircularFence);
         connect(_px4ParamCircularFenceFact, &Fact::rawValueChanged, this, &GeoFenceController::paramCircularFenceChanged);
-    }
-    else if(_managerVehicle->apmFirmware())
-    {
-        if (!_paramManager->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceRadius) ||
-            !_paramManager->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceEnabled) ||
-            !_paramManager->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceType)){
+    } else if (_managerVehicle->apmFirmware()) {
+        if (!_paramManager->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceRadius) || !_paramManager->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceEnabled)
+            || !_paramManager->parameterExists(ParameterManager::defaultComponentId, _apmParamCircularFenceType)) {
             emit paramCircularFenceChanged();
             return;
         }
@@ -584,21 +524,16 @@ void GeoFenceController::_parametersReady(void)
     emit paramCircularFenceChanged();
 }
 
-bool GeoFenceController::isEmpty(void) const
-{
-    return _polygons.count() == 0 && _circles.count() == 0 && !_breachReturnPoint.isValid();
-
-}
+bool GeoFenceController::isEmpty(void) const { return _polygons.count() == 0 && _circles.count() == 0 && !_breachReturnPoint.isValid(); }
 
 #ifdef UVMS_UTM_ADAPTER
-void GeoFenceController::loadFlightPlanData()
-{
+void GeoFenceController::loadFlightPlanData() {
     QJsonArray jsonPolygonArray;
-    QList<QGeoCoordinate> geoCoordinates ;
+    QList<QGeoCoordinate> geoCoordinates;
 
     for (int i = 0; i < _polygons.count(); i++) {
         QJsonObject jsonPolygon;
-        QGCFencePolygon* fencePolygon = _polygons.value<QGCFencePolygon*>(i);
+        QGCFencePolygon *fencePolygon = _polygons.value<QGCFencePolygon *>(i);
         fencePolygon->saveToJson(jsonPolygon);
         jsonPolygonArray.append(jsonPolygon);
     }

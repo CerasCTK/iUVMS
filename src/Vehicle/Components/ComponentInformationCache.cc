@@ -10,37 +10,25 @@
 #include "ComponentInformationCache.h"
 #include "QGCLoggingCategory.h"
 
-#include <QtCore/QFile>
 #include <QtCore/QDirIterator>
+#include <QtCore/QFile>
 #include <QtCore/QStandardPaths>
 
 QGC_LOGGING_CATEGORY(ComponentInformationCacheLog, "ComponentInformationCacheLog")
 
-ComponentInformationCache::ComponentInformationCache(const QDir& path, int maxNumFiles)
-    : _path(path), _maxNumFiles(maxNumFiles)
-{
-    initializeDirectory();
-}
+ComponentInformationCache::ComponentInformationCache(const QDir &path, int maxNumFiles) : _path(path), _maxNumFiles(maxNumFiles) { initializeDirectory(); }
 
-ComponentInformationCache& ComponentInformationCache::defaultInstance()
-{
+ComponentInformationCache &ComponentInformationCache::defaultInstance() {
     QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QLatin1String("/QGCCompInfoCache");
     static ComponentInformationCache instance(cacheDir, 50);
     return instance;
 }
 
-QString ComponentInformationCache::metaFileName(const QString& fileTag)
-{
-    return _path.filePath(fileTag+_metaExtension);
-}
+QString ComponentInformationCache::metaFileName(const QString &fileTag) { return _path.filePath(fileTag + _metaExtension); }
 
-QString ComponentInformationCache::dataFileName(const QString& fileTag)
-{
-    return _path.filePath(fileTag+_cacheExtension);
-}
+QString ComponentInformationCache::dataFileName(const QString &fileTag) { return _path.filePath(fileTag + _cacheExtension); }
 
-QString ComponentInformationCache::access(const QString &fileTag)
-{
+QString ComponentInformationCache::access(const QString &fileTag) {
     QFile meta(metaFileName(fileTag));
     QFile data(dataFileName(fileTag));
     if (!meta.exists() || !data.exists()) {
@@ -54,11 +42,11 @@ QString ComponentInformationCache::access(const QString &fileTag)
     Meta m{};
     AccessCounterType previousCounter = -1;
     if (meta.open(QIODevice::ReadWrite)) {
-        if (meta.read((char*)&m, sizeof(m)) == sizeof(m)) {
+        if (meta.read((char *)&m, sizeof(m)) == sizeof(m)) {
             previousCounter = m.accessCounter;
             m.accessCounter = _nextAccessCounter;
             meta.seek(0);
-            if (meta.write((const char*)&m, sizeof(m)) != sizeof(m)) {
+            if (meta.write((const char *)&m, sizeof(m)) != sizeof(m)) {
                 qCWarning(ComponentInformationCacheLog) << "Meta write failed" << meta.fileName() << meta.errorString();
             }
         } else {
@@ -76,8 +64,7 @@ QString ComponentInformationCache::access(const QString &fileTag)
     return data.fileName();
 }
 
-QString ComponentInformationCache::insert(const QString &fileTag, const QString &fileName)
-{
+QString ComponentInformationCache::insert(const QString &fileTag, const QString &fileName) {
     QFile meta(metaFileName(fileTag));
     QFile data(dataFileName(fileTag));
     QFile fileToCache(fileName);
@@ -97,7 +84,7 @@ QString ComponentInformationCache::insert(const QString &fileTag, const QString 
     Meta m{};
     m.accessCounter = _nextAccessCounter;
     if (meta.open(QIODevice::WriteOnly)) {
-        if (meta.write((const char*)&m, sizeof(m)) != sizeof(m)) {
+        if (meta.write((const char *)&m, sizeof(m)) != sizeof(m)) {
             qCWarning(ComponentInformationCacheLog) << "Meta write failed" << meta.fileName() << meta.errorString();
         }
         meta.close();
@@ -113,8 +100,7 @@ QString ComponentInformationCache::insert(const QString &fileTag, const QString 
     return data.fileName();
 }
 
-void ComponentInformationCache::initializeDirectory()
-{
+void ComponentInformationCache::initializeDirectory() {
     if (!_path.exists()) {
         QDir d;
         if (!d.mkpath(_path.path())) {
@@ -129,7 +115,7 @@ void ComponentInformationCache::initializeDirectory()
 
         if (path.endsWith(_metaExtension)) {
             QFile meta(path);
-            QFile data(path.mid(0, path.length()-strlen(_metaExtension))+_cacheExtension);
+            QFile data(path.mid(0, path.length() - strlen(_metaExtension)) + _cacheExtension);
             bool validationFailed = false;
             if (!data.exists()) {
                 validationFailed = true;
@@ -140,7 +126,7 @@ void ComponentInformationCache::initializeDirectory()
             const uint32_t expectedMagic = m.magic;
             const uint32_t expectedVersion = m.version;
             if (meta.open(QIODevice::ReadOnly)) {
-                if (meta.read((char*)&m, sizeof(m)) == sizeof(m)) {
+                if (meta.read((char *)&m, sizeof(m)) == sizeof(m)) {
                     if (m.magic != expectedMagic || m.version != expectedVersion) {
                         validationFailed = true;
                     }
@@ -159,7 +145,7 @@ void ComponentInformationCache::initializeDirectory()
             } else {
                 // extract the tag
                 QString tag = it.fileName();
-                tag = tag.mid(0, tag.length()-strlen(_metaExtension));
+                tag = tag.mid(0, tag.length() - strlen(_metaExtension));
                 _cachedFiles[m.accessCounter] = tag;
 
                 qCDebug(ComponentInformationCacheLog) << "Found cached file:counter" << meta.fileName() << m.accessCounter;
@@ -177,8 +163,7 @@ void ComponentInformationCache::initializeDirectory()
     removeOldEntries();
 }
 
-void ComponentInformationCache::removeOldEntries()
-{
+void ComponentInformationCache::removeOldEntries() {
     while (_numFiles > _maxNumFiles) {
         auto iter = _cachedFiles.begin();
         QFile meta(metaFileName(iter.value()));

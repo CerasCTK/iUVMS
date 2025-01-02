@@ -11,16 +11,15 @@
 
 #include "VehicleComponent.h"
 
-class APMHeliComponent : public VehicleComponent
-{
+class APMHeliComponent : public VehicleComponent {
     Q_OBJECT
-    
-public:
-    APMHeliComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent = nullptr);
-    
+
+  public:
+    APMHeliComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent = nullptr);
+
     // Virtuals from VehicleComponent
     QStringList setupCompleteChangedTriggerList(void) const override;
-    
+
     // Virtuals from VehicleComponent
     QString name(void) const override;
     QString description(void) const override;
@@ -29,9 +28,10 @@ public:
     bool setupComplete(void) const override;
     QUrl setupSource(void) const override;
     QUrl summaryQmlSource(void) const override;
+
     bool allowSetupWhileArmed(void) const override { return true; }
 
-private:
-    const QString   _name;
-    QVariantList    _summaryItems;
+  private:
+    const QString _name;
+    QVariantList _summaryItems;
 };

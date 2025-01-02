@@ -12,25 +12,24 @@
 #include <QtCore/QObject>
 #include <QtQml/QQmlListProperty>
 
-class ToolStripActionList : public QObject
-{
+class ToolStripActionList : public QObject {
     Q_OBJECT
-    
-public:
-    ToolStripActionList(QObject* parent = nullptr);
-    
+
+  public:
+    ToolStripActionList(QObject *parent = nullptr);
+
     Q_PROPERTY(QQmlListProperty<QObject> model READ model NOTIFY modelChanged)
 
     QQmlListProperty<QObject> model();
 
-signals:
+  signals:
     void modelChanged(void);
 
-private:
-    static void         append  (QQmlListProperty<QObject>* qmlListProperty, QObject* value);
-    static qsizetype    count   (QQmlListProperty<QObject>* qmlListProperty);
-    static QObject*     at      (QQmlListProperty<QObject>*, qsizetype index);
-    static void         clear   (QQmlListProperty<QObject>* qmlListProperty);
+  private:
+    static void append(QQmlListProperty<QObject> *qmlListProperty, QObject *value);
+    static qsizetype count(QQmlListProperty<QObject> *qmlListProperty);
+    static QObject *at(QQmlListProperty<QObject> *, qsizetype index);
+    static void clear(QQmlListProperty<QObject> *qmlListProperty);
 
-    QList<QObject*> _objectList;
+    QList<QObject *> _objectList;
 };

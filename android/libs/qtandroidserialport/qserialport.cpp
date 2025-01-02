@@ -14,50 +14,30 @@
 
 QT_BEGIN_NAMESPACE
 
-QSerialPortErrorInfo::QSerialPortErrorInfo(QSerialPort::SerialPortError newErrorCode,
-                                           const QString &newErrorString)
-    : errorCode(newErrorCode)
-    , errorString(newErrorString)
-{
+QSerialPortErrorInfo::QSerialPortErrorInfo(QSerialPort::SerialPortError newErrorCode, const QString &newErrorString) : errorCode(newErrorCode), errorString(newErrorString) {
     if (errorString.isNull()) {
         switch (errorCode) {
-        case QSerialPort::NoError:
-            errorString = QSerialPort::tr("No error");
-            break;
-        case QSerialPort::OpenError:
-            errorString = QSerialPort::tr("Device is already open");
-            break;
-        case QSerialPort::NotOpenError:
-            errorString = QSerialPort::tr("Device is not open");
-            break;
-        case QSerialPort::TimeoutError:
-            errorString = QSerialPort::tr("Operation timed out");
-            break;
-        case QSerialPort::ReadError:
-            errorString = QSerialPort::tr("Error reading from device");
-            break;
-        case QSerialPort::WriteError:
-            errorString = QSerialPort::tr("Error writing to device");
-            break;
-        case QSerialPort::ResourceError:
-            errorString = QSerialPort::tr("Device disappeared from the system");
-            break;
-        default:
-            // an empty string will be interpreted as "Unknown error"
-            // from the QIODevice::errorString()
-            break;
+            case QSerialPort::NoError: errorString = QSerialPort::tr("No error"); break;
+            case QSerialPort::OpenError: errorString = QSerialPort::tr("Device is already open"); break;
+            case QSerialPort::NotOpenError: errorString = QSerialPort::tr("Device is not open"); break;
+            case QSerialPort::TimeoutError: errorString = QSerialPort::tr("Operation timed out"); break;
+            case QSerialPort::ReadError: errorString = QSerialPort::tr("Error reading from device"); break;
+            case QSerialPort::WriteError: errorString = QSerialPort::tr("Error writing to device"); break;
+            case QSerialPort::ResourceError: errorString = QSerialPort::tr("Device disappeared from the system"); break;
+            default:
+                // an empty string will be interpreted as "Unknown error"
+                // from the QIODevice::errorString()
+                break;
         }
     }
 }
 
-QSerialPortPrivate::QSerialPortPrivate()
-{
+QSerialPortPrivate::QSerialPortPrivate() {
     writeBufferChunkSize = QSERIALPORT_BUFFERSIZE;
     readBufferChunkSize = QSERIALPORT_BUFFERSIZE;
 }
 
-void QSerialPortPrivate::setError(const QSerialPortErrorInfo &errorInfo)
-{
+void QSerialPortPrivate::setError(const QSerialPortErrorInfo &errorInfo) {
     Q_Q(QSerialPort);
 
     q->setErrorString(errorInfo.errorString);
@@ -328,15 +308,10 @@ void QSerialPortPrivate::setError(const QSerialPortErrorInfo &errorInfo)
     \sa QSerialPort::error
 */
 
-
-
 /*!
     Constructs a new serial port object with the given \a parent.
 */
-QSerialPort::QSerialPort(QObject *parent)
-    : QIODevice(*new QSerialPortPrivate, parent)
-{
-}
+QSerialPort::QSerialPort(QObject *parent) : QIODevice(*new QSerialPortPrivate, parent) {}
 
 /*!
     Constructs a new serial port object with the given \a parent
@@ -344,28 +319,19 @@ QSerialPort::QSerialPort(QObject *parent)
 
     The name should have a specific format; see the setPort() method.
 */
-QSerialPort::QSerialPort(const QString &name, QObject *parent)
-    : QIODevice(*new QSerialPortPrivate, parent)
-{
-    setPortName(name);
-}
+QSerialPort::QSerialPort(const QString &name, QObject *parent) : QIODevice(*new QSerialPortPrivate, parent) { setPortName(name); }
 
 /*!
     Constructs a new serial port object with the given \a parent
     to represent the serial port with the specified helper class
     \a serialPortInfo.
 */
-QSerialPort::QSerialPort(const QSerialPortInfo &serialPortInfo, QObject *parent)
-    : QIODevice(*new QSerialPortPrivate, parent)
-{
-    setPort(serialPortInfo);
-}
+QSerialPort::QSerialPort(const QSerialPortInfo &serialPortInfo, QObject *parent) : QIODevice(*new QSerialPortPrivate, parent) { setPort(serialPortInfo); }
 
 /*!
     Closes the serial port, if necessary, and then destroys object.
 */
-QSerialPort::~QSerialPort()
-{
+QSerialPort::~QSerialPort() {
     /**/
     if (isOpen())
         close();
@@ -379,8 +345,7 @@ QSerialPort::~QSerialPort()
 
     \sa portName(), QSerialPortInfo
 */
-void QSerialPort::setPortName(const QString &name)
-{
+void QSerialPort::setPortName(const QString &name) {
     Q_D(QSerialPort);
     d->systemLocation = QSerialPortInfoPrivate::portNameToSystemLocation(name);
 }
@@ -390,8 +355,7 @@ void QSerialPort::setPortName(const QString &name)
 
     \sa portName(), QSerialPortInfo
 */
-void QSerialPort::setPort(const QSerialPortInfo &serialPortInfo)
-{
+void QSerialPort::setPort(const QSerialPortInfo &serialPortInfo) {
     Q_D(QSerialPort);
     d->systemLocation = serialPortInfo.systemLocation();
 }
@@ -417,8 +381,7 @@ void QSerialPort::setPort(const QSerialPortInfo &serialPortInfo)
 
     \sa setPort(), QSerialPortInfo::portName()
 */
-QString QSerialPort::portName() const
-{
+QString QSerialPort::portName() const {
     Q_D(const QSerialPort);
     return QSerialPortInfoPrivate::portNameFromSystemLocation(d->systemLocation);
 }
@@ -439,8 +402,7 @@ QString QSerialPort::portName() const
 
     \sa QIODeviceBase::OpenMode, setPort()
 */
-bool QSerialPort::open(OpenMode mode)
-{
+bool QSerialPort::open(OpenMode mode) {
     Q_D(QSerialPort);
 
     if (isOpen()) {
@@ -471,8 +433,7 @@ bool QSerialPort::open(OpenMode mode)
 
     \sa QIODevice::close()
 */
-void QSerialPort::close()
-{
+void QSerialPort::close() {
     Q_D(QSerialPort);
     if (!isOpen()) {
         d->setError(QSerialPortErrorInfo(QSerialPort::NotOpenError));
@@ -505,8 +466,7 @@ void QSerialPort::close()
 
     The default value is Baud9600, i.e. 9600 bits per second.
 */
-bool QSerialPort::setBaudRate(qint32 baudRate, Directions directions)
-{
+bool QSerialPort::setBaudRate(qint32 baudRate, Directions directions) {
     Q_D(QSerialPort);
 
     if (!isOpen() || d->setBaudRate(baudRate, directions)) {
@@ -533,12 +493,10 @@ bool QSerialPort::setBaudRate(qint32 baudRate, Directions directions)
     return false;
 }
 
-qint32 QSerialPort::baudRate(Directions directions) const
-{
+qint32 QSerialPort::baudRate(Directions directions) const {
     Q_D(const QSerialPort);
     if (directions == QSerialPort::AllDirections)
-        return d->inputBaudRate == d->outputBaudRate ?
-                    d->inputBaudRate : -1;
+        return d->inputBaudRate == d->outputBaudRate ? d->inputBaudRate : -1;
     return directions & QSerialPort::Input ? d->inputBaudRate : d->outputBaudRate;
 }
 
@@ -565,8 +523,7 @@ qint32 QSerialPort::baudRate(Directions directions) const
 
     The default value is Data8, i.e. 8 data bits.
 */
-bool QSerialPort::setDataBits(DataBits dataBits)
-{
+bool QSerialPort::setDataBits(DataBits dataBits) {
     Q_D(QSerialPort);
     d->dataBits.removeBindingUnlessInWrapper();
     const auto currentDataBits = d->dataBits.valueBypassingBindings();
@@ -581,16 +538,12 @@ bool QSerialPort::setDataBits(DataBits dataBits)
     return false;
 }
 
-QSerialPort::DataBits QSerialPort::dataBits() const
-{
+QSerialPort::DataBits QSerialPort::dataBits() const {
     Q_D(const QSerialPort);
     return d->dataBits;
 }
 
-QBindable<QSerialPort::DataBits> QSerialPort::bindableDataBits()
-{
-    return &d_func()->dataBits;
-}
+QBindable<QSerialPort::DataBits> QSerialPort::bindableDataBits() { return &d_func()->dataBits; }
 
 /*!
     \fn void QSerialPort::dataBitsChanged(DataBits dataBits)
@@ -600,7 +553,6 @@ QBindable<QSerialPort::DataBits> QSerialPort::bindableDataBits()
 
     \sa QSerialPort::dataBits
 */
-
 
 /*!
     \property QSerialPort::parity
@@ -616,8 +568,7 @@ QBindable<QSerialPort::DataBits> QSerialPort::bindableDataBits()
 
     The default value is NoParity, i.e. no parity.
 */
-bool QSerialPort::setParity(Parity parity)
-{
+bool QSerialPort::setParity(Parity parity) {
     Q_D(QSerialPort);
     d->parity.removeBindingUnlessInWrapper();
     const auto currentParity = d->parity.valueBypassingBindings();
@@ -632,16 +583,12 @@ bool QSerialPort::setParity(Parity parity)
     return false;
 }
 
-QSerialPort::Parity QSerialPort::parity() const
-{
+QSerialPort::Parity QSerialPort::parity() const {
     Q_D(const QSerialPort);
     return d->parity;
 }
 
-QBindable<QSerialPort::Parity> QSerialPort::bindableParity()
-{
-    return &d_func()->parity;
-}
+QBindable<QSerialPort::Parity> QSerialPort::bindableParity() { return &d_func()->parity; }
 
 /*!
     \fn void QSerialPort::parityChanged(Parity parity)
@@ -666,8 +613,7 @@ QBindable<QSerialPort::Parity> QSerialPort::bindableParity()
 
     The default value is OneStop, i.e. 1 stop bit.
 */
-bool QSerialPort::setStopBits(StopBits stopBits)
-{
+bool QSerialPort::setStopBits(StopBits stopBits) {
     Q_D(QSerialPort);
     d->stopBits.removeBindingUnlessInWrapper();
     const auto currentStopBits = d->stopBits.valueBypassingBindings();
@@ -682,16 +628,12 @@ bool QSerialPort::setStopBits(StopBits stopBits)
     return false;
 }
 
-QSerialPort::StopBits QSerialPort::stopBits() const
-{
+QSerialPort::StopBits QSerialPort::stopBits() const {
     Q_D(const QSerialPort);
     return d->stopBits;
 }
 
-QBindable<bool> QSerialPort::bindableStopBits()
-{
-    return &d_func()->stopBits;
-}
+QBindable<bool> QSerialPort::bindableStopBits() { return &d_func()->stopBits; }
 
 /*!
     \fn void QSerialPort::stopBitsChanged(StopBits stopBits)
@@ -716,8 +658,7 @@ QBindable<bool> QSerialPort::bindableStopBits()
 
     The default value is NoFlowControl, i.e. no flow control.
 */
-bool QSerialPort::setFlowControl(FlowControl flowControl)
-{
+bool QSerialPort::setFlowControl(FlowControl flowControl) {
     Q_D(QSerialPort);
     d->flowControl.removeBindingUnlessInWrapper();
     const auto currentFlowControl = d->flowControl.valueBypassingBindings();
@@ -732,16 +673,12 @@ bool QSerialPort::setFlowControl(FlowControl flowControl)
     return false;
 }
 
-QSerialPort::FlowControl QSerialPort::flowControl() const
-{
+QSerialPort::FlowControl QSerialPort::flowControl() const {
     Q_D(const QSerialPort);
     return d->flowControl;
 }
 
-QBindable<QSerialPort::FlowControl> QSerialPort::bindableFlowControl()
-{
-    return &d_func()->flowControl;
-}
+QBindable<QSerialPort::FlowControl> QSerialPort::bindableFlowControl() { return &d_func()->flowControl; }
 
 /*!
     \fn void QSerialPort::flowControlChanged(FlowControl flow)
@@ -765,8 +702,7 @@ QBindable<QSerialPort::FlowControl> QSerialPort::bindableFlowControl()
 
     \sa pinoutSignals()
 */
-bool QSerialPort::setDataTerminalReady(bool set)
-{
+bool QSerialPort::setDataTerminalReady(bool set) {
     Q_D(QSerialPort);
 
     if (!isOpen()) {
@@ -783,8 +719,7 @@ bool QSerialPort::setDataTerminalReady(bool set)
     return retval;
 }
 
-bool QSerialPort::isDataTerminalReady()
-{
+bool QSerialPort::isDataTerminalReady() {
     Q_D(QSerialPort);
     return d->pinoutSignals() & QSerialPort::DataTerminalReadySignal;
 }
@@ -816,8 +751,7 @@ bool QSerialPort::isDataTerminalReady()
 
     \sa pinoutSignals()
 */
-bool QSerialPort::setRequestToSend(bool set)
-{
+bool QSerialPort::setRequestToSend(bool set) {
     Q_D(QSerialPort);
 
     if (!isOpen()) {
@@ -839,8 +773,7 @@ bool QSerialPort::setRequestToSend(bool set)
     return retval;
 }
 
-bool QSerialPort::isRequestToSend()
-{
+bool QSerialPort::isRequestToSend() {
     Q_D(QSerialPort);
     return d->pinoutSignals() & QSerialPort::RequestToSendSignal;
 }
@@ -871,8 +804,7 @@ bool QSerialPort::isRequestToSend()
 
     \sa QSerialPort::dataTerminalReady, QSerialPort::requestToSend
 */
-QSerialPort::PinoutSignals QSerialPort::pinoutSignals()
-{
+QSerialPort::PinoutSignals QSerialPort::pinoutSignals() {
     Q_D(QSerialPort);
 
     if (!isOpen()) {
@@ -901,8 +833,7 @@ QSerialPort::PinoutSignals QSerialPort::pinoutSignals()
 
     \sa write(), waitForBytesWritten()
 */
-bool QSerialPort::flush()
-{
+bool QSerialPort::flush() {
     Q_D(QSerialPort);
 
     if (!isOpen()) {
@@ -923,8 +854,7 @@ bool QSerialPort::flush()
     \note The serial port has to be open before trying to clear any buffered
     data; otherwise returns \c false and sets the NotOpenError error code.
 */
-bool QSerialPort::clear(Directions directions)
-{
+bool QSerialPort::clear(Directions directions) {
     Q_D(QSerialPort);
 
     if (!isOpen()) {
@@ -951,22 +881,17 @@ bool QSerialPort::clear(Directions directions)
     The error code is set to the default QSerialPort::NoError after a call to
     clearError()
 */
-QSerialPort::SerialPortError QSerialPort::error() const
-{
+QSerialPort::SerialPortError QSerialPort::error() const {
     Q_D(const QSerialPort);
     return d->error;
 }
 
-void QSerialPort::clearError()
-{
+void QSerialPort::clearError() {
     Q_D(QSerialPort);
     d->setError(QSerialPortErrorInfo(QSerialPort::NoError));
 }
 
-QBindable<QSerialPort::SerialPortError> QSerialPort::bindableError() const
-{
-    return &d_func()->error;
-}
+QBindable<QSerialPort::SerialPortError> QSerialPort::bindableError() const { return &d_func()->error; }
 
 /*!
     \fn void QSerialPort::errorOccurred(SerialPortError error)
@@ -988,8 +913,7 @@ QBindable<QSerialPort::SerialPortError> QSerialPort::bindableError() const
 
     \sa setReadBufferSize(), read()
 */
-qint64 QSerialPort::readBufferSize() const
-{
+qint64 QSerialPort::readBufferSize() const {
     Q_D(const QSerialPort);
     return d->readBufferMaxSize;
 }
@@ -1010,8 +934,7 @@ qint64 QSerialPort::readBufferSize() const
 
     \sa readBufferSize(), read()
 */
-void QSerialPort::setReadBufferSize(qint64 size)
-{
+void QSerialPort::setReadBufferSize(qint64 size) {
     Q_D(QSerialPort);
     d->readBufferMaxSize = size;
     if (isReadable())
@@ -1023,10 +946,7 @@ void QSerialPort::setReadBufferSize(qint64 size)
 
     Always returns \c true. The serial port is a sequential device.
 */
-bool QSerialPort::isSequential() const
-{
-    return true;
-}
+bool QSerialPort::isSequential() const { return true; }
 
 /*!
     \reimp
@@ -1035,10 +955,7 @@ bool QSerialPort::isSequential() const
 
     \sa bytesToWrite(), read()
 */
-qint64 QSerialPort::bytesAvailable() const
-{
-    return QIODevice::bytesAvailable();
-}
+qint64 QSerialPort::bytesAvailable() const { return QIODevice::bytesAvailable(); }
 
 /*!
     \reimp
@@ -1049,8 +966,7 @@ qint64 QSerialPort::bytesAvailable() const
 
     \sa bytesAvailable(), flush()
 */
-qint64 QSerialPort::bytesToWrite() const
-{
+qint64 QSerialPort::bytesToWrite() const {
     qint64 pendingBytes = QIODevice::bytesToWrite();
     return pendingBytes;
 }
@@ -1063,10 +979,7 @@ qint64 QSerialPort::bytesToWrite() const
 
     \sa readLine()
 */
-bool QSerialPort::canReadLine() const
-{
-    return QIODevice::canReadLine();
-}
+bool QSerialPort::canReadLine() const { return QIODevice::canReadLine(); }
 
 /*!
     \reimp
@@ -1082,8 +995,7 @@ bool QSerialPort::canReadLine() const
 
     \sa waitForBytesWritten()
 */
-bool QSerialPort::waitForReadyRead(int msecs)
-{
+bool QSerialPort::waitForReadyRead(int msecs) {
     Q_D(QSerialPort);
     return d->waitForReadyRead(msecs);
 }
@@ -1111,8 +1023,7 @@ bool QSerialPort::waitForReadyRead(int msecs)
     The function returns \c true if the bytesWritten() signal is emitted; otherwise
     it returns \c false (if an error occurred or the operation timed out).
 */
-bool QSerialPort::waitForBytesWritten(int msecs)
-{
+bool QSerialPort::waitForBytesWritten(int msecs) {
     Q_D(QSerialPort);
     return d->waitForBytesWritten(msecs);
 }
@@ -1133,8 +1044,7 @@ bool QSerialPort::waitForBytesWritten(int msecs)
     through the interaction with the kernel and hardware. Hence, the two
     scenarios cannot be completely compared to each other.
 */
-bool QSerialPort::setBreakEnabled(bool set)
-{
+bool QSerialPort::setBreakEnabled(bool set) {
     Q_D(QSerialPort);
     d->isBreakEnabled.removeBindingUnlessInWrapper();
     const auto currentSet = d->isBreakEnabled.valueBypassingBindings();
@@ -1154,16 +1064,12 @@ bool QSerialPort::setBreakEnabled(bool set)
     return false;
 }
 
-bool QSerialPort::isBreakEnabled() const
-{
+bool QSerialPort::isBreakEnabled() const {
     Q_D(const QSerialPort);
     return d->isBreakEnabled;
 }
 
-QBindable<bool> QSerialPort::bindableIsBreakEnabled()
-{
-    return &d_func()->isBreakEnabled;
-}
+QBindable<bool> QSerialPort::bindableIsBreakEnabled() { return &d_func()->isBreakEnabled; }
 
 /*!
     \reimp
@@ -1174,8 +1080,7 @@ QBindable<bool> QSerialPort::bindableIsBreakEnabled()
     method will be called.
     \endomit
 */
-qint64 QSerialPort::readData(char *data, qint64 maxSize)
-{
+qint64 QSerialPort::readData(char *data, qint64 maxSize) {
     Q_UNUSED(data);
     Q_UNUSED(maxSize);
 
@@ -1190,16 +1095,12 @@ qint64 QSerialPort::readData(char *data, qint64 maxSize)
 /*!
     \reimp
 */
-qint64 QSerialPort::readLineData(char *data, qint64 maxSize)
-{
-    return QIODevice::readLineData(data, maxSize);
-}
+qint64 QSerialPort::readLineData(char *data, qint64 maxSize) { return QIODevice::readLineData(data, maxSize); }
 
 /*!
     \reimp
 */
-qint64 QSerialPort::writeData(const char *data, qint64 maxSize)
-{
+qint64 QSerialPort::writeData(const char *data, qint64 maxSize) {
     Q_D(QSerialPort);
     return d->writeData(data, maxSize);
 }

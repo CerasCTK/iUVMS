@@ -9,53 +9,51 @@
 
 #pragma once
 
-#include "Vehicle.h"
 #include "MAVLinkLib.h"
+#include "Vehicle.h"
 
 #include <QtCore/QTimer>
 
-class Autotune : public QObject
-{
+class Autotune : public QObject {
     Q_OBJECT
 
-
-public:
+  public:
     explicit Autotune(Vehicle *vehicle);
 
-    Q_PROPERTY(bool      autotuneInProgress   READ autotuneInProgress     NOTIFY autotuneChanged)
-    Q_PROPERTY(float     autotuneProgress     READ autotuneProgress       NOTIFY autotuneChanged)
-    Q_PROPERTY(QString   autotuneStatus       READ autotuneStatus         NOTIFY autotuneChanged)
+    Q_PROPERTY(bool autotuneInProgress READ autotuneInProgress NOTIFY autotuneChanged)
+    Q_PROPERTY(float autotuneProgress READ autotuneProgress NOTIFY autotuneChanged)
+    Q_PROPERTY(QString autotuneStatus READ autotuneStatus NOTIFY autotuneChanged)
 
-    Q_INVOKABLE void autotuneRequest ();
+    Q_INVOKABLE void autotuneRequest();
 
-    static void ackHandler      (void* resultHandlerData,   int compId, const mavlink_command_ack_t& ack, Vehicle::MavCmdResultFailureCode_t failureCode);
-    static void progressHandler (void* progressHandlerData, int compId, const mavlink_command_ack_t& ack);
+    static void ackHandler(void *resultHandlerData, int compId, const mavlink_command_ack_t &ack, Vehicle::MavCmdResultFailureCode_t failureCode);
+    static void progressHandler(void *progressHandlerData, int compId, const mavlink_command_ack_t &ack);
 
-    bool      autotuneInProgress () { return _autotuneInProgress; }
-    float     autotuneProgress   () { return _autotuneProgress; }
-    QString   autotuneStatus     () { return _autotuneStatus; }
+    bool autotuneInProgress() { return _autotuneInProgress; }
 
+    float autotuneProgress() { return _autotuneProgress; }
 
-public slots:
+    QString autotuneStatus() { return _autotuneStatus; }
+
+  public slots:
     void sendMavlinkRequest();
 
-signals:
-    void autotuneChanged ();
+  signals:
+    void autotuneChanged();
 
-private:
+  private:
     void handleAckStatus(uint8_t ackProgress);
     void handleAckFailure();
     void handleAckError(uint8_t ackError);
     void startTimers();
     void stopTimers();
 
-private:
-    Vehicle* _vehicle                {nullptr};
-    bool     _autotuneInProgress     {false};
-    float    _autotuneProgress       {0.0};
-    QString  _autotuneStatus         {tr("Autotune: Not performed")};
-    bool     _disarmMessageDisplayed {false};
+  private:
+    Vehicle *_vehicle{ nullptr };
+    bool _autotuneInProgress{ false };
+    float _autotuneProgress{ 0.0 };
+    QString _autotuneStatus{ tr("Autotune: Not performed") };
+    bool _disarmMessageDisplayed{ false };
 
-    QTimer   _pollTimer;         // the frequency at which the polling should be performed
-
+    QTimer _pollTimer; // the frequency at which the polling should be performed
 };

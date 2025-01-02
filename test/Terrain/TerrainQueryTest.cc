@@ -8,69 +8,38 @@
  ****************************************************************************/
 
 #include "TerrainQueryTest.h"
-#include "TerrainTileManager.h"
 #include "TerrainQuery.h"
+#include "TerrainTileManager.h"
 
-#include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
+#include <QtTest/QTest>
 
 /// Point Nemo is a point on Earth furthest from land
 static const QGeoCoordinate pointNemo = QGeoCoordinate(-48.875556, -123.392500);
 
-const UnitTestTerrainQuery::Flat10Region UnitTestTerrainQuery::flat10Region{{
-    pointNemo,
-    QGeoCoordinate{
-        pointNemo.latitude() - UnitTestTerrainQuery::regionSizeDeg,
-        pointNemo.longitude() + UnitTestTerrainQuery::regionSizeDeg
-    }
-}};
+const UnitTestTerrainQuery::Flat10Region UnitTestTerrainQuery::flat10Region{ { pointNemo, QGeoCoordinate{ pointNemo.latitude() - UnitTestTerrainQuery::regionSizeDeg, pointNemo.longitude() + UnitTestTerrainQuery::regionSizeDeg } } };
 
-const UnitTestTerrainQuery::LinearSlopeRegion UnitTestTerrainQuery::linearSlopeRegion{{
-    flat10Region.topRight(),
-    QGeoCoordinate{
-        flat10Region.topRight().latitude() - UnitTestTerrainQuery::regionSizeDeg,
-        flat10Region.topRight().longitude() + UnitTestTerrainQuery::regionSizeDeg
-    }
-}};
+const UnitTestTerrainQuery::LinearSlopeRegion UnitTestTerrainQuery::linearSlopeRegion{ { flat10Region.topRight(), QGeoCoordinate{ flat10Region.topRight().latitude() - UnitTestTerrainQuery::regionSizeDeg,
+                                                                                                                                  flat10Region.topRight().longitude() + UnitTestTerrainQuery::regionSizeDeg } } };
 
-const UnitTestTerrainQuery::HillRegion UnitTestTerrainQuery::hillRegion{{
-    linearSlopeRegion.topRight(),
-    QGeoCoordinate{
-        linearSlopeRegion.topRight().latitude() - UnitTestTerrainQuery::regionSizeDeg,
-        linearSlopeRegion.topRight().longitude() + UnitTestTerrainQuery::regionSizeDeg
-    }
-}};
+const UnitTestTerrainQuery::HillRegion UnitTestTerrainQuery::hillRegion{ { linearSlopeRegion.topRight(), QGeoCoordinate{ linearSlopeRegion.topRight().latitude() - UnitTestTerrainQuery::regionSizeDeg,
+                                                                                                                         linearSlopeRegion.topRight().longitude() + UnitTestTerrainQuery::regionSizeDeg } } };
 
-UnitTestTerrainQuery::UnitTestTerrainQuery(QObject *parent)
-    : TerrainQueryInterface(parent)
-{
+UnitTestTerrainQuery::UnitTestTerrainQuery(QObject *parent) : TerrainQueryInterface(parent) {}
 
-}
+UnitTestTerrainQuery::~UnitTestTerrainQuery() {}
 
-UnitTestTerrainQuery::~UnitTestTerrainQuery()
-{
-
-}
-
-void UnitTestTerrainQuery::requestCoordinateHeights(const QList<QGeoCoordinate> &coordinates)
-{
+void UnitTestTerrainQuery::requestCoordinateHeights(const QList<QGeoCoordinate> &coordinates) {
     const QList<double> result = _requestCoordinateHeights(coordinates);
     emit coordinateHeightsReceived(result.size() == coordinates.size(), result);
 }
 
-void UnitTestTerrainQuery::requestPathHeights(const QGeoCoordinate &fromCoord, const QGeoCoordinate &toCoord)
-{
+void UnitTestTerrainQuery::requestPathHeights(const QGeoCoordinate &fromCoord, const QGeoCoordinate &toCoord) {
     const PathHeightInfo_t pathHeightInfo = _requestPathHeights(fromCoord, toCoord);
-    emit pathHeightsReceived(
-        !pathHeightInfo.rgHeights.isEmpty(),
-        pathHeightInfo.distanceBetween,
-        pathHeightInfo.finalDistanceBetween,
-        pathHeightInfo.rgHeights
-    );
+    emit pathHeightsReceived(!pathHeightInfo.rgHeights.isEmpty(), pathHeightInfo.distanceBetween, pathHeightInfo.finalDistanceBetween, pathHeightInfo.rgHeights);
 }
 
-void UnitTestTerrainQuery::requestCarpetHeights(const QGeoCoordinate &swCoord, const QGeoCoordinate &neCoord, bool statsOnly)
-{
+void UnitTestTerrainQuery::requestCarpetHeights(const QGeoCoordinate &swCoord, const QGeoCoordinate &neCoord, bool statsOnly) {
     QList<QList<double>> carpet;
 
     if ((swCoord.longitude() > neCoord.longitude()) || (swCoord.latitude() > neCoord.latitude())) {
@@ -94,33 +63,31 @@ void UnitTestTerrainQuery::requestCarpetHeights(const QGeoCoordinate &swCoord, c
             min = qMin(val, min);
             max = qMax(val, max);
         }
-        (void) carpet.append(row);
+        (void)carpet.append(row);
     }
 
     emit carpetHeightsReceived(true, min, max, carpet);
 }
 
-UnitTestTerrainQuery::PathHeightInfo_t UnitTestTerrainQuery::_requestPathHeights(const QGeoCoordinate &fromCoord, const QGeoCoordinate &toCoord)
-{
+UnitTestTerrainQuery::PathHeightInfo_t UnitTestTerrainQuery::_requestPathHeights(const QGeoCoordinate &fromCoord, const QGeoCoordinate &toCoord) {
     PathHeightInfo_t pathHeights;
     pathHeights.rgCoords = TerrainTileManager::_pathQueryToCoords(fromCoord, toCoord, pathHeights.distanceBetween, pathHeights.finalDistanceBetween);
     pathHeights.rgHeights = _requestCoordinateHeights(pathHeights.rgCoords);
     return pathHeights;
 }
 
-QList<double> UnitTestTerrainQuery::_requestCoordinateHeights(const QList<QGeoCoordinate> &coordinates)
-{
+QList<double> UnitTestTerrainQuery::_requestCoordinateHeights(const QList<QGeoCoordinate> &coordinates) {
     QList<double> result;
 
     for (const auto &coordinate : coordinates) {
         if (flat10Region.contains(coordinate)) {
-            (void) result.append(UnitTestTerrainQuery::Flat10Region::amslElevation);
+            (void)result.append(UnitTestTerrainQuery::Flat10Region::amslElevation);
         } else if (linearSlopeRegion.contains(coordinate)) {
             // cast to oneSecondDeg grid and round to int to emulate SRTM1 even better
             const double x = (coordinate.longitude() - linearSlopeRegion.topLeft().longitude()) / oneSecondDeg;
             const double dx = regionSizeDeg / oneSecondDeg;
             const double fraction = x / dx;
-            (void) result.append(std::round(UnitTestTerrainQuery::LinearSlopeRegion::minAMSLElevation + (fraction * UnitTestTerrainQuery::LinearSlopeRegion::totalElevationChange)));
+            (void)result.append(std::round(UnitTestTerrainQuery::LinearSlopeRegion::minAMSLElevation + (fraction * UnitTestTerrainQuery::LinearSlopeRegion::totalElevationChange)));
         } else if (hillRegion.contains(coordinate)) {
             const double arcSecondMeters = (earthsRadiusMts * oneSecondDeg) * (M_PI / 180.);
             const double x = (coordinate.latitude() - hillRegion.center().latitude()) * arcSecondMeters / oneSecondDeg;
@@ -128,7 +95,7 @@ QList<double> UnitTestTerrainQuery::_requestCoordinateHeights(const QList<QGeoCo
             const double x2y2 = pow(x, 2) + pow(y, 2);
             const double r2 = pow(UnitTestTerrainQuery::HillRegion::radius, 2);
             const double z = (x2y2 <= r2) ? sqrt(r2 - x2y2) : UnitTestTerrainQuery::Flat10Region::amslElevation;
-            (void) result.append(z);
+            (void)result.append(z);
         } else {
             result.clear();
             break;
@@ -140,15 +107,12 @@ QList<double> UnitTestTerrainQuery::_requestCoordinateHeights(const QList<QGeoCo
 
 /*===========================================================================*/
 
-void TerrainQueryTest::_testRequestCoordinateHeights()
-{
-    UnitTestTerrainQuery* const query = new UnitTestTerrainQuery(this);
+void TerrainQueryTest::_testRequestCoordinateHeights() {
+    UnitTestTerrainQuery *const query = new UnitTestTerrainQuery(this);
     QSignalSpy spy(query, &UnitTestTerrainQuery::coordinateHeightsReceived);
     QVERIFY(spy.isValid());
 
-    const QList<QGeoCoordinate> coords = {
-        pointNemo
-    };
+    const QList<QGeoCoordinate> coords = { pointNemo };
     query->requestCoordinateHeights(coords);
 
     const QVariantList arguments = spy.takeFirst();
@@ -157,9 +121,8 @@ void TerrainQueryTest::_testRequestCoordinateHeights()
     QVERIFY(arguments.at(1).toList().at(0).toDouble() == UnitTestTerrainQuery::Flat10Region::amslElevation);
 }
 
-void TerrainQueryTest::_testRequestPathHeights()
-{
-    UnitTestTerrainQuery* const query = new UnitTestTerrainQuery(this);
+void TerrainQueryTest::_testRequestPathHeights() {
+    UnitTestTerrainQuery *const query = new UnitTestTerrainQuery(this);
     QSignalSpy spy(query, &UnitTestTerrainQuery::pathHeightsReceived);
     QVERIFY(spy.isValid());
 
@@ -176,9 +139,8 @@ void TerrainQueryTest::_testRequestPathHeights()
     QVERIFY(arguments.at(3).toList().constLast().toDouble() == UnitTestTerrainQuery::Flat10Region::amslElevation);
 }
 
-void TerrainQueryTest::_testRequestCarpetHeights()
-{
-    UnitTestTerrainQuery* const query = new UnitTestTerrainQuery(this);
+void TerrainQueryTest::_testRequestCarpetHeights() {
+    UnitTestTerrainQuery *const query = new UnitTestTerrainQuery(this);
     QSignalSpy spy(query, &UnitTestTerrainQuery::carpetHeightsReceived);
     QVERIFY(spy.isValid());
 

@@ -8,13 +8,11 @@
  ****************************************************************************/
 
 #include "CityMapGeometry.h"
+#include "OsmParser.h"
 #include "SettingsManager.h"
 #include "Viewer3DSettings.h"
-#include "OsmParser.h"
 
-
-CityMapGeometry::CityMapGeometry()
-{
+CityMapGeometry::CityMapGeometry() {
     _osmParser = nullptr;
     _modelName = "city_map_defualt_name";
     _vertexData.clear();
@@ -26,16 +24,14 @@ CityMapGeometry::CityMapGeometry()
     connect(_viewer3DSettings->osmFilePath(), &Fact::rawValueChanged, this, &CityMapGeometry::setOsmFilePath);
 }
 
-void CityMapGeometry::setModelName(QString modelName)
-{
+void CityMapGeometry::setModelName(QString modelName) {
     _modelName = modelName;
     //    setName(_modelName);
 
     emit modelNameChanged();
 }
 
-void CityMapGeometry::setOsmFilePath(QVariant value)
-{
+void CityMapGeometry::setOsmFilePath(QVariant value) {
     clearViewer();
     _mapLoadedFlag = 0;
     _osmFilePath = value.toString();
@@ -43,11 +39,10 @@ void CityMapGeometry::setOsmFilePath(QVariant value)
     loadOsmMap();
 }
 
-void CityMapGeometry::setOsmParser(OsmParser *newOsmParser)
-{
+void CityMapGeometry::setOsmParser(OsmParser *newOsmParser) {
     _osmParser = newOsmParser;
 
-    if(_osmParser){
+    if (_osmParser) {
         connect(_osmParser, &OsmParser::buildingLevelHeightChanged, this, &CityMapGeometry::updateViewer);
         connect(_osmParser, &OsmParser::mapChanged, this, &CityMapGeometry::updateViewer);
     }
@@ -55,9 +50,8 @@ void CityMapGeometry::setOsmParser(OsmParser *newOsmParser)
     loadOsmMap();
 }
 
-bool CityMapGeometry::loadOsmMap()
-{
-    if(!_osmParser){
+bool CityMapGeometry::loadOsmMap() {
+    if (!_osmParser) {
         return false;
     }
 
@@ -65,34 +59,30 @@ bool CityMapGeometry::loadOsmMap()
     return false;
 }
 
-void CityMapGeometry::updateViewer()
-{
+void CityMapGeometry::updateViewer() {
     clear();
 
-    if(!_osmParser){
+    if (!_osmParser) {
         return;
     }
 
-    if(_osmParser->mapLoaded()){
+    if (_osmParser->mapLoaded()) {
         _vertexData = _osmParser->buildingToMesh();
 
         int stride = 3 * sizeof(float);
-        if(!_vertexData.isEmpty()){
+        if (!_vertexData.isEmpty()) {
             setVertexData(_vertexData);
             setStride(stride);
 
             setPrimitiveType(QQuick3DGeometry::PrimitiveType::Triangles);
 
-            addAttribute(QQuick3DGeometry::Attribute::PositionSemantic,
-                         0,
-                         QQuick3DGeometry::Attribute::F32Type);
+            addAttribute(QQuick3DGeometry::Attribute::PositionSemantic, 0, QQuick3DGeometry::Attribute::F32Type);
         }
         update();
     }
 }
 
-void CityMapGeometry::clearViewer()
-{
+void CityMapGeometry::clearViewer() {
     clear();
     _vertexData.clear();
     update();

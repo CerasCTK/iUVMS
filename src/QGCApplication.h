@@ -106,18 +106,15 @@ class QGCApplication : public QApplication {
   public slots:
     /// You can connect to this slot to show an information message box from a
     /// different thread.
-    void
-    informationMessageBoxOnMainThread(const QString &title, const QString &msg);
+    void informationMessageBoxOnMainThread(const QString &title, const QString &msg);
 
     /// You can connect to this slot to show a warning message box from a
     /// different thread.
-    void
-    warningMessageBoxOnMainThread(const QString &title, const QString &msg);
+    void warningMessageBoxOnMainThread(const QString &title, const QString &msg);
 
     /// You can connect to this slot to show a critical message box from a
     /// different thread.
-    void
-    criticalMessageBoxOnMainThread(const QString &title, const QString &msg);
+    void criticalMessageBoxOnMainThread(const QString &title, const QString &msg);
 
     void showSetupView();
 
@@ -130,14 +127,11 @@ class QGCApplication : public QApplication {
     void showCriticalVehicleMessage(const QString &message);
 
     /// Show modal application message to the user
-    void
-    showAppMessage(const QString &message, const QString &title = QString());
+    void showAppMessage(const QString &message, const QString &title = QString());
 
     /// Show modal application message to the user about the need for a reboot.
     /// Multiple messages will be supressed if they occur one after the other.
-    void showRebootAppMessage(
-        const QString &message, const QString &title = QString()
-    );
+    void showRebootAppMessage(const QString &message, const QString &title = QString());
 
     QGCImageProvider *qgcImageProvider();
 
@@ -156,13 +150,8 @@ class QGCApplication : public QApplication {
 
   private slots:
     void _missingParamsDisplay(void);
-    void _qgcCurrentStableVersionDownloadComplete(
-        QString remoteFile, QString localFile, QString errorMsg
-    );
-    bool _parseVersionText(
-        const QString &versionString, int &majorVersion, int &minorVersion,
-        int &buildVersion
-    );
+    void _qgcCurrentStableVersionDownloadComplete(QString remoteFile, QString localFile, QString errorMsg);
+    bool _parseVersionText(const QString &versionString, int &majorVersion, int &minorVersion, int &buildVersion);
     void _showDelayedAppMessages(void);
 
   private:
@@ -174,39 +163,31 @@ class QGCApplication : public QApplication {
     void _checkForNewVersion();
 
     // Overrides from QApplication
-    bool compressEvent(
-        QEvent *event, QObject *receiver, QPostEventList *postedEvents
-    ) override;
+    bool compressEvent(QEvent *event, QObject *receiver, QPostEventList *postedEvents) override;
 
-    bool _runningUnitTests; ///< true: running unit tests, false: normal app
-    static const int _missingParamsDelayedDisplayTimerTimeout
-        = 1000; ///< Timeout to wait for next missing fact to come in before
-                ///< display
-    QTimer _missingParamsDelayedDisplayTimer; ///< Timer use to delay missing
-                                              ///< fact display
-    QList<QPair<int, QString>>
-        _missingParams; ///< List of missing parameter component id:name
+    bool _runningUnitTests;                                           ///< true: running unit tests, false: normal app
+    static const int _missingParamsDelayedDisplayTimerTimeout = 1000; ///< Timeout to wait for next missing fact to come in before
+                                                                      ///< display
+    QTimer _missingParamsDelayedDisplayTimer;                         ///< Timer use to delay missing
+                                                                      ///< fact display
+    QList<QPair<int, QString>> _missingParams;                        ///< List of missing parameter component id:name
 
     QQmlApplicationEngine *_qmlAppEngine = nullptr;
-    bool _logOutput = false; ///< true: Log Qt debug output to file
-    bool _fakeMobile
-        = false; ///< true: Fake ui into displaying mobile interface
-    bool _settingsUpgraded
-        = false; ///< true: Settings format has been upgrade to new version
+    bool _logOutput = false;        ///< true: Log Qt debug output to file
+    bool _fakeMobile = false;       ///< true: Fake ui into displaying mobile interface
+    bool _settingsUpgraded = false; ///< true: Settings format has been upgrade to new version
     int _majorVersion = 0;
     int _minorVersion = 0;
     int _buildVersion = 0;
     QQuickWindow *_mainRootWindow = nullptr;
-    QTranslator
-        _qgcTranslatorSourceCode;     ///< translations for source code C++/Qml
-    QTranslator _qgcTranslatorQtLibs; ///< tranlsations for Qt libraries
+    QTranslator _qgcTranslatorSourceCode; ///< translations for source code C++/Qml
+    QTranslator _qgcTranslatorQtLibs;     ///< tranlsations for Qt libraries
     QLocale _locale;
     bool _error = false;
     bool _showErrorsInToolbar = false;
     QElapsedTimer _msecsElapsedTime;
 
-    QList<QPair<QString /* title */, QString /* message */>>
-        _delayedAppMessages;
+    QList<QPair<QString /* title */, QString /* message */>> _delayedAppMessages;
 
     class CompressedSignalList {
         Q_DISABLE_COPY(CompressedSignalList)
@@ -226,11 +207,8 @@ class QGCApplication : public QApplication {
 
     CompressedSignalList _compressedSignals;
 
-    const QString _settingsVersionKey = QStringLiteral("SettingsVersion"
-    ); ///< Settings key which hold settings version
-    const QString _deleteAllSettingsKey = QStringLiteral(
-        "DeleteAllSettingsNextBoot"
-    ); ///< If this settings key is set on boot, all settings will be deleted
+    const QString _settingsVersionKey = QStringLiteral("SettingsVersion");             ///< Settings key which hold settings version
+    const QString _deleteAllSettingsKey = QStringLiteral("DeleteAllSettingsNextBoot"); ///< If this settings key is set on boot, all settings will be deleted
 
     const QString qgcImageProviderId = QStringLiteral("QGCImages");
 

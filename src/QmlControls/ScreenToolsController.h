@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 /// @file
 ///     @author Gus Grubba <gus@auterion.com>
 
@@ -20,26 +19,25 @@
 Q_DECLARE_LOGGING_CATEGORY(ScreenToolsControllerLog)
 
 /// This Qml control is used to return screen parameters
-class ScreenToolsController : public QObject
-{
+class ScreenToolsController : public QObject {
     Q_OBJECT
     QML_ELEMENT
     // TODO: Q_NAMESPACE
-    Q_PROPERTY(bool     isAndroid           READ isAndroid          CONSTANT)
-    Q_PROPERTY(bool     isiOS               READ isiOS              CONSTANT)
-    Q_PROPERTY(bool     isMobile            READ isMobile           CONSTANT)
-    Q_PROPERTY(bool     fakeMobile          READ fakeMobile         CONSTANT)
-    Q_PROPERTY(bool     isDebug             READ isDebug            CONSTANT)
-    Q_PROPERTY(bool     isMacOS             READ isMacOS            CONSTANT)
-    Q_PROPERTY(bool     isLinux             READ isLinux            CONSTANT)
-    Q_PROPERTY(bool     isWindows           READ isWindows          CONSTANT)
-    Q_PROPERTY(bool     isSerialAvailable   READ isSerialAvailable  CONSTANT)
-    Q_PROPERTY(bool     hasTouch            READ hasTouch           CONSTANT)
-    Q_PROPERTY(QString  iOSDevice           READ iOSDevice          CONSTANT)
-    Q_PROPERTY(QString  fixedFontFamily     READ fixedFontFamily    CONSTANT)
-    Q_PROPERTY(QString  normalFontFamily    READ normalFontFamily   CONSTANT)
+    Q_PROPERTY(bool isAndroid READ isAndroid CONSTANT)
+    Q_PROPERTY(bool isiOS READ isiOS CONSTANT)
+    Q_PROPERTY(bool isMobile READ isMobile CONSTANT)
+    Q_PROPERTY(bool fakeMobile READ fakeMobile CONSTANT)
+    Q_PROPERTY(bool isDebug READ isDebug CONSTANT)
+    Q_PROPERTY(bool isMacOS READ isMacOS CONSTANT)
+    Q_PROPERTY(bool isLinux READ isLinux CONSTANT)
+    Q_PROPERTY(bool isWindows READ isWindows CONSTANT)
+    Q_PROPERTY(bool isSerialAvailable READ isSerialAvailable CONSTANT)
+    Q_PROPERTY(bool hasTouch READ hasTouch CONSTANT)
+    Q_PROPERTY(QString iOSDevice READ iOSDevice CONSTANT)
+    Q_PROPERTY(QString fixedFontFamily READ fixedFontFamily CONSTANT)
+    Q_PROPERTY(QString normalFontFamily READ normalFontFamily CONSTANT)
 
-public:
+  public:
     explicit ScreenToolsController(QObject *parent = nullptr);
     ~ScreenToolsController();
 
@@ -51,48 +49,74 @@ public:
     Q_INVOKABLE static double defaultFontDescent(int pointSize);
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-    static bool isMobile() { return true;  }
+    static bool isMobile() { return true; }
+
     static bool fakeMobile() { return false; }
 #else
     static bool isMobile() { return fakeMobile(); }
+
     static bool fakeMobile();
 #endif
 
-#if defined (Q_OS_ANDROID)
-    static bool isAndroid() { return true;  }
+#if defined(Q_OS_ANDROID)
+    static bool isAndroid() { return true; }
+
     static bool isiOS() { return false; }
+
     static bool isLinux() { return false; }
+
     static bool isMacOS() { return false; }
+
     static bool isWindows() { return false; }
 #elif defined(Q_OS_IOS)
     static bool isAndroid() { return false; }
+
     static bool isiOS() { return true; }
+
     static bool isLinux() { return false; }
+
     static bool isMacOS() { return false; }
+
     static bool isWindows() { return false; }
 #elif defined(Q_OS_MAC)
     static bool isAndroid() { return false; }
+
     static bool isiOS() { return false; }
+
     static bool isLinux() { return false; }
+
     static bool isMacOS() { return true; }
+
     static bool isWindows() { return false; }
 #elif defined(Q_OS_LINUX)
     static bool isAndroid() { return false; }
+
     static bool isiOS() { return false; }
+
     static bool isLinux() { return true; }
+
     static bool isMacOS() { return false; }
+
     static bool isWindows() { return false; }
 #elif defined(Q_OS_WIN)
     static bool isAndroid() { return false; }
+
     static bool isiOS() { return false; }
+
     static bool isLinux() { return false; }
+
     static bool isMacOS() { return false; }
+
     static bool isWindows() { return true; }
 #else
     static bool isAndroid() { return false; }
+
     static bool isiOS() { return false; }
+
     static bool isLinux() { return false; }
+
     static bool isMacOS() { return false; }
+
     static bool isWindows() { return false; }
 #endif
 

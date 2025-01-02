@@ -9,25 +9,21 @@
 
 #pragma once
 
-#include <QtGui/QPixmap>
+#include <QtCore/QDebug>
 #include <QtCore/QObject>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
-#include <QtCore/QDebug>
+#include <QtGui/QPixmap>
 #include <QtPositioning/QGeoCoordinate>
 
 #include "Viewer3DTileReply.h"
 
-
 ///     @author Omid Esrafilian <esrafilian.omid@gmail.com>
 
+class MapTileQuery : public QObject {
 
-class MapTileQuery : public QObject
-{
-
-public:
-    typedef struct MapTileContainer_s
-    {
+  public:
+    typedef struct MapTileContainer_s {
         int L = 256; // length of each square image downloaded tile
 
         QList<QString> tileList;
@@ -42,7 +38,8 @@ public:
         QImage mapTextureImage;
         // QByteArray mapTextureImageData;
         int mapWidth, mapHeight;
-        void init(){
+
+        void init() {
             mapWidth = (tileMaxIndex.x() - tileMinIndex.x() + 1) * L;
             mapHeight = (tileMaxIndex.y() - tileMinIndex.y() + 1) * L;
             mapTextureImage = QImage(mapWidth, mapHeight, QImage::Format_RGBA32FPx4);
@@ -51,7 +48,7 @@ public:
             // mapTextureImageData = QByteArray((char*)mapTextureImage.bits(), mapTextureImage.sizeInBytes());
         }
 
-        void setMapTile(){
+        void setMapTile() {
             QPixmap tmpPixmap;
             tmpPixmap.loadFromData(currentTileData);
             QImage tmpImage = tmpPixmap.toImage().convertToFormat(QImage::Format_RGBA32FPx4);
@@ -59,9 +56,7 @@ public:
             QPainter painter(&mapTextureImage);
             int idxX = (currentTileIndex.x() - tileMinIndex.x()) * L;
             int idxY = (currentTileIndex.y() - tileMinIndex.y()) * L;
-            painter.drawImage(idxX,
-                              idxY,
-                              tmpImage);
+            painter.drawImage(idxX, idxY, tmpImage);
 
             // int startByteIdx = idxX * mapHeight + idxY;
             // startByteIdx = startByteIdx * 4 * 4;
@@ -85,35 +80,34 @@ public:
             // qDebug() << startByteIdx << mapTextureImageData.size();
         }
 
-        QByteArray getMapData(){
-            QByteArray tmpImageData =  QByteArray::fromRawData((const char*)mapTextureImage.bits(), mapTextureImage.sizeInBytes());
+        QByteArray getMapData() {
+            QByteArray tmpImageData = QByteArray::fromRawData((const char *)mapTextureImage.bits(), mapTextureImage.sizeInBytes());
             tmpImageData.data();
             return tmpImageData;
             // return mapTextureImageData;
         }
 
-        void clear(){
-            tileList.clear();
-        }
-    }MapTileContainer_t;
+        void clear() { tileList.clear(); }
+    } MapTileContainer_t;
 
-    typedef struct TileStatistics_s{
+    typedef struct TileStatistics_s {
         QGeoCoordinate coordinateMin;
         QGeoCoordinate coordinateMax;
         QSize tileCounts;
         int zoomLevel;
     } TileStatistics_t;
 
-
     Q_OBJECT
-public:
+  public:
     explicit MapTileQuery(QObject *parent = nullptr);
     void adaptiveMapTilesLoader(QString mapType, int mapId, QGeoCoordinate coordinate_1, QGeoCoordinate coordinate_2);
     int maxTileCount(int zoomLevel, QGeoCoordinate coordinateMin, QGeoCoordinate coordinateMax);
-    QByteArray getMapData(){ return _mapToBeLoaded.getMapData();}
-    QSize getMapSize(){ return QSize(_mapToBeLoaded.mapWidth, _mapToBeLoaded.mapHeight);}
 
-private:
+    QByteArray getMapData() { return _mapToBeLoaded.getMapData(); }
+
+    QSize getMapSize() { return QSize(_mapToBeLoaded.mapWidth, _mapToBeLoaded.mapHeight); }
+
+  private:
     int _mapTilesLoadStat;
     MapTileContainer_t _mapToBeLoaded;
     int totalTilesCount, downloadedTilesCount;
@@ -135,7 +129,7 @@ private:
     void httpReadyRead();
     QString getTileKey(int mapId, int x, int y, int zoomLevel);
 
-signals:
+  signals:
     void loadingMapCompleted();
     void mapTileDownloaded(float progress);
     void textureGeometryReady(TileStatistics_t tileInfo);

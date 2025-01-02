@@ -22,14 +22,13 @@ class QmlObjectListModel;
 class QTimer;
 class ADSBVehicleManagerSettings;
 
-class ADSBVehicleManager : public QObject
-{
+class ADSBVehicleManager : public QObject {
     Q_OBJECT
     Q_MOC_INCLUDE("QmlObjectListModel.h")
 
     Q_PROPERTY(const QmlObjectListModel *adsbVehicles READ adsbVehicles CONSTANT)
 
-public:
+  public:
     ADSBVehicleManager(ADSBVehicleManagerSettings *settings, QObject *parent = nullptr);
     ~ADSBVehicleManager();
 
@@ -37,14 +36,14 @@ public:
 
     const QmlObjectListModel *adsbVehicles() const { return _adsbVehicles; }
 
-public slots:
+  public slots:
     void adsbVehicleUpdate(const ADSB::VehicleInfo_t &vehicleInfo);
 
-private slots:
+  private slots:
     void _cleanupStaleVehicles();
     void _linkError(const QString &errorMsg, bool stopped = false);
 
-private:
+  private:
     void _start(const QString &hostAddress, quint16 port);
     void _stop();
 
@@ -52,6 +51,6 @@ private:
     QTimer *_adsbVehicleCleanupTimer = nullptr;
     QmlObjectListModel *_adsbVehicles = nullptr;
 
-    QMap<uint32_t, ADSBVehicle*> _adsbICAOMap;
+    QMap<uint32_t, ADSBVehicle *> _adsbICAOMap;
     ADSBTCPLink *_adsbTcpLink = nullptr;
 };

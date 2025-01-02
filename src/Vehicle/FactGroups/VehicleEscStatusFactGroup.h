@@ -14,67 +14,75 @@
 
 class Vehicle;
 
-class VehicleEscStatusFactGroup : public FactGroup
-{
+class VehicleEscStatusFactGroup : public FactGroup {
     Q_OBJECT
 
-public:
-    VehicleEscStatusFactGroup(QObject* parent = nullptr);
+  public:
+    VehicleEscStatusFactGroup(QObject *parent = nullptr);
 
-    Q_PROPERTY(Fact* index              READ index              CONSTANT)
+    Q_PROPERTY(Fact *index READ index CONSTANT)
 
-    Q_PROPERTY(Fact* rpmFirst           READ rpmFirst           CONSTANT)
-    Q_PROPERTY(Fact* rpmSecond          READ rpmSecond          CONSTANT)
-    Q_PROPERTY(Fact* rpmThird           READ rpmThird           CONSTANT)
-    Q_PROPERTY(Fact* rpmFourth          READ rpmFourth          CONSTANT)
+    Q_PROPERTY(Fact *rpmFirst READ rpmFirst CONSTANT)
+    Q_PROPERTY(Fact *rpmSecond READ rpmSecond CONSTANT)
+    Q_PROPERTY(Fact *rpmThird READ rpmThird CONSTANT)
+    Q_PROPERTY(Fact *rpmFourth READ rpmFourth CONSTANT)
 
-    Q_PROPERTY(Fact* currentFirst       READ currentFirst       CONSTANT)
-    Q_PROPERTY(Fact* currentSecond      READ currentSecond      CONSTANT)
-    Q_PROPERTY(Fact* currentThird       READ currentThird       CONSTANT)
-    Q_PROPERTY(Fact* currentFourth      READ currentFourth      CONSTANT)
+    Q_PROPERTY(Fact *currentFirst READ currentFirst CONSTANT)
+    Q_PROPERTY(Fact *currentSecond READ currentSecond CONSTANT)
+    Q_PROPERTY(Fact *currentThird READ currentThird CONSTANT)
+    Q_PROPERTY(Fact *currentFourth READ currentFourth CONSTANT)
 
-    Q_PROPERTY(Fact* voltageFirst       READ voltageFirst       CONSTANT)
-    Q_PROPERTY(Fact* voltageSecond      READ voltageSecond      CONSTANT)
-    Q_PROPERTY(Fact* voltageThird       READ voltageThird       CONSTANT)
-    Q_PROPERTY(Fact* voltageFourth      READ voltageFourth      CONSTANT)
+    Q_PROPERTY(Fact *voltageFirst READ voltageFirst CONSTANT)
+    Q_PROPERTY(Fact *voltageSecond READ voltageSecond CONSTANT)
+    Q_PROPERTY(Fact *voltageThird READ voltageThird CONSTANT)
+    Q_PROPERTY(Fact *voltageFourth READ voltageFourth CONSTANT)
 
-    Fact* index                         () { return &_indexFact; }
+    Fact *index() { return &_indexFact; }
 
-    Fact* rpmFirst                      () { return &_rpmFirstFact; }
-    Fact* rpmSecond                     () { return &_rpmSecondFact; }
-    Fact* rpmThird                      () { return &_rpmThirdFact; }
-    Fact* rpmFourth                     () { return &_rpmFourthFact; }
+    Fact *rpmFirst() { return &_rpmFirstFact; }
 
-    Fact* currentFirst                  () { return &_currentFirstFact; }
-    Fact* currentSecond                 () { return &_currentSecondFact; }
-    Fact* currentThird                  () { return &_currentThirdFact; }
-    Fact* currentFourth                 () { return &_currentFourthFact; }
+    Fact *rpmSecond() { return &_rpmSecondFact; }
 
-    Fact* voltageFirst                  () { return &_voltageFirstFact; }
-    Fact* voltageSecond                 () { return &_voltageSecondFact; }
-    Fact* voltageThird                  () { return &_voltageThirdFact; }
-    Fact* voltageFourth                 () { return &_voltageFourthFact; }
+    Fact *rpmThird() { return &_rpmThirdFact; }
+
+    Fact *rpmFourth() { return &_rpmFourthFact; }
+
+    Fact *currentFirst() { return &_currentFirstFact; }
+
+    Fact *currentSecond() { return &_currentSecondFact; }
+
+    Fact *currentThird() { return &_currentThirdFact; }
+
+    Fact *currentFourth() { return &_currentFourthFact; }
+
+    Fact *voltageFirst() { return &_voltageFirstFact; }
+
+    Fact *voltageSecond() { return &_voltageSecondFact; }
+
+    Fact *voltageThird() { return &_voltageThirdFact; }
+
+    Fact *voltageFourth() { return &_voltageFourthFact; }
 
     // Overrides from FactGroup
-    void handleMessage(Vehicle* vehicle, mavlink_message_t& message) override;
+    void handleMessage(Vehicle *vehicle, mavlink_message_t &message) override;
 
-private:
-    const QString _indexFactName =                            QStringLiteral("index");
+  private:
+    const QString _indexFactName = QStringLiteral("index");
 
-    const QString _rpmFirstFactName =                         QStringLiteral("rpm1");
-    const QString _rpmSecondFactName =                        QStringLiteral("rpm2");
-    const QString _rpmThirdFactName =                         QStringLiteral("rpm3");
-    const QString _rpmFourthFactName =                        QStringLiteral("rpm4");
+    const QString _rpmFirstFactName = QStringLiteral("rpm1");
+    const QString _rpmSecondFactName = QStringLiteral("rpm2");
+    const QString _rpmThirdFactName = QStringLiteral("rpm3");
+    const QString _rpmFourthFactName = QStringLiteral("rpm4");
 
-    const QString _currentFirstFactName =                     QStringLiteral("current1");
-    const QString _currentSecondFactName =                    QStringLiteral("current2");
-    const QString _currentThirdFactName =                     QStringLiteral("current3");
-    const QString _currentFourthFactName =                    QStringLiteral("current4");
+    const QString _currentFirstFactName = QStringLiteral("current1");
+    const QString _currentSecondFactName = QStringLiteral("current2");
+    const QString _currentThirdFactName = QStringLiteral("current3");
+    const QString _currentFourthFactName = QStringLiteral("current4");
 
-    const QString _voltageFirstFactName =                     QStringLiteral("voltage1");
-    const QString _voltageSecondFactName =                    QStringLiteral("voltage2");
-    const QString _voltageThirdFactName =                     QStringLiteral("voltage3");
-    const QString _voltageFourthFactName =                    QStringLiteral("voltage4");
+    const QString _voltageFirstFactName = QStringLiteral("voltage1");
+    const QString _voltageSecondFactName = QStringLiteral("voltage2");
+    const QString _voltageThirdFactName = QStringLiteral("voltage3");
+    const QString _voltageFourthFactName = QStringLiteral("voltage4");
 
     Fact _indexFact;
 

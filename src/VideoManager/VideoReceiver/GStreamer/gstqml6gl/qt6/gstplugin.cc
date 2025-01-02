@@ -36,36 +36,26 @@
 
 #include <QtConstructorMacros>
 
-static gboolean
-plugin_init (GstPlugin * plugin)
-{
-  gboolean ret = FALSE;
-// TODO(zdanek) fix after switching to gstreamer 1.20.0+
-// original code from 1.20.0
-//  ret |= GST_ELEMENT_REGISTER (qml6glsink, plugin);
-  ret |= gst_element_register_qml6glsink (plugin);
+static gboolean plugin_init(GstPlugin *plugin) {
+    gboolean ret = FALSE;
+    // TODO(zdanek) fix after switching to gstreamer 1.20.0+
+    // original code from 1.20.0
+    //  ret |= GST_ELEMENT_REGISTER (qml6glsink, plugin);
+    ret |= gst_element_register_qml6glsink(plugin);
 
-  return ret;
+    return ret;
 }
 
-static void registerMetatypes()
-{
-    qmlRegisterType<Qt6GLVideoItem> ("org.freedesktop.gstreamer.Qt6GLVideoItem", 1, 0, "GstGLQt6VideoItem");
-}
+static void registerMetatypes() { qmlRegisterType<Qt6GLVideoItem>("org.freedesktop.gstreamer.Qt6GLVideoItem", 1, 0, "GstGLQt6VideoItem"); }
 
 Q_CONSTRUCTOR_FUNCTION(registerMetatypes)
 
 #ifndef GST_PACKAGE_NAME
-#define GST_PACKAGE_NAME   "GStreamer Bad Plug-ins (qmake)"
+#define GST_PACKAGE_NAME "GStreamer Bad Plug-ins (qmake)"
 #define GST_PACKAGE_ORIGIN "Unknown package origin"
-#define GST_LICENSE        "LGPL"
-#define PACKAGE            "gst-plugins-bad (qmake)"
-#define PACKAGE_VERSION    "1.21.0.1"
+#define GST_LICENSE "LGPL"
+#define PACKAGE "gst-plugins-bad (qmake)"
+#define PACKAGE_VERSION "1.21.0.1"
 #endif
 
-GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
-    GST_VERSION_MINOR,
-    qml6,
-    "Qt6 Qml plugin",
-    plugin_init, PACKAGE_VERSION, GST_LICENSE, GST_PACKAGE_NAME,
-    GST_PACKAGE_ORIGIN)
+GST_PLUGIN_DEFINE(GST_VERSION_MAJOR, GST_VERSION_MINOR, qml6, "Qt6 Qml plugin", plugin_init, PACKAGE_VERSION, GST_LICENSE, GST_PACKAGE_NAME, GST_PACKAGE_ORIGIN)

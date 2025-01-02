@@ -41,8 +41,7 @@ class Vehicle;
 /// When ui info is requested for a specific vehicle the static hierarchy in _staticCommandTree is collapsed into the set of available commands in
 /// _allCommands taking into account the appropriate set of overrides for the MAV_AUTOPILOT/MAV_TYPE combination associated with the vehicle.
 ///
-class MissionCommandTree : public QObject
-{
+class MissionCommandTree : public QObject {
     Q_OBJECT
     QML_ELEMENT
     QML_UNCREATABLE("")
@@ -50,7 +49,7 @@ class MissionCommandTree : public QObject
 
     friend class MissionCommandTreeTest;
 
-public:
+  public:
     /// Constructs an MissionCommandTree object.
     ///     @param unitTest Unit Tests are Running.
     ///     @param parent The parent QObject.
@@ -81,22 +80,22 @@ public:
 
     const MissionCommandUIInfo *getUIInfo(Vehicle *vehicle, QGCMAVLink::VehicleClass_t vtolMode, MAV_CMD command);
 
-private:
+  private:
     /// Add the next level of the hierarchy to a collapsed tree.
     ///     @param cmdList          List of mission commands to collapse into ui info
     ///     @param collapsedTree    Tree we are collapsing into
-    void _collapseHierarchy(const MissionCommandList *cmdList, QMap<MAV_CMD, MissionCommandUIInfo*> &collapsedTree) const;
+    void _collapseHierarchy(const MissionCommandList *cmdList, QMap<MAV_CMD, MissionCommandUIInfo *> &collapsedTree) const;
     void _buildAllCommands(Vehicle *vehicle, QGCMAVLink::VehicleClass_t vtolMode);
     QStringList _availableCategoriesForVehicle(Vehicle *vehicle);
     void _firmwareAndVehicleClassInfo(Vehicle *vehicle, QGCMAVLink::VehicleClass_t vtolMode, QGCMAVLink::FirmwareClass_t &firmwareClass, QGCMAVLink::VehicleClass_t &vehicleClass) const;
 
-    const QString _allCommandsCategory = tr("All commands");    ///< Category which contains all available commands
+    const QString _allCommandsCategory = tr("All commands"); ///< Category which contains all available commands
 
     /// Full hierarchy
-    QMap<QGCMAVLink::FirmwareClass_t, QMap<QGCMAVLink::VehicleClass_t, MissionCommandList*>> _staticCommandTree;
+    QMap<QGCMAVLink::FirmwareClass_t, QMap<QGCMAVLink::VehicleClass_t, MissionCommandList *>> _staticCommandTree;
 
     /// Collapsed hierarchy for specific vehicle type
-    QMap<QGCMAVLink::FirmwareClass_t, QMap<QGCMAVLink::VehicleClass_t, QMap<MAV_CMD, MissionCommandUIInfo*>>> _allCommands;
+    QMap<QGCMAVLink::FirmwareClass_t, QMap<QGCMAVLink::VehicleClass_t, QMap<MAV_CMD, MissionCommandUIInfo *>>> _allCommands;
 
     /// Collapsed hierarchy for specific vehicle type
     QMap<QGCMAVLink::FirmwareClass_t, QMap<QGCMAVLink::VehicleClass_t, QStringList /* category */>> _supportedCategories;

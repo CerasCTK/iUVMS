@@ -7,16 +7,15 @@
  *
  ****************************************************************************/
 
-
 /// @file
 ///     @author Don Gagne <don@thegagnes.com>
 
 #pragma once
 
 #include <QtCore/QObject>
+#include <QtCore/QStringList>
 #include <QtCore/QUrl>
 #include <QtCore/QVariant>
-#include <QtCore/QStringList>
 
 class AutoPilotPlugin;
 class Vehicle;
@@ -26,24 +25,23 @@ class QQmlContext;
 /// A vehicle component is an object which abstracts the physical portion of a vehicle into a set of
 /// configurable values and user interface.
 
-class VehicleComponent : public QObject
-{
+class VehicleComponent : public QObject {
     Q_OBJECT
-    
-    Q_PROPERTY(QString  name                    READ name                   CONSTANT)
-    Q_PROPERTY(QString  description             READ description            CONSTANT)
-    Q_PROPERTY(bool     requiresSetup           READ requiresSetup          CONSTANT)
-    Q_PROPERTY(bool     setupComplete           READ setupComplete          STORED false NOTIFY setupCompleteChanged)
-    Q_PROPERTY(QString  iconResource            READ iconResource           CONSTANT)
-    Q_PROPERTY(QUrl     setupSource             READ setupSource            NOTIFY setupSourceChanged)
-    Q_PROPERTY(QUrl     summaryQmlSource        READ summaryQmlSource       CONSTANT)
-    Q_PROPERTY(bool     allowSetupWhileArmed    READ allowSetupWhileArmed   CONSTANT)
-    Q_PROPERTY(bool     allowSetupWhileFlying   READ allowSetupWhileFlying  CONSTANT)
 
-public:
-    VehicleComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent = nullptr);
+    Q_PROPERTY(QString name READ name CONSTANT)
+    Q_PROPERTY(QString description READ description CONSTANT)
+    Q_PROPERTY(bool requiresSetup READ requiresSetup CONSTANT)
+    Q_PROPERTY(bool setupComplete READ setupComplete STORED false NOTIFY setupCompleteChanged)
+    Q_PROPERTY(QString iconResource READ iconResource CONSTANT)
+    Q_PROPERTY(QUrl setupSource READ setupSource NOTIFY setupSourceChanged)
+    Q_PROPERTY(QUrl summaryQmlSource READ summaryQmlSource CONSTANT)
+    Q_PROPERTY(bool allowSetupWhileArmed READ allowSetupWhileArmed CONSTANT)
+    Q_PROPERTY(bool allowSetupWhileFlying READ allowSetupWhileFlying CONSTANT)
+
+  public:
+    VehicleComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent = nullptr);
     ~VehicleComponent();
-    
+
     virtual QString name(void) const = 0;
     virtual QString description(void) const = 0;
     virtual QString iconResource(void) const = 0;
@@ -54,12 +52,12 @@ public:
 
     // @return true: Setup panel can be shown while vehicle is armed
     virtual bool allowSetupWhileArmed(void) const { return false; } // Defaults to false
-    
+
     // @return true: Setup panel can be shown while vehicle is flying (and armed)
     virtual bool allowSetupWhileFlying(void) const { return false; } // Defaults to false
 
-    virtual void addSummaryQmlComponent(QQmlContext* context, QQuickItem* parent);
-    
+    virtual void addSummaryQmlComponent(QQmlContext *context, QQuickItem *parent);
+
     /// @brief Returns an list of parameter names for which a change should cause the setupCompleteChanged
     ///         signal to be emitted.
     virtual QStringList setupCompleteChangedTriggerList(void) const = 0;
@@ -68,14 +66,14 @@ public:
     /// signals which are used to track parameter changes which affect setupComplete state.
     virtual void setupTriggerSignals(void);
 
-signals:
-    void setupCompleteChanged   (void);
-    void setupSourceChanged     (void);
+  signals:
+    void setupCompleteChanged(void);
+    void setupSourceChanged(void);
 
-protected slots:
+  protected slots:
     void _triggerUpdated(QVariant value);
 
-protected:
-    Vehicle*            _vehicle;
-    AutoPilotPlugin*    _autopilot;
+  protected:
+    Vehicle *_vehicle;
+    AutoPilotPlugin *_autopilot;
 };

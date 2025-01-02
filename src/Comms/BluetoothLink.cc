@@ -16,20 +16,13 @@ QGC_LOGGING_CATEGORY(BluetoothLinkLog, "qgc.comms.bluetoothlink")
 
 /*===========================================================================*/
 
-BluetoothConfiguration::BluetoothConfiguration(const QString &name, QObject *parent)
-    : LinkConfiguration(name, parent)
-    , _deviceDiscoveryAgent(new QBluetoothDeviceDiscoveryAgent(this))
-{
+BluetoothConfiguration::BluetoothConfiguration(const QString &name, QObject *parent) : LinkConfiguration(name, parent), _deviceDiscoveryAgent(new QBluetoothDeviceDiscoveryAgent(this)) {
     // qCDebug(BluetoothLinkLog) << Q_FUNC_INFO << this;
 
     _initDeviceDiscoveryAgent();
 }
 
-BluetoothConfiguration::BluetoothConfiguration(const BluetoothConfiguration *copy, QObject *parent)
-    : LinkConfiguration(copy, parent)
-    , _device(copy->device())
-    , _deviceDiscoveryAgent(new QBluetoothDeviceDiscoveryAgent(this))
-{
+BluetoothConfiguration::BluetoothConfiguration(const BluetoothConfiguration *copy, QObject *parent) : LinkConfiguration(copy, parent), _device(copy->device()), _deviceDiscoveryAgent(new QBluetoothDeviceDiscoveryAgent(this)) {
     // qCDebug(BluetoothLinkLog) << Q_FUNC_INFO << this;
 
     BluetoothConfiguration::copyFrom(copy);
@@ -37,41 +30,35 @@ BluetoothConfiguration::BluetoothConfiguration(const BluetoothConfiguration *cop
     _initDeviceDiscoveryAgent();
 }
 
-BluetoothConfiguration::~BluetoothConfiguration()
-{
+BluetoothConfiguration::~BluetoothConfiguration() {
     stopScan();
 
     // qCDebug(BluetoothLinkLog) << Q_FUNC_INFO << this;
 }
 
-void BluetoothConfiguration::_initDeviceDiscoveryAgent()
-{
-    (void) connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &BluetoothConfiguration::_deviceDiscovered);
-    (void) connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &BluetoothConfiguration::scanningChanged);
-    (void) connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &BluetoothConfiguration::scanningChanged);
-    (void) connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this, &BluetoothConfiguration::_onSocketErrorOccurred);
+void BluetoothConfiguration::_initDeviceDiscoveryAgent() {
+    (void)connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &BluetoothConfiguration::_deviceDiscovered);
+    (void)connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &BluetoothConfiguration::scanningChanged);
+    (void)connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &BluetoothConfiguration::scanningChanged);
+    (void)connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this, &BluetoothConfiguration::_onSocketErrorOccurred);
 
     if (BluetoothLinkLog().isDebugEnabled()) {
-        (void) connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceUpdated, this, [this](const QBluetoothDeviceInfo &info, QBluetoothDeviceInfo::Fields updatedFields) {
-            qCDebug(BluetoothLinkLog) << "Device Updated";
-        });
+        (void)connect(_deviceDiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceUpdated, this, [this](const QBluetoothDeviceInfo &info, QBluetoothDeviceInfo::Fields updatedFields) { qCDebug(BluetoothLinkLog) << "Device Updated"; });
     }
 }
 
-void BluetoothConfiguration::copyFrom(const LinkConfiguration *source)
-{
+void BluetoothConfiguration::copyFrom(const LinkConfiguration *source) {
     Q_ASSERT(source);
     LinkConfiguration::copyFrom(source);
 
-    const BluetoothConfiguration *const bluetoothSource = qobject_cast<const BluetoothConfiguration*>(source);
+    const BluetoothConfiguration *const bluetoothSource = qobject_cast<const BluetoothConfiguration *>(source);
     Q_ASSERT(bluetoothSource);
 
     _device = bluetoothSource->device();
     emit deviceChanged();
 }
 
-void BluetoothConfiguration::loadSettings(QSettings &settings, const QString &root)
-{
+void BluetoothConfiguration::loadSettings(QSettings &settings, const QString &root) {
     settings.beginGroup(root);
 
     _device.name = settings.value("deviceName", _device.name).toString();
@@ -84,8 +71,7 @@ void BluetoothConfiguration::loadSettings(QSettings &settings, const QString &ro
     settings.endGroup();
 }
 
-void BluetoothConfiguration::saveSettings(QSettings &settings, const QString &root)
-{
+void BluetoothConfiguration::saveSettings(QSettings &settings, const QString &root) {
     settings.beginGroup(root);
 
     settings.setValue("deviceName", _device.name);
@@ -98,8 +84,7 @@ void BluetoothConfiguration::saveSettings(QSettings &settings, const QString &ro
     settings.endGroup();
 }
 
-QString BluetoothConfiguration::settingsTitle()
-{
+QString BluetoothConfiguration::settingsTitle() {
     if (QGCDeviceInfo::isBluetoothAvailable()) {
         return tr("Bluetooth Link Settings");
     }
@@ -107,8 +92,7 @@ QString BluetoothConfiguration::settingsTitle()
     return tr("Bluetooth Not Available");
 }
 
-void BluetoothConfiguration::startScan()
-{
+void BluetoothConfiguration::startScan() {
     _deviceList.clear();
 
     _nameList.clear();
@@ -118,16 +102,14 @@ void BluetoothConfiguration::startScan()
     emit scanningChanged();
 }
 
-void BluetoothConfiguration::stopScan() const
-{
+void BluetoothConfiguration::stopScan() const {
     if (scanning()) {
         _deviceDiscoveryAgent->stop();
     }
 }
 
-void BluetoothConfiguration::setDevice(const QString &name)
-{
-    for (const BluetoothData &data: _deviceList) {
+void BluetoothConfiguration::setDevice(const QString &name) {
+    for (const BluetoothData &data : _deviceList) {
         if (data.name == name) {
             _device = data;
             emit deviceChanged();
@@ -136,13 +118,9 @@ void BluetoothConfiguration::setDevice(const QString &name)
     }
 }
 
-bool BluetoothConfiguration::scanning() const
-{
-    return _deviceDiscoveryAgent->isActive();
-}
+bool BluetoothConfiguration::scanning() const { return _deviceDiscoveryAgent->isActive(); }
 
-void BluetoothConfiguration::_deviceDiscovered(const QBluetoothDeviceInfo &info)
-{
+void BluetoothConfiguration::_deviceDiscovered(const QBluetoothDeviceInfo &info) {
     if (!info.name().isEmpty() && info.isValid()) {
         BluetoothData data;
         data.name = info.name();
@@ -160,8 +138,7 @@ void BluetoothConfiguration::_deviceDiscovered(const QBluetoothDeviceInfo &info)
     }
 }
 
-void BluetoothConfiguration::_onSocketErrorOccurred(QBluetoothDeviceDiscoveryAgent::Error error)
-{
+void BluetoothConfiguration::_onSocketErrorOccurred(QBluetoothDeviceDiscoveryAgent::Error error) {
     const QString errorString = _deviceDiscoveryAgent->errorString();
     qCWarning(BluetoothLinkLog) << "Bluetooth Configuration error:" << error << errorString;
     emit errorOccurred(errorString);
@@ -169,27 +146,19 @@ void BluetoothConfiguration::_onSocketErrorOccurred(QBluetoothDeviceDiscoveryAge
 
 /*===========================================================================*/
 
-BluetoothWorker::BluetoothWorker(const BluetoothConfiguration *config, QObject *parent)
-    : QObject(parent)
-    , _config(config)
-{
+BluetoothWorker::BluetoothWorker(const BluetoothConfiguration *config, QObject *parent) : QObject(parent), _config(config) {
     // qCDebug(BluetoothLinkLog) << Q_FUNC_INFO << this;
 }
 
-BluetoothWorker::~BluetoothWorker()
-{
+BluetoothWorker::~BluetoothWorker() {
     disconnectLink();
 
     // qCDebug(BluetoothLinkLog) << Q_FUNC_INFO << this;
 }
 
-bool BluetoothWorker::isConnected() const
-{
-    return (_socket && _socket->isOpen() && (_socket->state() == QBluetoothSocket::SocketState::ConnectedState));
-}
+bool BluetoothWorker::isConnected() const { return (_socket && _socket->isOpen() && (_socket->state() == QBluetoothSocket::SocketState::ConnectedState)); }
 
-void BluetoothWorker::setupSocket()
-{
+void BluetoothWorker::setupSocket() {
     Q_ASSERT(!_socket);
     _socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol, this);
 
@@ -198,29 +167,26 @@ void BluetoothWorker::setupSocket()
     _serviceDiscoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
 #endif
 
-    (void) connect(_socket, &QBluetoothSocket::connected, this, &BluetoothWorker::_onSocketConnected);
-    (void) connect(_socket, &QBluetoothSocket::disconnected, this, &BluetoothWorker::_onSocketDisconnected);
-    (void) connect(_socket, &QBluetoothSocket::readyRead, this, &BluetoothWorker::_onSocketReadyRead);
-    (void) connect(_socket, &QBluetoothSocket::errorOccurred, this, &BluetoothWorker::_onSocketErrorOccurred);
+    (void)connect(_socket, &QBluetoothSocket::connected, this, &BluetoothWorker::_onSocketConnected);
+    (void)connect(_socket, &QBluetoothSocket::disconnected, this, &BluetoothWorker::_onSocketDisconnected);
+    (void)connect(_socket, &QBluetoothSocket::readyRead, this, &BluetoothWorker::_onSocketReadyRead);
+    (void)connect(_socket, &QBluetoothSocket::errorOccurred, this, &BluetoothWorker::_onSocketErrorOccurred);
 
 #ifdef Q_OS_IOS
-    (void) connect(_serviceDiscoveryAgent, &QBluetoothServiceDiscoveryAgent::serviceDiscovered, this, &BluetoothWorker::_serviceDiscovered);
-    (void) connect(_serviceDiscoveryAgent, &QBluetoothServiceDiscoveryAgent::finished, this, &BluetoothWorker::_discoveryFinished);
-    (void) connect(_serviceDiscoveryAgent, &QBluetoothServiceDiscoveryAgent::canceled, this, &BluetoothWorker::_discoveryFinished);
-    (void) connect(_serviceDiscoveryAgent, &QBluetoothServiceDiscoveryAgent::errorOccurred, this, &BluetoothWorker::_onServiceErrorOccurred);
+    (void)connect(_serviceDiscoveryAgent, &QBluetoothServiceDiscoveryAgent::serviceDiscovered, this, &BluetoothWorker::_serviceDiscovered);
+    (void)connect(_serviceDiscoveryAgent, &QBluetoothServiceDiscoveryAgent::finished, this, &BluetoothWorker::_discoveryFinished);
+    (void)connect(_serviceDiscoveryAgent, &QBluetoothServiceDiscoveryAgent::canceled, this, &BluetoothWorker::_discoveryFinished);
+    (void)connect(_serviceDiscoveryAgent, &QBluetoothServiceDiscoveryAgent::errorOccurred, this, &BluetoothWorker::_onServiceErrorOccurred);
 #endif
 
     if (BluetoothLinkLog().isDebugEnabled()) {
         // (void) connect(_socket, &QBluetoothSocket::bytesWritten, this, &BluetoothWorker::_onSocketBytesWritten);
 
-        (void) QObject::connect(_socket, &QBluetoothSocket::stateChanged, this, [](QBluetoothSocket::SocketState state) {
-            qCDebug(BluetoothLinkLog) << "Bluetooth State Changed:" << state;
-        });
+        (void)QObject::connect(_socket, &QBluetoothSocket::stateChanged, this, [](QBluetoothSocket::SocketState state) { qCDebug(BluetoothLinkLog) << "Bluetooth State Changed:" << state; });
     }
 }
 
-void BluetoothWorker::connectLink()
-{
+void BluetoothWorker::connectLink() {
     if (isConnected()) {
         qCWarning(BluetoothLinkLog) << "Already connected to" << _config->device().name;
         return;
@@ -238,8 +204,7 @@ void BluetoothWorker::connectLink()
 #endif
 }
 
-void BluetoothWorker::disconnectLink()
-{
+void BluetoothWorker::disconnectLink() {
     if (!isConnected()) {
         qCWarning(BluetoothLinkLog) << "Already disconnected from device:" << _config->device().name;
         return;
@@ -255,8 +220,7 @@ void BluetoothWorker::disconnectLink()
     _socket->disconnectFromService();
 }
 
-void BluetoothWorker::writeData(const QByteArray &data)
-{
+void BluetoothWorker::writeData(const QByteArray &data) {
     if (data.isEmpty()) {
         emit errorOccurred(tr("Data to Send is Empty"));
         return;
@@ -289,20 +253,17 @@ void BluetoothWorker::writeData(const QByteArray &data)
     emit dataSent(sent);
 }
 
-void BluetoothWorker::_onSocketConnected()
-{
+void BluetoothWorker::_onSocketConnected() {
     qCDebug(BluetoothLinkLog) << "Socket connected to device:" << _config->device().name;
     emit connected();
 }
 
-void BluetoothWorker::_onSocketDisconnected()
-{
+void BluetoothWorker::_onSocketDisconnected() {
     qCDebug(BluetoothLinkLog) << "Socket disconnected from device:" << _config->device().name;
     emit disconnected();
 }
 
-void BluetoothWorker::_onSocketReadyRead()
-{
+void BluetoothWorker::_onSocketReadyRead() {
     const QByteArray data = _socket->readAll();
     if (!data.isEmpty()) {
         // qCDebug(BluetoothLinkLog) << "_onSocketReadyRead:" << data.size();
@@ -310,28 +271,22 @@ void BluetoothWorker::_onSocketReadyRead()
     }
 }
 
-void BluetoothWorker::_onSocketBytesWritten(qint64 bytes)
-{
-    qCDebug(BluetoothLinkLog) << _config->device().name << "Wrote" << bytes << "bytes";
-}
+void BluetoothWorker::_onSocketBytesWritten(qint64 bytes) { qCDebug(BluetoothLinkLog) << _config->device().name << "Wrote" << bytes << "bytes"; }
 
-void BluetoothWorker::_onSocketErrorOccurred(QBluetoothSocket::SocketError socketError)
-{
+void BluetoothWorker::_onSocketErrorOccurred(QBluetoothSocket::SocketError socketError) {
     const QString errorString = _socket->errorString();
     qCWarning(BluetoothLinkLog) << "Socket error:" << socketError << errorString;
     emit errorOccurred(errorString);
 }
 
 #ifdef Q_OS_IOS
-void BluetoothWorker::_onServiceErrorOccurred(QBluetoothServiceDiscoveryAgent::Error error)
-{
+void BluetoothWorker::_onServiceErrorOccurred(QBluetoothServiceDiscoveryAgent::Error error) {
     const QString errorString = _serviceDiscoveryAgent->errorString();
     qCWarning(BluetoothLinkLog) << "Socket error:" << error << errorString;
     emit errorOccurred(errorString);
 }
 
-void BluetoothWorker::_serviceDiscovered(const QBluetoothServiceInfo &info)
-{
+void BluetoothWorker::_serviceDiscovered(const QBluetoothServiceInfo &info) {
     if (isConnected()) {
         qCWarning(BluetoothLinkLog) << "Already connected to" << _config->device().name;
         return;
@@ -346,8 +301,7 @@ void BluetoothWorker::_serviceDiscovered(const QBluetoothServiceInfo &info)
     }
 }
 
-void BluetoothWorker::_discoveryFinished()
-{
+void BluetoothWorker::_discoveryFinished() {
     if (!isConnected()) {
         emit errorOccurred(QStringLiteral("Discovery Error: Could Not Locate Device!"));
     }
@@ -357,33 +311,28 @@ void BluetoothWorker::_discoveryFinished()
 /*===========================================================================*/
 
 BluetoothLink::BluetoothLink(SharedLinkConfigurationPtr &config, QObject *parent)
-    : LinkInterface(config, parent)
-    , _bluetoothConfig(qobject_cast<const BluetoothConfiguration*>(config.get()))
-    , _worker(new BluetoothWorker(_bluetoothConfig))
-    , _workerThread(new QThread(this))
-{
+    : LinkInterface(config, parent), _bluetoothConfig(qobject_cast<const BluetoothConfiguration *>(config.get())), _worker(new BluetoothWorker(_bluetoothConfig)), _workerThread(new QThread(this)) {
     // qCDebug(BluetoothLinkLog) << Q_FUNC_INFO << this;
 
     _workerThread->setObjectName(QStringLiteral("Bluetooth_%1").arg(_bluetoothConfig->name()));
 
     _worker->moveToThread(_workerThread);
 
-    (void) connect(_workerThread, &QThread::started, _worker, &BluetoothWorker::setupSocket);
-    (void) connect(_workerThread, &QThread::finished, _worker, &QObject::deleteLater);
+    (void)connect(_workerThread, &QThread::started, _worker, &BluetoothWorker::setupSocket);
+    (void)connect(_workerThread, &QThread::finished, _worker, &QObject::deleteLater);
 
-    (void) connect(_worker, &BluetoothWorker::connected, this, &BluetoothLink::_onConnected, Qt::QueuedConnection);
-    (void) connect(_worker, &BluetoothWorker::disconnected, this, &BluetoothLink::_onDisconnected, Qt::QueuedConnection);
-    (void) connect(_worker, &BluetoothWorker::errorOccurred, this, &BluetoothLink::_onErrorOccurred, Qt::QueuedConnection);
-    (void) connect(_worker, &BluetoothWorker::dataReceived, this, &BluetoothLink::_onDataReceived, Qt::QueuedConnection);
-    (void) connect(_worker, &BluetoothWorker::dataSent, this, &BluetoothLink::_onDataSent, Qt::QueuedConnection);
+    (void)connect(_worker, &BluetoothWorker::connected, this, &BluetoothLink::_onConnected, Qt::QueuedConnection);
+    (void)connect(_worker, &BluetoothWorker::disconnected, this, &BluetoothLink::_onDisconnected, Qt::QueuedConnection);
+    (void)connect(_worker, &BluetoothWorker::errorOccurred, this, &BluetoothLink::_onErrorOccurred, Qt::QueuedConnection);
+    (void)connect(_worker, &BluetoothWorker::dataReceived, this, &BluetoothLink::_onDataReceived, Qt::QueuedConnection);
+    (void)connect(_worker, &BluetoothWorker::dataSent, this, &BluetoothLink::_onDataSent, Qt::QueuedConnection);
 
-    (void) connect(_bluetoothConfig, &BluetoothConfiguration::errorOccurred, this, &BluetoothLink::_onErrorOccurred);
+    (void)connect(_bluetoothConfig, &BluetoothConfiguration::errorOccurred, this, &BluetoothLink::_onErrorOccurred);
 
     _workerThread->start();
 }
 
-BluetoothLink::~BluetoothLink()
-{
+BluetoothLink::~BluetoothLink() {
     BluetoothLink::disconnect();
 
     _workerThread->quit();
@@ -394,48 +343,23 @@ BluetoothLink::~BluetoothLink()
     // qCDebug(BluetoothLinkLog) << Q_FUNC_INFO << this;
 }
 
-bool BluetoothLink::isConnected() const
-{
-    return _worker->isConnected();
-}
+bool BluetoothLink::isConnected() const { return _worker->isConnected(); }
 
-bool BluetoothLink::_connect()
-{
-    return QMetaObject::invokeMethod(_worker, "connectLink", Qt::QueuedConnection);
-}
+bool BluetoothLink::_connect() { return QMetaObject::invokeMethod(_worker, "connectLink", Qt::QueuedConnection); }
 
-void BluetoothLink::disconnect()
-{
-    (void) QMetaObject::invokeMethod(_worker, "disconnectLink", Qt::QueuedConnection);
-}
+void BluetoothLink::disconnect() { (void)QMetaObject::invokeMethod(_worker, "disconnectLink", Qt::QueuedConnection); }
 
-void BluetoothLink::_onConnected()
-{
-    emit connected();
-}
+void BluetoothLink::_onConnected() { emit connected(); }
 
-void BluetoothLink::_onDisconnected()
-{
-    emit disconnected();
-}
+void BluetoothLink::_onDisconnected() { emit disconnected(); }
 
-void BluetoothLink::_onErrorOccurred(const QString &errorString)
-{
+void BluetoothLink::_onErrorOccurred(const QString &errorString) {
     qCWarning(BluetoothLinkLog) << "Communication error:" << errorString;
     emit communicationError(tr("Bluetooth Link Error"), tr("Link %1: (Device: %2) %3").arg(_bluetoothConfig->name(), _bluetoothConfig->device().name, errorString));
 }
 
-void BluetoothLink::_onDataReceived(const QByteArray &data)
-{
-    emit bytesReceived(this, data);
-}
+void BluetoothLink::_onDataReceived(const QByteArray &data) { emit bytesReceived(this, data); }
 
-void BluetoothLink::_onDataSent(const QByteArray &data)
-{
-    emit bytesSent(this, data);
-}
+void BluetoothLink::_onDataSent(const QByteArray &data) { emit bytesSent(this, data); }
 
-void BluetoothLink::_writeBytes(const QByteArray& bytes)
-{
-    (void) QMetaObject::invokeMethod(_worker, "writeData", Qt::QueuedConnection, Q_ARG(QByteArray, bytes));
-}
+void BluetoothLink::_writeBytes(const QByteArray &bytes) { (void)QMetaObject::invokeMethod(_worker, "writeData", Qt::QueuedConnection, Q_ARG(QByteArray, bytes)); }

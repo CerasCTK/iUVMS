@@ -20,19 +20,18 @@ class QThread;
 Q_DECLARE_LOGGING_CATEGORY(GeoTagControllerLog)
 
 /// Controller for GeoTagPage.qml. Supports geotagging images based on logfile camera tags.
-class GeoTagController : public QObject
-{
+class GeoTagController : public QObject {
     Q_OBJECT
     QML_ELEMENT
 
-    Q_PROPERTY(QString  logFile         READ logFile        WRITE setLogFile        NOTIFY logFileChanged)
-    Q_PROPERTY(QString  imageDirectory  READ imageDirectory WRITE setImageDirectory NOTIFY imageDirectoryChanged)
-    Q_PROPERTY(QString  saveDirectory   READ saveDirectory  WRITE setSaveDirectory  NOTIFY saveDirectoryChanged)
-    Q_PROPERTY(QString  errorMessage    READ errorMessage                           NOTIFY errorMessageChanged)
-    Q_PROPERTY(double   progress        READ progress                               NOTIFY progressChanged)
-    Q_PROPERTY(bool     inProgress      READ inProgress                             NOTIFY inProgressChanged)
+    Q_PROPERTY(QString logFile READ logFile WRITE setLogFile NOTIFY logFileChanged)
+    Q_PROPERTY(QString imageDirectory READ imageDirectory WRITE setImageDirectory NOTIFY imageDirectoryChanged)
+    Q_PROPERTY(QString saveDirectory READ saveDirectory WRITE setSaveDirectory NOTIFY saveDirectoryChanged)
+    Q_PROPERTY(QString errorMessage READ errorMessage NOTIFY errorMessageChanged)
+    Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
+    Q_PROPERTY(bool inProgress READ inProgress NOTIFY inProgressChanged)
 
-public:
+  public:
     explicit GeoTagController(QObject *parent = nullptr);
     ~GeoTagController();
 
@@ -56,7 +55,7 @@ public:
     void setImageDirectory(const QString &dir);
     void setSaveDirectory(const QString &dir);
 
-signals:
+  signals:
     void logFileChanged(const QString &logFile);
     void imageDirectoryChanged(const QString &imageDirectory);
     void saveDirectoryChanged(const QString &saveDirectory);
@@ -64,12 +63,25 @@ signals:
     void inProgressChanged();
     void errorMessageChanged(const QString &errorMessage);
 
-private slots:
-    void _workerProgressChanged(double progress) { if (progress != _progress) { _progress = progress; emit progressChanged(_progress); } }
-    void _setErrorMessage(const QString &errorMsg) { if (errorMsg != _errorMessage) { _errorMessage = errorMsg; emit errorMessageChanged(_errorMessage); } }
+  private slots:
+
+    void _workerProgressChanged(double progress) {
+        if (progress != _progress) {
+            _progress = progress;
+            emit progressChanged(_progress);
+        }
+    }
+
+    void _setErrorMessage(const QString &errorMsg) {
+        if (errorMsg != _errorMessage) {
+            _errorMessage = errorMsg;
+            emit errorMessageChanged(_errorMessage);
+        }
+    }
+
     void _workerError(const QString &errorMsg) { _setErrorMessage(errorMsg); }
 
-private:
+  private:
     QString _errorMessage;
     double _progress = 0.;
     bool _inProgress = false;

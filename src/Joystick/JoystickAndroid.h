@@ -9,30 +9,33 @@
 
 #pragma once
 
-#include <QtCore/QLoggingCategory>
 #include <QtCore/private/qandroidextras_p.h>
+#include <QtCore/QLoggingCategory>
 
 #include "Joystick.h"
 
 Q_DECLARE_LOGGING_CATEGORY(JoystickAndroidLog)
 
-class JoystickAndroid : public Joystick, public QtAndroidPrivate::GenericMotionEventListener, public QtAndroidPrivate::KeyEventListener
-{
-public:
+class JoystickAndroid : public Joystick, public QtAndroidPrivate::GenericMotionEventListener, public QtAndroidPrivate::KeyEventListener {
+  public:
     JoystickAndroid(const QString &name, int axisCount, int buttonCount, int id, QObject *parent = nullptr);
     ~JoystickAndroid();
 
     static bool init();
     static void setNativeMethods();
-    static QMap<QString, Joystick*> discover();
+    static QMap<QString, Joystick *> discover();
 
-private:
+  private:
     bool _open() final { return true; }
+
     void _close() final {}
+
     bool _update() final { return true; }
 
     bool _getButton(int i) final { return btnValue[i]; }
+
     int _getAxis(int i) final { return axisValue[i]; }
+
     bool _getHat(int hat, int i) final;
 
     int _getAndroidHatAxis(int axisHatCode);

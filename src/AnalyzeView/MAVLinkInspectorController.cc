@@ -22,66 +22,50 @@
 
 QGC_LOGGING_CATEGORY(MAVLinkInspectorControllerLog, "qgc.analyzeview.mavlinkinspectorcontroller")
 
-MAVLinkInspectorController::TimeScale_st::TimeScale_st(const QString &label_, uint32_t timeScale_)
-    : label(label_)
-    , timeScale(timeScale_)
-{
-
-}
+MAVLinkInspectorController::TimeScale_st::TimeScale_st(const QString &label_, uint32_t timeScale_) : label(label_), timeScale(timeScale_) {}
 
 /*===========================================================================*/
 
-MAVLinkInspectorController::Range_st::Range_st(const QString &label_, qreal range_)
-    : label(label_)
-    , range(range_)
-{
-
-}
+MAVLinkInspectorController::Range_st::Range_st(const QString &label_, qreal range_) : label(label_), range(range_) {}
 
 /*===========================================================================*/
 
-MAVLinkInspectorController::MAVLinkInspectorController(QObject *parent)
-    : QObject(parent)
-    , _updateFrequencyTimer(new QTimer(this))
-    , _systems(new QmlObjectListModel(this))
-    , _charts(new QmlObjectListModel(this))
-{
+MAVLinkInspectorController::MAVLinkInspectorController(QObject *parent) : QObject(parent), _updateFrequencyTimer(new QTimer(this)), _systems(new QmlObjectListModel(this)), _charts(new QmlObjectListModel(this)) {
     // qCDebug(MAVLinkInspectorControllerLog) << Q_FUNC_INFO << this;
 
     MultiVehicleManager *const multiVehicleManager = MultiVehicleManager::instance();
-    (void) connect(multiVehicleManager, &MultiVehicleManager::vehicleAdded,   this, &MAVLinkInspectorController::_vehicleAdded);
-    (void) connect(multiVehicleManager, &MultiVehicleManager::vehicleRemoved, this, &MAVLinkInspectorController::_vehicleRemoved);
-    (void) connect(multiVehicleManager, &MultiVehicleManager::activeVehicleChanged, this, &MAVLinkInspectorController::_setActiveVehicle);
+    (void)connect(multiVehicleManager, &MultiVehicleManager::vehicleAdded, this, &MAVLinkInspectorController::_vehicleAdded);
+    (void)connect(multiVehicleManager, &MultiVehicleManager::vehicleRemoved, this, &MAVLinkInspectorController::_vehicleRemoved);
+    (void)connect(multiVehicleManager, &MultiVehicleManager::activeVehicleChanged, this, &MAVLinkInspectorController::_setActiveVehicle);
 
     MAVLinkProtocol *const mavlinkProtocol = MAVLinkProtocol::instance();
-    (void) connect(mavlinkProtocol, &MAVLinkProtocol::messageReceived, this, &MAVLinkInspectorController::_receiveMessage);
-    (void) connect(_updateFrequencyTimer, &QTimer::timeout, this, &MAVLinkInspectorController::_refreshFrequency);
+    (void)connect(mavlinkProtocol, &MAVLinkProtocol::messageReceived, this, &MAVLinkInspectorController::_receiveMessage);
+    (void)connect(_updateFrequencyTimer, &QTimer::timeout, this, &MAVLinkInspectorController::_refreshFrequency);
 
     _updateFrequencyTimer->setInterval(1000);
     _updateFrequencyTimer->setSingleShot(false);
     _updateFrequencyTimer->start();
 
-    _timeScaleSt.append(new TimeScale_st(tr("5 Sec"),   5 * 1000));
+    _timeScaleSt.append(new TimeScale_st(tr("5 Sec"), 5 * 1000));
     _timeScaleSt.append(new TimeScale_st(tr("10 Sec"), 10 * 1000));
     _timeScaleSt.append(new TimeScale_st(tr("30 Sec"), 30 * 1000));
     _timeScaleSt.append(new TimeScale_st(tr("60 Sec"), 60 * 1000));
     emit timeScalesChanged();
 
-    _rangeSt.append(new Range_st(tr("Auto"),    0));
-    _rangeSt.append(new Range_st(tr("10,000"),  10000));
-    _rangeSt.append(new Range_st(tr("1,000"),   1000));
-    _rangeSt.append(new Range_st(tr("100"),     100));
-    _rangeSt.append(new Range_st(tr("10"),      10));
-    _rangeSt.append(new Range_st(tr("1"),       1));
-    _rangeSt.append(new Range_st(tr("0.1"),     0.1));
-    _rangeSt.append(new Range_st(tr("0.01"),    0.01));
-    _rangeSt.append(new Range_st(tr("0.001"),   0.001));
-    _rangeSt.append(new Range_st(tr("0.0001"),  0.0001));
+    _rangeSt.append(new Range_st(tr("Auto"), 0));
+    _rangeSt.append(new Range_st(tr("10,000"), 10000));
+    _rangeSt.append(new Range_st(tr("1,000"), 1000));
+    _rangeSt.append(new Range_st(tr("100"), 100));
+    _rangeSt.append(new Range_st(tr("10"), 10));
+    _rangeSt.append(new Range_st(tr("1"), 1));
+    _rangeSt.append(new Range_st(tr("0.1"), 0.1));
+    _rangeSt.append(new Range_st(tr("0.01"), 0.01));
+    _rangeSt.append(new Range_st(tr("0.001"), 0.001));
+    _rangeSt.append(new Range_st(tr("0.0001"), 0.0001));
     emit rangeListChanged();
 }
 
-MAVLinkInspectorController::~MAVLinkInspectorController()
-{
+MAVLinkInspectorController::~MAVLinkInspectorController() {
     qDeleteAll(_timeScaleSt);
     qDeleteAll(_rangeSt);
     _charts->clearAndDeleteContents();
@@ -90,8 +74,7 @@ MAVLinkInspectorController::~MAVLinkInspectorController()
     // qCDebug(MAVLinkInspectorControllerLog) << Q_FUNC_INFO << this;
 }
 
-QStringList MAVLinkInspectorController::timeScales()
-{
+QStringList MAVLinkInspectorController::timeScales() {
     if (_timeScales.isEmpty()) {
         for (const TimeScale_st *timeScale : _timeScaleSt) {
             _timeScales << timeScale->label;
@@ -101,8 +84,7 @@ QStringList MAVLinkInspectorController::timeScales()
     return _timeScales;
 }
 
-QStringList MAVLinkInspectorController::rangeList()
-{
+QStringList MAVLinkInspectorController::rangeList() {
     if (_rangeList.isEmpty()) {
         for (const Range_st *range : _rangeSt) {
             _rangeList << range->label;
@@ -112,8 +94,7 @@ QStringList MAVLinkInspectorController::rangeList()
     return _rangeList;
 }
 
-void MAVLinkInspectorController::_setActiveVehicle(Vehicle *vehicle)
-{
+void MAVLinkInspectorController::_setActiveVehicle(Vehicle *vehicle) {
     if (vehicle) {
         QGCMAVLinkSystem *const system = _findVehicle(static_cast<uint8_t>(vehicle->id()));
         if (system) {
@@ -128,10 +109,9 @@ void MAVLinkInspectorController::_setActiveVehicle(Vehicle *vehicle)
     emit activeSystemChanged();
 }
 
-QGCMAVLinkSystem *MAVLinkInspectorController::_findVehicle(uint8_t id)
-{
+QGCMAVLinkSystem *MAVLinkInspectorController::_findVehicle(uint8_t id) {
     for (int i = 0; i < _systems->count(); i++) {
-        QGCMAVLinkSystem *const system = qobject_cast<QGCMAVLinkSystem*>(_systems->get(i));
+        QGCMAVLinkSystem *const system = qobject_cast<QGCMAVLinkSystem *>(_systems->get(i));
         if (system && (system->id() == id)) {
             return system;
         }
@@ -140,16 +120,15 @@ QGCMAVLinkSystem *MAVLinkInspectorController::_findVehicle(uint8_t id)
     return nullptr;
 }
 
-void MAVLinkInspectorController::_refreshFrequency()
-{
+void MAVLinkInspectorController::_refreshFrequency() {
     for (int i = 0; i < _systems->count(); i++) {
-        QGCMAVLinkSystem *const system = qobject_cast<QGCMAVLinkSystem*>(_systems->get(i));
+        QGCMAVLinkSystem *const system = qobject_cast<QGCMAVLinkSystem *>(_systems->get(i));
         if (!system) {
             continue;
         }
 
         for (int i = 0; i < system->messages()->count(); i++) {
-            QGCMAVLinkMessage *const msg = qobject_cast<QGCMAVLinkMessage*>(system->messages()->get(i));
+            QGCMAVLinkMessage *const msg = qobject_cast<QGCMAVLinkMessage *>(system->messages()->get(i));
             if (msg) {
                 msg->updateFreq();
             }
@@ -157,8 +136,7 @@ void MAVLinkInspectorController::_refreshFrequency()
     }
 }
 
-void MAVLinkInspectorController::_vehicleAdded(Vehicle *vehicle)
-{
+void MAVLinkInspectorController::_vehicleAdded(Vehicle *vehicle) {
     QGCMAVLinkSystem *sys = _findVehicle(static_cast<uint8_t>(vehicle->id()));
 
     if (sys) {
@@ -168,9 +146,9 @@ void MAVLinkInspectorController::_vehicleAdded(Vehicle *vehicle)
         _systems->append(sys);
         _systemNames.append(tr("System %1").arg(vehicle->id()));
 
-        (void) connect(vehicle, &Vehicle::mavlinkMsgIntervalsChanged, sys, [sys](uint8_t compid, uint16_t msgId, int32_t rate) {
+        (void)connect(vehicle, &Vehicle::mavlinkMsgIntervalsChanged, sys, [sys](uint8_t compid, uint16_t msgId, int32_t rate) {
             for (int i = 0; i < sys->messages()->count(); i++) {
-                QGCMAVLinkMessage *const msg = qobject_cast<QGCMAVLinkMessage*>(sys->messages()->get(i));
+                QGCMAVLinkMessage *const msg = qobject_cast<QGCMAVLinkMessage *>(sys->messages()->get(i));
                 if ((msg->compId() == compid) && (msg->id() == msgId)) {
                     msg->setTargetRateHz(rate);
                     break;
@@ -182,24 +160,22 @@ void MAVLinkInspectorController::_vehicleAdded(Vehicle *vehicle)
     emit systemsChanged();
 }
 
-void MAVLinkInspectorController::_vehicleRemoved(const Vehicle *vehicle)
-{
+void MAVLinkInspectorController::_vehicleRemoved(const Vehicle *vehicle) {
     QGCMAVLinkSystem *const system = _findVehicle(static_cast<uint8_t>(vehicle->id()));
     if (!system) {
         return;
     }
 
     system->deleteLater();
-    (void) _systems->removeOne(system);
+    (void)_systems->removeOne(system);
 
     const QString systemName = tr("System %1").arg(vehicle->id());
-    (void) _systemNames.removeOne(systemName);
+    (void)_systemNames.removeOne(systemName);
 
     emit systemsChanged();
 }
 
-void MAVLinkInspectorController::_receiveMessage(LinkInterface *link, const mavlink_message_t &message)
-{
+void MAVLinkInspectorController::_receiveMessage(LinkInterface *link, const mavlink_message_t &message) {
     Q_UNUSED(link);
 
     QGCMAVLinkMessage *msg = nullptr;
@@ -227,8 +203,7 @@ void MAVLinkInspectorController::_receiveMessage(LinkInterface *link, const mavl
     }
 }
 
-MAVLinkChartController *MAVLinkInspectorController::createChart()
-{
+MAVLinkChartController *MAVLinkInspectorController::createChart() {
     MAVLinkChartController *const pChart = new MAVLinkChartController(this, _charts->count());
     QQmlEngine::setObjectOwnership(pChart, QQmlEngine::CppOwnership);
 
@@ -238,15 +213,14 @@ MAVLinkChartController *MAVLinkInspectorController::createChart()
     return pChart;
 }
 
-void MAVLinkInspectorController::deleteChart(MAVLinkChartController *chart)
-{
+void MAVLinkInspectorController::deleteChart(MAVLinkChartController *chart) {
     if (!chart) {
         return;
     }
 
     bool found = false;
     for (int i = 0; i < _charts->count(); i++) {
-        MAVLinkChartController *const controller = qobject_cast<MAVLinkChartController*>(_charts->get(i));
+        MAVLinkChartController *const controller = qobject_cast<MAVLinkChartController *>(_charts->get(i));
         if (controller && (controller == chart)) {
             found = true;
             _charts->removeOne(controller);
@@ -260,8 +234,7 @@ void MAVLinkInspectorController::deleteChart(MAVLinkChartController *chart)
     }
 }
 
-void MAVLinkInspectorController::setActiveSystem(int systemId)
-{
+void MAVLinkInspectorController::setActiveSystem(int systemId) {
     QGCMAVLinkSystem *const system = _findVehicle(systemId);
     if (system != _activeSystem) {
         _activeSystem = system;
@@ -269,8 +242,7 @@ void MAVLinkInspectorController::setActiveSystem(int systemId)
     }
 }
 
-void MAVLinkInspectorController::setMessageInterval(int32_t rate) const
-{
+void MAVLinkInspectorController::setMessageInterval(int32_t rate) const {
     if (!_activeSystem) {
         return;
     }
@@ -304,13 +276,9 @@ void MAVLinkInspectorController::setMessageInterval(int32_t rate) const
     vehicle->setMessageRate(compId, msg->id(), rate);
 }
 
-uint8_t MAVLinkInspectorController::_selectedSystemID() const
-{
-    return (_activeSystem ? _activeSystem->id() : 0);
-}
+uint8_t MAVLinkInspectorController::_selectedSystemID() const { return (_activeSystem ? _activeSystem->id() : 0); }
 
-uint8_t MAVLinkInspectorController::_selectedComponentID() const
-{
+uint8_t MAVLinkInspectorController::_selectedComponentID() const {
     const QGCMAVLinkMessage *const msg = _activeSystem ? _activeSystem->selectedMsg() : nullptr;
     return (msg ? msg->compId() : 0);
 }

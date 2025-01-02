@@ -15,29 +15,30 @@
 class LinkInterface;
 
 /// Interface holding link specific settings.
-class LinkConfiguration : public QObject
-{
+class LinkConfiguration : public QObject {
     Q_OBJECT
     Q_MOC_INCLUDE("LinkInterface.h")
 
-    Q_PROPERTY(QString          name            READ name           WRITE setName           NOTIFY nameChanged)
-    Q_PROPERTY(LinkInterface*   link            READ link                                   NOTIFY linkChanged)
-    Q_PROPERTY(LinkType         linkType        READ type                                   CONSTANT)
-    Q_PROPERTY(bool             dynamic         READ isDynamic      WRITE setDynamic        NOTIFY dynamicChanged)
-    Q_PROPERTY(bool             autoConnect     READ isAutoConnect  WRITE setAutoConnect    NOTIFY autoConnectChanged)
-    Q_PROPERTY(QString          settingsURL     READ settingsURL                            CONSTANT)
-    Q_PROPERTY(QString          settingsTitle   READ settingsTitle                          CONSTANT)
-    Q_PROPERTY(bool             highLatency     READ isHighLatency  WRITE setHighLatency    NOTIFY highLatencyChanged)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(LinkInterface *link READ link NOTIFY linkChanged)
+    Q_PROPERTY(LinkType linkType READ type CONSTANT)
+    Q_PROPERTY(bool dynamic READ isDynamic WRITE setDynamic NOTIFY dynamicChanged)
+    Q_PROPERTY(bool autoConnect READ isAutoConnect WRITE setAutoConnect NOTIFY autoConnectChanged)
+    Q_PROPERTY(QString settingsURL READ settingsURL CONSTANT)
+    Q_PROPERTY(QString settingsTitle READ settingsTitle CONSTANT)
+    Q_PROPERTY(bool highLatency READ isHighLatency WRITE setHighLatency NOTIFY highLatencyChanged)
 
-public:
+  public:
     LinkConfiguration(const QString &name, QObject *parent = nullptr);
     LinkConfiguration(const LinkConfiguration *copy, QObject *parent = nullptr);
     virtual ~LinkConfiguration();
 
     QString name() const { return _name; }
+
     void setName(const QString &name);
 
     LinkInterface *link() const { return _link.lock().get(); }
+
     void setLink(const std::shared_ptr<LinkInterface> link);
 
     /// Is this a dynamic configuration?
@@ -54,7 +55,7 @@ public:
 
     /// Is this a High Latency configuration?
     ///     @return True if this is an High Latency configuration (link with large delays).
-    bool isHighLatency() const{ return _highLatency; }
+    bool isHighLatency() const { return _highLatency; }
 
     /// Set if this is this an High Latency configuration.
     void setHighLatency(bool hl = false);
@@ -68,21 +69,21 @@ public:
     /// Any changes here MUST be reflected in LinkManager::linkTypeStrings()
     enum LinkType {
 #ifndef NO_SERIAL_LINK
-        TypeSerial,     ///< Serial Link
+        TypeSerial, ///< Serial Link
 #endif
-        TypeUdp,        ///< UDP Link
-        TypeTcp,        ///< TCP Link
+        TypeUdp, ///< UDP Link
+        TypeTcp, ///< TCP Link
 #ifdef UVMS_ENABLE_BLUETOOTH
-        TypeBluetooth,  ///< Bluetooth Link
+        TypeBluetooth, ///< Bluetooth Link
 #endif
 #ifdef QT_DEBUG
-        TypeMock,       ///< Mock Link for Unitesting
+        TypeMock, ///< Mock Link for Unitesting
 #endif
 #ifndef UVMS_AIRLINK_DISABLED
         AirLink,
 #endif
         TypeLogReplay,
-        TypeLast        // Last type value (type >= TypeLast == invalid)
+        TypeLast // Last type value (type >= TypeLast == invalid)
     };
     Q_ENUM(LinkType)
 
@@ -118,17 +119,17 @@ public:
     ///     @return The root path of the settings.
     static QString settingsRoot() { return QStringLiteral("LinkConfigurations"); }
 
-signals:
+  signals:
     void nameChanged(const QString &name);
     void linkChanged();
     void dynamicChanged();
     void autoConnectChanged();
     void highLatencyChanged();
 
-protected:
+  protected:
     std::weak_ptr<LinkInterface> _link; ///< Link currently using this configuration (if any)
 
-private:
+  private:
     QString _name;
     bool _dynamic = false;     ///< A connection added automatically and not persistent (unless it's edited).
     bool _autoConnect = false; ///< This connection is started automatically at boot

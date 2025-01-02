@@ -8,44 +8,44 @@
  ****************************************************************************/
 
 #include "SimpleMissionItemTest.h"
-#include "SimpleMissionItem.h"
-#include "SettingsManager.h"
 #include "AppSettings.h"
-#include "PlanMasterController.h"
-#include "MultiSignalSpy.h"
 #include "CameraSection.h"
+#include "MultiSignalSpy.h"
+#include "PlanMasterController.h"
+#include "SettingsManager.h"
+#include "SimpleMissionItem.h"
 #include "SpeedSection.h"
 
 #include <QtTest/QTest>
 
 static const ItemInfo_t _rgItemInfo[] = {
-    { MAV_CMD_NAV_WAYPOINT,     MAV_FRAME_GLOBAL_RELATIVE_ALT },
+    { MAV_CMD_NAV_WAYPOINT, MAV_FRAME_GLOBAL_RELATIVE_ALT },
     { MAV_CMD_NAV_LOITER_UNLIM, MAV_FRAME_GLOBAL },
     { MAV_CMD_NAV_LOITER_TURNS, MAV_FRAME_GLOBAL_RELATIVE_ALT },
-    { MAV_CMD_NAV_LOITER_TIME,  MAV_FRAME_GLOBAL },
-    { MAV_CMD_NAV_LAND,         MAV_FRAME_GLOBAL_RELATIVE_ALT },
-    { MAV_CMD_NAV_TAKEOFF,      MAV_FRAME_GLOBAL },
-    { MAV_CMD_DO_JUMP,          MAV_FRAME_MISSION },
+    { MAV_CMD_NAV_LOITER_TIME, MAV_FRAME_GLOBAL },
+    { MAV_CMD_NAV_LAND, MAV_FRAME_GLOBAL_RELATIVE_ALT },
+    { MAV_CMD_NAV_TAKEOFF, MAV_FRAME_GLOBAL },
+    { MAV_CMD_DO_JUMP, MAV_FRAME_MISSION },
 };
 
 static const FactValue_t _rgFactValuesWaypoint[] = {
-    { "Hold",   QGCMAVLink::VehicleClassMultiRotor, false,  1 },
-    { "Yaw",    QGCMAVLink::VehicleClassMultiRotor, true,   4 },
+    { "Hold", QGCMAVLink::VehicleClassMultiRotor, false, 1 },
+    { "Yaw", QGCMAVLink::VehicleClassMultiRotor, true, 4 },
 };
 
 static const FactValue_t _rgFactValuesLoiterUnlim[] = {
-    { "Radius", QGCMAVLink::VehicleClassFixedWing,  false,  3 },
-    { "Yaw",    QGCMAVLink::VehicleClassMultiRotor, true,   4 },
+    { "Radius", QGCMAVLink::VehicleClassFixedWing, false, 3 },
+    { "Yaw", QGCMAVLink::VehicleClassMultiRotor, true, 4 },
 };
 
 static const FactValue_t _rgFactValuesLoiterTurns[] = {
-    { "Turns",  QGCMAVLink::VehicleClassFixedWing,  false, 1 },
-    { "Radius", QGCMAVLink::VehicleClassFixedWing,  false, 3 },
+    { "Turns", QGCMAVLink::VehicleClassFixedWing, false, 1 },
+    { "Radius", QGCMAVLink::VehicleClassFixedWing, false, 3 },
 };
 
 static const FactValue_t _rgFactValuesLoiterTime[] = {
-    { "Loiter Time",    QGCMAVLink::VehicleClassGeneric,    false, 1 },
-    { "Radius",         QGCMAVLink::VehicleClassFixedWing,  false, 3 },
+    { "Loiter Time", QGCMAVLink::VehicleClassGeneric, false, 1 },
+    { "Radius", QGCMAVLink::VehicleClassFixedWing, false, 3 },
 };
 
 static const FactValue_t _rgFactValuesLand[] = {
@@ -53,8 +53,8 @@ static const FactValue_t _rgFactValuesLand[] = {
 };
 
 static const FactValue_t _rgFactValuesTakeoff[] = {
-    { "Pitch",  QGCMAVLink::VehicleClassFixedWing,  false,  1 },
-    { "Yaw",    QGCMAVLink::VehicleClassMultiRotor, true,   4 },
+    { "Pitch", QGCMAVLink::VehicleClassFixedWing, false, 1 },
+    { "Yaw", QGCMAVLink::VehicleClassMultiRotor, true, 4 },
 };
 
 static const FactValue_t _rgFactValuesDoJump[] = {
@@ -63,43 +63,36 @@ static const FactValue_t _rgFactValuesDoJump[] = {
 };
 
 const ItemExpected_t _rgItemExpected[] = {
-    { sizeof(_rgFactValuesWaypoint)/sizeof(_rgFactValuesWaypoint[0]),       _rgFactValuesWaypoint,      70.1234567, QGroundControlQmlGlobal::AltitudeModeRelative },
-    { sizeof(_rgFactValuesLoiterUnlim)/sizeof(_rgFactValuesLoiterUnlim[0]), _rgFactValuesLoiterUnlim,   70.1234567, QGroundControlQmlGlobal::AltitudeModeAbsolute },
-    { sizeof(_rgFactValuesLoiterTurns)/sizeof(_rgFactValuesLoiterTurns[0]), _rgFactValuesLoiterTurns,   70.1234567, QGroundControlQmlGlobal::AltitudeModeRelative },
-    { sizeof(_rgFactValuesLoiterTime)/sizeof(_rgFactValuesLoiterTime[0]),   _rgFactValuesLoiterTime,    70.1234567, QGroundControlQmlGlobal::AltitudeModeAbsolute },
-    { sizeof(_rgFactValuesLand)/sizeof(_rgFactValuesLand[0]),               _rgFactValuesLand,          70.1234567, QGroundControlQmlGlobal::AltitudeModeRelative },
-    { sizeof(_rgFactValuesTakeoff)/sizeof(_rgFactValuesTakeoff[0]),         _rgFactValuesTakeoff,       70.1234567, QGroundControlQmlGlobal::AltitudeModeAbsolute },
-    { sizeof(_rgFactValuesDoJump)/sizeof(_rgFactValuesDoJump[0]),           _rgFactValuesDoJump,        qQNaN(),    QGroundControlQmlGlobal::AltitudeModeRelative },
+    { sizeof(_rgFactValuesWaypoint) / sizeof(_rgFactValuesWaypoint[0]), _rgFactValuesWaypoint, 70.1234567, QGroundControlQmlGlobal::AltitudeModeRelative },
+    { sizeof(_rgFactValuesLoiterUnlim) / sizeof(_rgFactValuesLoiterUnlim[0]), _rgFactValuesLoiterUnlim, 70.1234567, QGroundControlQmlGlobal::AltitudeModeAbsolute },
+    { sizeof(_rgFactValuesLoiterTurns) / sizeof(_rgFactValuesLoiterTurns[0]), _rgFactValuesLoiterTurns, 70.1234567, QGroundControlQmlGlobal::AltitudeModeRelative },
+    { sizeof(_rgFactValuesLoiterTime) / sizeof(_rgFactValuesLoiterTime[0]), _rgFactValuesLoiterTime, 70.1234567, QGroundControlQmlGlobal::AltitudeModeAbsolute },
+    { sizeof(_rgFactValuesLand) / sizeof(_rgFactValuesLand[0]), _rgFactValuesLand, 70.1234567, QGroundControlQmlGlobal::AltitudeModeRelative },
+    { sizeof(_rgFactValuesTakeoff) / sizeof(_rgFactValuesTakeoff[0]), _rgFactValuesTakeoff, 70.1234567, QGroundControlQmlGlobal::AltitudeModeAbsolute },
+    { sizeof(_rgFactValuesDoJump) / sizeof(_rgFactValuesDoJump[0]), _rgFactValuesDoJump, qQNaN(), QGroundControlQmlGlobal::AltitudeModeRelative },
 };
 
-SimpleMissionItemTest::SimpleMissionItemTest(void)
-    : _simpleItem(nullptr)
-{    
-    rgSimpleItemSignals[commandChangedIndex] =                          SIGNAL(commandChanged(int));
-    rgSimpleItemSignals[altitudeModeChangedIndex] =                     SIGNAL(altitudeModeChanged());
-    rgSimpleItemSignals[friendlyEditAllowedChangedIndex] =              SIGNAL(friendlyEditAllowedChanged(bool));
-    rgSimpleItemSignals[headingDegreesChangedIndex] =                   SIGNAL(headingDegreesChanged(double));
-    rgSimpleItemSignals[rawEditChangedIndex] =                          SIGNAL(rawEditChanged(bool));
-    rgSimpleItemSignals[cameraSectionChangedIndex] =                    SIGNAL(cameraSectionChanged(QObject*));
-    rgSimpleItemSignals[speedSectionChangedIndex] =                     SIGNAL(speedSectionChanged(QObject*));
+SimpleMissionItemTest::SimpleMissionItemTest(void) : _simpleItem(nullptr) {
+    rgSimpleItemSignals[commandChangedIndex] = SIGNAL(commandChanged(int));
+    rgSimpleItemSignals[altitudeModeChangedIndex] = SIGNAL(altitudeModeChanged());
+    rgSimpleItemSignals[friendlyEditAllowedChangedIndex] = SIGNAL(friendlyEditAllowedChanged(bool));
+    rgSimpleItemSignals[headingDegreesChangedIndex] = SIGNAL(headingDegreesChanged(double));
+    rgSimpleItemSignals[rawEditChangedIndex] = SIGNAL(rawEditChanged(bool));
+    rgSimpleItemSignals[cameraSectionChangedIndex] = SIGNAL(cameraSectionChanged(QObject *));
+    rgSimpleItemSignals[speedSectionChangedIndex] = SIGNAL(speedSectionChanged(QObject *));
 }
 
-void SimpleMissionItemTest::init(void)
-{
+void SimpleMissionItemTest::init(void) {
     VisualMissionItemTest::init();
 
-    MissionItem missionItem(1,              // sequence number
-                            MAV_CMD_NAV_WAYPOINT,
-                            MAV_FRAME_GLOBAL_RELATIVE_ALT,
-                            10.1234567,     // param 1-7
-                            20.1234567,
-                            30.1234567,
-                            40.1234567,
-                            50.1234567,
-                            60.1234567,
-                            70.1234567,
-                            true,           // autoContinue
-                            false);         // isCurrentItem
+    MissionItem missionItem(
+        1, // sequence number
+        MAV_CMD_NAV_WAYPOINT, MAV_FRAME_GLOBAL_RELATIVE_ALT,
+        10.1234567, // param 1-7
+        20.1234567, 30.1234567, 40.1234567, 50.1234567, 60.1234567, 70.1234567,
+        true, // autoContinue
+        false
+    ); // isCurrentItem
     _simpleItem = new SimpleMissionItem(_masterController, false /* flyView */, missionItem);
 
     // It's important top check that the right signals are emitted at the right time since that drives ui change.
@@ -111,38 +104,33 @@ void SimpleMissionItemTest::init(void)
     VisualMissionItemTest::_createSpy(_simpleItem, &_spyVisualItem);
 }
 
-void SimpleMissionItemTest::cleanup(void)
-{
+void SimpleMissionItemTest::cleanup(void) {
     VisualMissionItemTest::cleanup();
 
     // These items go away from _masterController is deleted
     _simpleItem = nullptr;
 }
 
-bool SimpleMissionItemTest::_classMatch(QGCMAVLink::VehicleClass_t vehicleClass, QGCMAVLink::VehicleClass_t testClass)
-{
-    return vehicleClass == QGCMAVLink::VehicleClassGeneric || vehicleClass == testClass;
-}
+bool SimpleMissionItemTest::_classMatch(QGCMAVLink::VehicleClass_t vehicleClass, QGCMAVLink::VehicleClass_t testClass) { return vehicleClass == QGCMAVLink::VehicleClassGeneric || vehicleClass == testClass; }
 
-void SimpleMissionItemTest::_testEditorFactsWorker(QGCMAVLink::VehicleClass_t vehicleClass, QGCMAVLink::VehicleClass_t vtolMode, const ItemExpected_t* rgExpected)
-{
+void SimpleMissionItemTest::_testEditorFactsWorker(QGCMAVLink::VehicleClass_t vehicleClass, QGCMAVLink::VehicleClass_t vtolMode, const ItemExpected_t *rgExpected) {
     qDebug() << "vehicleClass:vtolMode" << QGCMAVLink::vehicleClassToUserVisibleString(vehicleClass) << QGCMAVLink::vehicleClassToUserVisibleString(vtolMode);
 
     PlanMasterController planController(MAV_AUTOPILOT_PX4, QGCMAVLink::vehicleClassToMavType(vehicleClass));
 
     QGCMAVLink::VehicleClass_t commandVehicleClass = vtolMode == QGCMAVLink::VehicleClassGeneric ? vehicleClass : vtolMode;
 
-    for (size_t i=0; i<sizeof(_rgItemInfo)/sizeof(_rgItemInfo[0]); i++) {
-        const ItemInfo_t*       info        = &_rgItemInfo[i];
-        const ItemExpected_t*   expected    = &rgExpected[i];
+    for (size_t i = 0; i < sizeof(_rgItemInfo) / sizeof(_rgItemInfo[0]); i++) {
+        const ItemInfo_t *info = &_rgItemInfo[i];
+        const ItemExpected_t *expected = &rgExpected[i];
 
         qDebug() << "Command" << info->command;
 
         // Determine how many fact values we should get back
         int cExpectedTextFieldFacts = 0;
-        int cExpectedNaNFieldFacts  = 0;
-        for (size_t j=0; j<expected->cFactValues; j++) {
-            const FactValue_t* factValue = &expected->rgFactValues[j];
+        int cExpectedNaNFieldFacts = 0;
+        for (size_t j = 0; j < expected->cFactValues; j++) {
+            const FactValue_t *factValue = &expected->rgFactValues[j];
 
             if (!_classMatch(factValue->vehicleClass, commandVehicleClass)) {
                 continue;
@@ -155,36 +143,32 @@ void SimpleMissionItemTest::_testEditorFactsWorker(QGCMAVLink::VehicleClass_t ve
             }
         }
 
-        MissionItem missionItem(1,              // sequence number
-                                info->command,
-                                info->frame,
-                                10.1234567,     // param 1-7
-                                20.1234567,
-                                30.1234567,
-                                40.1234567,
-                                50.1234567,
-                                60.1234567,
-                                70.1234567,
-                                true,           // autoContinue
-                                false);         // isCurrentItem
+        MissionItem missionItem(
+            1, // sequence number
+            info->command, info->frame,
+            10.1234567, // param 1-7
+            20.1234567, 30.1234567, 40.1234567, 50.1234567, 60.1234567, 70.1234567,
+            true, // autoContinue
+            false
+        ); // isCurrentItem
         SimpleMissionItem simpleMissionItem(&planController, false /* flyView */, missionItem);
 
         MissionController::MissionFlightStatus_t missionFlightStatus;
-        missionFlightStatus.vtolMode        = vtolMode;
-        missionFlightStatus.vehicleSpeed    = 10;
-        missionFlightStatus.gimbalYaw       = qQNaN();
-        missionFlightStatus.gimbalPitch     = qQNaN();
+        missionFlightStatus.vtolMode = vtolMode;
+        missionFlightStatus.vehicleSpeed = 10;
+        missionFlightStatus.gimbalYaw = qQNaN();
+        missionFlightStatus.gimbalPitch = qQNaN();
         simpleMissionItem.setMissionFlightStatus(missionFlightStatus);
 
         // Validate that the fact values are correctly returned
 
         int foundTextFieldCount = 0;
-        for (int i=0; i<simpleMissionItem.textFieldFacts()->count(); i++) {
-            Fact* fact = qobject_cast<Fact*>(simpleMissionItem.textFieldFacts()->get(i));
+        for (int i = 0; i < simpleMissionItem.textFieldFacts()->count(); i++) {
+            Fact *fact = qobject_cast<Fact *>(simpleMissionItem.textFieldFacts()->get(i));
 
             bool found = false;
-            for (size_t j=0; j<expected->cFactValues; j++) {
-                const FactValue_t* factValue = &expected->rgFactValues[j];
+            for (size_t j = 0; j < expected->cFactValues; j++) {
+                const FactValue_t *factValue = &expected->rgFactValues[j];
 
                 if (!_classMatch(factValue->vehicleClass, commandVehicleClass)) {
                     continue;
@@ -192,7 +176,7 @@ void SimpleMissionItemTest::_testEditorFactsWorker(QGCMAVLink::VehicleClass_t ve
 
                 if (factValue->name == fact->name()) {
                     QCOMPARE(fact->rawValue().toDouble(), (factValue->paramIndex * 10.0) + 0.1234567);
-                    foundTextFieldCount ++;
+                    foundTextFieldCount++;
                     found = true;
                     break;
                 }
@@ -204,12 +188,12 @@ void SimpleMissionItemTest::_testEditorFactsWorker(QGCMAVLink::VehicleClass_t ve
         QCOMPARE(foundTextFieldCount, cExpectedTextFieldFacts);
 
         int foundNaNFieldCount = 0;
-        for (int i=0; i<simpleMissionItem.nanFacts()->count(); i++) {
-            Fact* fact = qobject_cast<Fact*>(simpleMissionItem.nanFacts()->get(i));
+        for (int i = 0; i < simpleMissionItem.nanFacts()->count(); i++) {
+            Fact *fact = qobject_cast<Fact *>(simpleMissionItem.nanFacts()->get(i));
 
             bool found = false;
-            for (size_t j=0; j<expected->cFactValues; j++) {
-                const FactValue_t* factValue = &expected->rgFactValues[j];
+            for (size_t j = 0; j < expected->cFactValues; j++) {
+                const FactValue_t *factValue = &expected->rgFactValues[j];
 
                 if (!_classMatch(factValue->vehicleClass, commandVehicleClass)) {
                     continue;
@@ -217,7 +201,7 @@ void SimpleMissionItemTest::_testEditorFactsWorker(QGCMAVLink::VehicleClass_t ve
 
                 if (factValue->name == fact->name()) {
                     QCOMPARE(fact->rawValue().toDouble(), (factValue->paramIndex * 10.0) + 0.1234567);
-                    foundNaNFieldCount ++;
+                    foundNaNFieldCount++;
                     found = true;
                     break;
                 }
@@ -235,16 +219,14 @@ void SimpleMissionItemTest::_testEditorFactsWorker(QGCMAVLink::VehicleClass_t ve
     }
 }
 
-void SimpleMissionItemTest::_testEditorFacts(void)
-{
-    _testEditorFactsWorker(QGCMAVLink::VehicleClassMultiRotor,  QGCMAVLink::VehicleClassGeneric,    _rgItemExpected);
-    _testEditorFactsWorker(QGCMAVLink::VehicleClassFixedWing,   QGCMAVLink::VehicleClassGeneric,    _rgItemExpected);
-    _testEditorFactsWorker(QGCMAVLink::VehicleClassVTOL,        QGCMAVLink::VehicleClassMultiRotor, _rgItemExpected);
-    _testEditorFactsWorker(QGCMAVLink::VehicleClassVTOL,        QGCMAVLink::VehicleClassFixedWing,  _rgItemExpected);
+void SimpleMissionItemTest::_testEditorFacts(void) {
+    _testEditorFactsWorker(QGCMAVLink::VehicleClassMultiRotor, QGCMAVLink::VehicleClassGeneric, _rgItemExpected);
+    _testEditorFactsWorker(QGCMAVLink::VehicleClassFixedWing, QGCMAVLink::VehicleClassGeneric, _rgItemExpected);
+    _testEditorFactsWorker(QGCMAVLink::VehicleClassVTOL, QGCMAVLink::VehicleClassMultiRotor, _rgItemExpected);
+    _testEditorFactsWorker(QGCMAVLink::VehicleClassVTOL, QGCMAVLink::VehicleClassFixedWing, _rgItemExpected);
 }
 
-void SimpleMissionItemTest::_testDefaultValues(void)
-{
+void SimpleMissionItemTest::_testDefaultValues(void) {
     SimpleMissionItem item(_masterController, false /* flyView */, false /* forLoad */);
 
     item.missionItem().setCommand(MAV_CMD_NAV_WAYPOINT);
@@ -252,9 +234,8 @@ void SimpleMissionItemTest::_testDefaultValues(void)
     QCOMPARE(item.missionItem().param7(), SettingsManager::instance()->appSettings()->defaultMissionItemAltitude()->rawValue().toDouble());
 }
 
-void SimpleMissionItemTest::_testSignals(void)
-{
-    MissionItem& missionItem = _simpleItem->missionItem();
+void SimpleMissionItemTest::_testSignals(void) {
+    MissionItem &missionItem = _simpleItem->missionItem();
 
     // Check that changing to the same coordinate does not signal
     _simpleItem->setCoordinate(QGeoCoordinate(missionItem.param5(), missionItem.param6(), missionItem.param7()));
@@ -323,9 +304,8 @@ void SimpleMissionItemTest::_testSignals(void)
     QVERIFY(_spyVisualItem->checkSignalsByMask(commandNameChangedMask | dirtyChangedMask));
 }
 
-void SimpleMissionItemTest::_testCameraSectionDirty(void)
-{
-    CameraSection* cameraSection = _simpleItem->cameraSection();
+void SimpleMissionItemTest::_testCameraSectionDirty(void) {
+    CameraSection *cameraSection = _simpleItem->cameraSection();
 
     QVERIFY(!cameraSection->dirty());
     QVERIFY(!_simpleItem->dirty());
@@ -339,9 +319,8 @@ void SimpleMissionItemTest::_testCameraSectionDirty(void)
     QVERIFY(!cameraSection->dirty());
 }
 
-void SimpleMissionItemTest::_testSpeedSectionDirty(void)
-{
-    SpeedSection* speedSection = _simpleItem->speedSection();
+void SimpleMissionItemTest::_testSpeedSectionDirty(void) {
+    SpeedSection *speedSection = _simpleItem->speedSection();
 
     QVERIFY(!speedSection->dirty());
     QVERIFY(!_simpleItem->dirty());
@@ -355,8 +334,7 @@ void SimpleMissionItemTest::_testSpeedSectionDirty(void)
     QVERIFY(!speedSection->dirty());
 }
 
-void SimpleMissionItemTest::_testCameraSection(void)
-{
+void SimpleMissionItemTest::_testCameraSection(void) {
     // No gimbal yaw to start with
     QVERIFY(qIsNaN(_simpleItem->specifiedGimbalYaw()));
     QVERIFY(qIsNaN(_simpleItem->missionGimbalYaw()));
@@ -371,9 +349,7 @@ void SimpleMissionItemTest::_testCameraSection(void)
     QCOMPARE(_simpleItem->dirty(), true);
 }
 
-
-void SimpleMissionItemTest::_testSpeedSection(void)
-{
+void SimpleMissionItemTest::_testSpeedSection(void) {
     // No flight speed
     QVERIFY(qIsNaN(_simpleItem->specifiedFlightSpeed()));
     QCOMPARE(_simpleItem->dirty(), false);
@@ -386,8 +362,7 @@ void SimpleMissionItemTest::_testSpeedSection(void)
     QCOMPARE(_simpleItem->dirty(), true);
 }
 
-void SimpleMissionItemTest::_testAltitudePropogation(void)
-{
+void SimpleMissionItemTest::_testAltitudePropogation(void) {
     // Make sure that changes to altitude propogate to param 7 of the mission item
 
     _simpleItem->setAltitudeMode(QGroundControlQmlGlobal::AltitudeModeRelative);

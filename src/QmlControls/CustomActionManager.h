@@ -21,31 +21,32 @@ class QmlObjectListModel;
 /// Loads the specified action file and provides access to the actions it contains.
 /// Action files are loaded from the default CustomActions directory.
 /// The actions file name is filename only, no path.
-class CustomActionManager : public QObject
-{
+class CustomActionManager : public QObject {
     Q_OBJECT
     QML_ELEMENT
     Q_MOC_INCLUDE("Fact.h")
     Q_MOC_INCLUDE("QmlObjectListModel.h")
-    Q_PROPERTY(Fact* actionFileNameFact READ actionFileNameFact WRITE setActionFileNameFact NOTIFY actionFileNameFactChanged)
-    Q_PROPERTY(QmlObjectListModel* actions READ actions CONSTANT)
+    Q_PROPERTY(Fact *actionFileNameFact READ actionFileNameFact WRITE setActionFileNameFact NOTIFY actionFileNameFactChanged)
+    Q_PROPERTY(QmlObjectListModel *actions READ actions CONSTANT)
 
-public:
+  public:
     explicit CustomActionManager(QObject *parent = nullptr);
     explicit CustomActionManager(Fact *actionFileNameFact, QObject *parent = nullptr);
     ~CustomActionManager();
 
     Fact *actionFileNameFact() { return _actionFileNameFact; }
+
     void setActionFileNameFact(Fact *actionFileNameFact);
+
     QmlObjectListModel *actions() { return _actions; }
 
-signals:
+  signals:
     void actionFileNameFactChanged();
 
-private slots:
+  private slots:
     void _loadActionsFile();
 
-private:
+  private:
     Fact *_actionFileNameFact = nullptr;
     QmlObjectListModel *_actions = nullptr;
 };

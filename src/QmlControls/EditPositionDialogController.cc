@@ -8,25 +8,20 @@
  ****************************************************************************/
 
 #include "EditPositionDialogController.h"
-#include "QGCGeo.h"
 #include "MultiVehicleManager.h"
-#include "Vehicle.h"
+#include "QGCGeo.h"
 #include "QGCLoggingCategory.h"
+#include "Vehicle.h"
 
 QGC_LOGGING_CATEGORY(EditPositionDialogControllerLog, "qgc.qmlcontrols.editpositiondialogcontroller")
 
-QMap<QString, FactMetaData*> EditPositionDialogController::_metaDataMap;
+QMap<QString, FactMetaData *> EditPositionDialogController::_metaDataMap;
 
 EditPositionDialogController::EditPositionDialogController(QObject *parent)
-    : QObject(parent)
-    , _latitudeFact(new Fact(0, _latitudeFactName, FactMetaData::valueTypeDouble, this))
-    , _longitudeFact(new Fact(0, _longitudeFactName, FactMetaData::valueTypeDouble, this))
-    , _zoneFact(new Fact(0, _zoneFactName, FactMetaData::valueTypeUint8, this))
-    , _hemisphereFact(new Fact(0, _hemisphereFactName, FactMetaData::valueTypeUint8, this))
-    , _eastingFact(new Fact(0, _eastingFactName, FactMetaData::valueTypeDouble, this))
-    , _northingFact(new Fact(0, _northingFactName, FactMetaData::valueTypeDouble, this))
-    , _mgrsFact(new Fact(0, _mgrsFactName, FactMetaData::valueTypeString, this))
-{
+    : QObject(parent), _latitudeFact(new Fact(0, _latitudeFactName, FactMetaData::valueTypeDouble, this)), _longitudeFact(new Fact(0, _longitudeFactName, FactMetaData::valueTypeDouble, this)),
+      _zoneFact(new Fact(0, _zoneFactName, FactMetaData::valueTypeUint8, this)), _hemisphereFact(new Fact(0, _hemisphereFactName, FactMetaData::valueTypeUint8, this)),
+      _eastingFact(new Fact(0, _eastingFactName, FactMetaData::valueTypeDouble, this)), _northingFact(new Fact(0, _northingFactName, FactMetaData::valueTypeDouble, this)),
+      _mgrsFact(new Fact(0, _mgrsFactName, FactMetaData::valueTypeString, this)) {
     // qCDebug(EditPositionDialogControllerLog) << Q_FUNC_INFO << this;
 
     if (_metaDataMap.isEmpty()) {
@@ -42,21 +37,18 @@ EditPositionDialogController::EditPositionDialogController(QObject *parent)
     _mgrsFact->setMetaData(_metaDataMap[_mgrsFactName]);
 }
 
-EditPositionDialogController::~EditPositionDialogController()
-{
+EditPositionDialogController::~EditPositionDialogController() {
     // qCDebug(EditPositionDialogControllerLog) << Q_FUNC_INFO << this;
 }
 
-void EditPositionDialogController::setCoordinate(QGeoCoordinate coordinate)
-{
+void EditPositionDialogController::setCoordinate(QGeoCoordinate coordinate) {
     if (coordinate != _coordinate) {
         _coordinate = coordinate;
         emit coordinateChanged(coordinate);
     }
 }
 
-void EditPositionDialogController::initValues()
-{
+void EditPositionDialogController::initValues() {
     _latitudeFact->setRawValue(_coordinate.latitude());
     _longitudeFact->setRawValue(_coordinate.longitude());
 
@@ -75,15 +67,13 @@ void EditPositionDialogController::initValues()
     }
 }
 
-void EditPositionDialogController::setFromGeo()
-{
+void EditPositionDialogController::setFromGeo() {
     _coordinate.setLatitude(_latitudeFact->rawValue().toDouble());
     _coordinate.setLongitude(_longitudeFact->rawValue().toDouble());
     emit coordinateChanged(_coordinate);
 }
 
-void EditPositionDialogController::setFromUTM()
-{
+void EditPositionDialogController::setFromUTM() {
     qCDebug(EditPositionDialogControllerLog) << _eastingFact->rawValue().toDouble() << _northingFact->rawValue().toDouble() << _zoneFact->rawValue().toInt() << (_hemisphereFact->rawValue().toInt() == 1);
     if (QGCGeo::convertUTMToGeo(_eastingFact->rawValue().toDouble(), _northingFact->rawValue().toDouble(), _zoneFact->rawValue().toInt(), _hemisphereFact->rawValue().toInt() == 1, _coordinate)) {
         qCDebug(EditPositionDialogControllerLog) << _eastingFact->rawValue().toDouble() << _northingFact->rawValue().toDouble() << _zoneFact->rawValue().toInt() << (_hemisphereFact->rawValue().toInt() == 1) << _coordinate;
@@ -93,8 +83,7 @@ void EditPositionDialogController::setFromUTM()
     }
 }
 
-void EditPositionDialogController::setFromMGRS()
-{
+void EditPositionDialogController::setFromMGRS() {
     if (QGCGeo::convertMGRSToGeo(_mgrsFact->rawValue().toString(), _coordinate)) {
         emit coordinateChanged(_coordinate);
     } else {
@@ -102,8 +91,4 @@ void EditPositionDialogController::setFromMGRS()
     }
 }
 
-void EditPositionDialogController::setFromVehicle()
-{
-    setCoordinate(MultiVehicleManager::instance()->activeVehicle()->coordinate());
-}
-
+void EditPositionDialogController::setFromVehicle() { setCoordinate(MultiVehicleManager::instance()->activeVehicle()->coordinate()); }

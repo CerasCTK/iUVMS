@@ -7,22 +7,19 @@
  *
  ****************************************************************************/
 
-
 #include "ComponentInformationCacheTest.h"
 #include "ComponentInformationCache.h"
 
 #include <QtCore/QStandardPaths>
 #include <QtTest/QTest>
 
-ComponentInformationCacheTest::ComponentInformationCacheTest()
-{
+ComponentInformationCacheTest::ComponentInformationCacheTest() {
     _cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + QLatin1String("/QGCCacheTest");
     _tmpFilesDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + QLatin1String("/QGCTestFiles");
     _cleanup();
 }
 
-void ComponentInformationCacheTest::_setup()
-{
+void ComponentInformationCacheTest::_setup() {
     QDir d(_tmpFilesDir);
     d.mkdir(_tmpFilesDir);
 
@@ -41,16 +38,14 @@ void ComponentInformationCacheTest::_setup()
     }
 }
 
-void ComponentInformationCacheTest::_cleanup()
-{
+void ComponentInformationCacheTest::_cleanup() {
     QDir t(_tmpFilesDir);
     t.removeRecursively();
     QDir d(_cacheDir);
     d.removeRecursively();
 }
 
-void ComponentInformationCacheTest::_basic_test()
-{
+void ComponentInformationCacheTest::_basic_test() {
     _setup();
     ComponentInformationCache cache(_cacheDir, 10);
 
@@ -72,9 +67,7 @@ void ComponentInformationCacheTest::_basic_test()
     _cleanup();
 }
 
-
-void ComponentInformationCacheTest::_lru_test()
-{
+void ComponentInformationCacheTest::_lru_test() {
     _setup();
     ComponentInformationCache cache(_cacheDir, 3);
 
@@ -122,11 +115,10 @@ void ComponentInformationCacheTest::_lru_test()
     _cleanup();
 }
 
-void ComponentInformationCacheTest::_multi_test()
-{
+void ComponentInformationCacheTest::_multi_test() {
     _setup();
 
-    auto insert = [&](ComponentInformationCache& cache, int idx) {
+    auto insert = [&](ComponentInformationCache &cache, int idx) {
         _tmpFiles[idx].cachedPath = cache.insert(_tmpFiles[idx].cacheTag, _tmpFiles[idx].path);
         QVERIFY(!_tmpFiles[idx].cachedPath.isEmpty());
     };

@@ -10,14 +10,10 @@
 #include "APMFollowComponent.h"
 #include "APMAutoPilotPlugin.h"
 
-APMFollowComponent::APMFollowComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent)
-    : VehicleComponent(vehicle, autopilot, parent),
-    _name(QStringLiteral("Follow Me"))
-{
+APMFollowComponent::APMFollowComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent) : VehicleComponent(vehicle, autopilot, parent), _name(QStringLiteral("Follow Me")) {
     // qCDebug() << Q_FUNC_INFO << this;
 }
 
-APMFollowComponent::~APMFollowComponent()
-{
+APMFollowComponent::~APMFollowComponent() {
     // qCDebug() << Q_FUNC_INFO << this;
 }

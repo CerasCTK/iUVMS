@@ -14,15 +14,13 @@
 
 #include <QtTest/QTest>
 
-CorridorScanComplexItemTest::CorridorScanComplexItemTest(void)
-{
+CorridorScanComplexItemTest::CorridorScanComplexItemTest(void) {
     _polyLineVertices.append(QGeoCoordinate(47.633550640000003, -122.08982199));
     _polyLineVertices.append(_polyLineVertices[0].atDistanceAndAzimuth(_corridorLineSegmentDistance, 0));
     _polyLineVertices.append(_polyLineVertices[1].atDistanceAndAzimuth(_corridorLineSegmentDistance, 20));
 }
 
-void CorridorScanComplexItemTest::init(void)
-{
+void CorridorScanComplexItemTest::init(void) {
     TransectStyleComplexItemTestBase::init();
 
     _corridorItem = new CorridorScanComplexItem(_masterController, false /* flyView */, QString() /* kmlFile */);
@@ -44,17 +42,15 @@ void CorridorScanComplexItemTest::init(void)
     QCOMPARE(_multiSpyCorridorPolygon->init(_corridorItem->surveyAreaPolygon(), _rgCorridorPolygonSignals, _cCorridorPolygonSignals), true);
 }
 
-void CorridorScanComplexItemTest::cleanup(void)
-{
+void CorridorScanComplexItemTest::cleanup(void) {
     TransectStyleComplexItemTestBase::cleanup();
 
     // _corridorItem is deleted when _masterController goes away
     _corridorItem = nullptr;
 }
 
-void CorridorScanComplexItemTest::_testDirty(void)
-{
-    Fact* fact = _corridorItem->corridorWidth();
+void CorridorScanComplexItemTest::_testDirty(void) {
+    Fact *fact = _corridorItem->corridorWidth();
     fact->setRawValue(fact->rawValue().toDouble() + 1);
     QVERIFY(_corridorItem->dirty());
     _corridorItem->setDirty(false);
@@ -70,8 +66,7 @@ void CorridorScanComplexItemTest::_testDirty(void)
     _corridorItem->setDirty(false);
 }
 
-void CorridorScanComplexItemTest::_testCameraTrigger(void)
-{
+void CorridorScanComplexItemTest::_testCameraTrigger(void) {
 #if 0
     QCOMPARE(_corridorItem->property("cameraTrigger").toBool(), true);
 
@@ -134,8 +129,7 @@ void CorridorScanComplexItemTest::_testEntryLocation(void)
 }
 #endif
 
-void CorridorScanComplexItemTest::_waitForReadyForSave(void)
-{
+void CorridorScanComplexItemTest::_waitForReadyForSave(void) {
     int loops = 0;
     while (loops++ < 8) {
         if (_corridorItem->readyForSaveState() == CorridorScanComplexItem::ReadyForSave) {
@@ -146,22 +140,21 @@ void CorridorScanComplexItemTest::_waitForReadyForSave(void)
     QVERIFY(false);
 }
 
-void CorridorScanComplexItemTest::_testItemCount(void)
-{
+void CorridorScanComplexItemTest::_testItemCount(void) {
     typedef struct {
         bool triggerInTurnAround;
         bool hasTurnaround;
     } TestCase_t;
 
     static const TestCase_t rgTestCases[] = {
-        { false,    false },
-        { false,    false },
-        { false,    true },
-        { false,    true },
+        { false, false },
+        { false, false },
+        { false, true },
+        { false, true },
     };
 
-    QList<MissionItem*> items;
-    for (const TestCase_t& testCase : rgTestCases) {
+    QList<MissionItem *> items;
+    for (const TestCase_t &testCase : rgTestCases) {
         qDebug() << "triggerInTurnAround:hasTurnaround" << testCase.triggerInTurnAround << testCase.hasTurnaround;
         _corridorItem->cameraTriggerInTurnAround()->setRawValue(testCase.triggerInTurnAround);
         _corridorItem->turnAroundDistance()->setRawValue(testCase.hasTurnaround ? 50 : 0);
@@ -171,32 +164,30 @@ void CorridorScanComplexItemTest::_testItemCount(void)
     }
 }
 
-void CorridorScanComplexItemTest::_testPathChanges(void)
-{
-     QGeoCoordinate vertex = _corridorItem->corridorPolyline()->vertexCoordinate(1);
-     vertex.setLatitude(vertex.latitude() + 0.01);
-     _corridorItem->corridorPolyline()->adjustVertex(1, vertex);
+void CorridorScanComplexItemTest::_testPathChanges(void) {
+    QGeoCoordinate vertex = _corridorItem->corridorPolyline()->vertexCoordinate(1);
+    vertex.setLatitude(vertex.latitude() + 0.01);
+    _corridorItem->corridorPolyline()->adjustVertex(1, vertex);
 
-     QVERIFY(_multiSpyCorridorPolygon->checkSignalsByMask(corridorPolygonPathChangedMask));
+    QVERIFY(_multiSpyCorridorPolygon->checkSignalsByMask(corridorPolygonPathChangedMask));
 }
 
-QList<MAV_CMD> CorridorScanComplexItemTest::_createExpectedCommands(bool hasTurnaround, bool useConditionGate)
-{
+QList<MAV_CMD> CorridorScanComplexItemTest::_createExpectedCommands(bool hasTurnaround, bool useConditionGate) {
     static const QList<MAV_CMD> singleFullTransect = {
-        MAV_CMD_NAV_WAYPOINT,           // Turnaround
-        MAV_CMD_CONDITION_GATE,         // Survey area entry edge
+        MAV_CMD_NAV_WAYPOINT,   // Turnaround
+        MAV_CMD_CONDITION_GATE, // Survey area entry edge
         MAV_CMD_DO_SET_CAM_TRIGG_DIST,
-        MAV_CMD_NAV_WAYPOINT,           // Polyline turn
-        MAV_CMD_CONDITION_GATE,         // Survey area exit edge
+        MAV_CMD_NAV_WAYPOINT,   // Polyline turn
+        MAV_CMD_CONDITION_GATE, // Survey area exit edge
         MAV_CMD_DO_SET_CAM_TRIGG_DIST,
-        MAV_CMD_NAV_WAYPOINT,           // Turnaround
+        MAV_CMD_NAV_WAYPOINT, // Turnaround
     };
 
     QList<MAV_CMD> singleTransect = singleFullTransect;
     QList<MAV_CMD> expectedCommands;
 
     if (!useConditionGate) {
-        for (MAV_CMD& cmd : singleTransect) {
+        for (MAV_CMD &cmd : singleTransect) {
             cmd = cmd == MAV_CMD_CONDITION_GATE ? MAV_CMD_NAV_WAYPOINT : cmd;
         }
     }
@@ -206,53 +197,48 @@ QList<MAV_CMD> CorridorScanComplexItemTest::_createExpectedCommands(bool hasTurn
         singleTransect.takeLast();
     }
 
-    for (int i=0; i<_expectedTransectCount; i++) {
+    for (int i = 0; i < _expectedTransectCount; i++) {
         expectedCommands.append(singleTransect);
     }
 
     return expectedCommands;
 }
 
-
-
-void CorridorScanComplexItemTest::_testItemGenerationWorker(bool imagesInTurnaround, bool hasTurnaround, bool useConditionGate, const QList<MAV_CMD>& expectedCommands)
-{
+void CorridorScanComplexItemTest::_testItemGenerationWorker(bool imagesInTurnaround, bool hasTurnaround, bool useConditionGate, const QList<MAV_CMD> &expectedCommands) {
     qDebug() << QStringLiteral("_testItemGenerationWorker imagesInTuraround:%1 turnaround:%2 gate:%3").arg(imagesInTurnaround).arg(hasTurnaround).arg(useConditionGate);
 
     _corridorItem->turnAroundDistance()->setRawValue(hasTurnaround ? 50 : 0);
     _corridorItem->cameraTriggerInTurnAround()->setRawValue(imagesInTurnaround);
     _planViewSettings->useConditionGate()->setRawValue(useConditionGate);
 
-    QList<MissionItem*> items;
+    QList<MissionItem *> items;
     _corridorItem->appendMissionItems(items, this);
     //_printItemCommands(items);
     QCOMPARE(items.count(), expectedCommands.count());
-    for (int i=0; i<expectedCommands.count(); i++) {
+    for (int i = 0; i < expectedCommands.count(); i++) {
         int actualCommand = items[i]->command();
         int expectedCommand = expectedCommands[i];
-        //qDebug() << "Index" << i;
+        // qDebug() << "Index" << i;
         QCOMPARE(actualCommand, expectedCommand);
     }
 }
 
-void CorridorScanComplexItemTest::_testItemGeneration(void)
-{
+void CorridorScanComplexItemTest::_testItemGeneration(void) {
     // Test all the combinations of: cameraTriggerInTurnAround: false, hasTurnAround: *, useConditionGate: *
 
     typedef struct {
-        bool        hasTurnaround;
-        bool        useConditionGate;
+        bool hasTurnaround;
+        bool useConditionGate;
     } TestCase_t;
 
     static const TestCase_t rgTestCases[] = {
-        { false,    false },
-        { false,    true },
-        { true,     false },
-        { true,     true },
+        { false, false },
+        { false, true },
+        { true, false },
+        { true, true },
     };
 
-    for (const TestCase_t& testCase : rgTestCases) {
+    for (const TestCase_t &testCase : rgTestCases) {
         _testItemGenerationWorker(false /* imagesInTurnaround */, testCase.hasTurnaround, testCase.useConditionGate, _createExpectedCommands(testCase.hasTurnaround, testCase.useConditionGate));
     }
 }
-

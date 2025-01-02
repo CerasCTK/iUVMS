@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "Common.h"
 #include "ActuatorActions.h"
+#include "Common.h"
 #include "QmlObjectListModel.h"
 
 #include <QtCore/QObject>
@@ -20,220 +20,223 @@
 
 namespace ActuatorOutputs {
 
-/**
- * Config parameters that apply to a subgroup of actuators
- */
-class ConfigParameter : public QObject
-{
-    Q_OBJECT
-public:
-    enum class Function {
-        Unspecified = 0,
-        Enable,             ///< Parameter to enable/disable the outputs
-        Primary,            ///< Primary parameter to configure the group of outputs
+    /**
+     * Config parameters that apply to a subgroup of actuators
+     */
+    class ConfigParameter : public QObject {
+        Q_OBJECT
+      public:
+        enum class Function {
+            Unspecified = 0,
+            Enable,  ///< Parameter to enable/disable the outputs
+            Primary, ///< Primary parameter to configure the group of outputs
+        };
+
+        ConfigParameter(QObject *parent, Fact *fact, const QString &label, Function function) : QObject(parent), _fact(fact), _label(label), _function(function) {}
+
+        Q_PROPERTY(QString label READ label CONSTANT)
+        Q_PROPERTY(Fact *fact READ fact CONSTANT)
+
+        const QString &label() const { return _label; }
+
+        Fact *fact() { return _fact; }
+
+        Function function() const { return _function; }
+
+      private:
+        Fact *_fact{ nullptr };
+        const QString _label;
+        const Function _function;
     };
 
-    ConfigParameter(QObject* parent, Fact* fact, const QString& label, Function function)
-        : QObject(parent), _fact(fact), _label(label), _function(function) {}
+    /**
+     * Config parameters that apply to individual channels
+     */
+    class ChannelConfig : public QObject {
+        Q_OBJECT
+      public:
+        /// Describes the meaning of the parameter
+        enum class Function { Unspecified = 0, OutputFunction, Disarmed, Minimum, Maximum, Failsafe };
 
-    Q_PROPERTY(QString label          READ label       CONSTANT)
-    Q_PROPERTY(Fact* fact             READ fact        CONSTANT)
+        ChannelConfig(QObject *parent, const Parameter &param, Function function, const Condition &visibilityCondition) : QObject(parent), _parameter(param), _function(function), _visibilityCondition(visibilityCondition) {}
 
-    const QString& label() const { return _label; }
-    Fact* fact() { return _fact; }
-    Function function() const { return _function; }
+        Q_PROPERTY(QString label READ label CONSTANT)
+        Q_PROPERTY(bool advanced READ advanced CONSTANT)
+        Q_PROPERTY(bool visible READ visible NOTIFY visibleChanged)
 
-private:
-    Fact* _fact{nullptr};
-    const QString _label;
-    const Function _function;
-};
+        const QString &label() const { return _parameter.label; }
 
-/**
- * Config parameters that apply to individual channels
- */
-class ChannelConfig : public QObject
-{
-    Q_OBJECT
-public:
+        const QString &parameter() const { return _parameter.name; }
 
-    /// Describes the meaning of the parameter
-    enum class Function {
-        Unspecified = 0,
-        OutputFunction,
-        Disarmed,
-        Minimum,
-        Maximum,
-        Failsafe
+        Function function() const { return _function; }
+
+        const Condition &visibilityCondition() const { return _visibilityCondition; }
+
+        bool advanced() const { return _parameter.advanced; }
+
+        bool visible() const { return _visibilityCondition.evaluate(); }
+
+        Parameter::DisplayOption displayOption() const { return _parameter.displayOption; }
+
+        int indexOffset() const { return _parameter.indexOffset; }
+
+        void reevaluate();
+
+      signals:
+        void visibleChanged();
+
+      private:
+        const Parameter _parameter;
+        const Function _function;
+        const Condition _visibilityCondition;
     };
 
-    ChannelConfig(QObject* parent, const Parameter& param, Function function,
-            const Condition& visibilityCondition)
-        : QObject(parent), _parameter(param), _function(function), _visibilityCondition(visibilityCondition) {}
+    /**
+     * Per-channel instance for a ChannelConfig
+     */
+    class ChannelConfigInstance : public QObject {
+        Q_OBJECT
+      public:
+        ChannelConfigInstance(QObject *parent, Fact *fact, ChannelConfig &config) : QObject(parent), _fact(fact), _config(config) {}
 
-    Q_PROPERTY(QString label      READ label      CONSTANT)
-    Q_PROPERTY(bool advanced      READ advanced   CONSTANT)
-    Q_PROPERTY(bool visible       READ visible    NOTIFY visibleChanged)
+        Q_PROPERTY(ChannelConfig *config READ channelConfig CONSTANT)
+        Q_PROPERTY(Fact *fact READ fact CONSTANT)
 
-    const QString& label() const { return _parameter.label; }
-    const QString& parameter() const { return _parameter.name; }
-    Function function() const { return _function; }
-    const Condition& visibilityCondition() const { return _visibilityCondition; }
-    bool advanced() const { return _parameter.advanced; }
-    bool visible() const { return _visibilityCondition.evaluate(); }
+        Fact *fact() { return _fact; }
 
-    Parameter::DisplayOption displayOption() const { return _parameter.displayOption; }
-    int indexOffset() const { return _parameter.indexOffset; }
+        ChannelConfig *channelConfig() const { return &_config; }
 
-    void reevaluate();
+      private:
+        Fact *_fact{ nullptr };
+        ChannelConfig &_config;
+    };
 
-signals:
-    void visibleChanged();
-private:
-    const Parameter _parameter;
-    const Function _function;
-    const Condition _visibilityCondition;
-};
+    class ActuatorOutputChannel : public QObject {
+        Q_OBJECT
+      public:
+        ActuatorOutputChannel(QObject *parent, const QString &label, int paramIndex, QmlObjectListModel &channelConfigs, ParameterManager *parameterManager, std::function<void(Fact *)> factAddedCb);
 
-/**
- * Per-channel instance for a ChannelConfig
- */
-class ChannelConfigInstance : public QObject
-{
-    Q_OBJECT
-public:
-    ChannelConfigInstance(QObject* parent, Fact* fact, ChannelConfig& config)
-        : QObject(parent), _fact(fact), _config(config) {}
+        Q_PROPERTY(QString label READ label CONSTANT)
+        Q_PROPERTY(QmlObjectListModel *configInstances READ configInstances NOTIFY configInstancesChanged)
 
-    Q_PROPERTY(ChannelConfig* config      READ channelConfig   CONSTANT)
-    Q_PROPERTY(Fact* fact                 READ fact            CONSTANT)
+        const QString &label() const { return _label; }
 
-    Fact* fact() { return _fact; }
+        QmlObjectListModel *configInstances() { return _configInstances; }
 
-    ChannelConfig* channelConfig() const { return &_config; }
+      signals:
+        void configInstancesChanged();
 
-private:
+      private:
+        const QString _label;
+        const int _paramIndex{};
 
-    Fact* _fact{nullptr};
-    ChannelConfig& _config;
-};
+        QmlObjectListModel *_configInstances = new QmlObjectListModel(this); ///< list of ChannelConfigInstance*
+    };
 
-class ActuatorOutputChannel : public QObject
-{
-    Q_OBJECT
-public:
-    ActuatorOutputChannel(QObject* parent, const QString& label, int paramIndex, QmlObjectListModel& channelConfigs,
-            ParameterManager* parameterManager, std::function<void(Fact*)> factAddedCb);
+    class ActuatorOutputSubgroup : public QObject {
+        Q_OBJECT
+      public:
+        ActuatorOutputSubgroup(QObject *parent, const QString &label) : QObject(parent), _label(label) {}
 
-    Q_PROPERTY(QString label                            READ label               CONSTANT)
-    Q_PROPERTY(QmlObjectListModel* configInstances      READ configInstances     NOTIFY configInstancesChanged)
+        Q_PROPERTY(QString label READ label CONSTANT)
+        Q_PROPERTY(QmlObjectListModel *channels READ channels NOTIFY channelsChanged)
+        Q_PROPERTY(QmlObjectListModel *channelConfigs READ channelConfigs NOTIFY channelConfigsChanged)
+        Q_PROPERTY(ConfigParameter *primaryParam READ primaryParam CONSTANT)
+        Q_PROPERTY(QmlObjectListModel *configParams READ configParams CONSTANT)
 
-    const QString& label() const { return _label; }
+        const QString &label() const { return _label; }
 
-    QmlObjectListModel* configInstances() { return _configInstances; }
+        // per-channel-params
+        QmlObjectListModel *channelConfigs() { return _channelConfigs; }
 
-signals:
-    void configInstancesChanged();
+        void addChannelConfig(ChannelConfig *channelConfig);
 
-private:
-    const QString _label;
-    const int _paramIndex{};
+        QmlObjectListModel *channels() { return _channels; }
 
-    QmlObjectListModel* _configInstances = new QmlObjectListModel(this); ///< list of ChannelConfigInstance*
-};
+        void addChannel(ActuatorOutputChannel *channel);
 
-class ActuatorOutputSubgroup : public QObject
-{
-    Q_OBJECT
-public:
-    ActuatorOutputSubgroup(QObject* parent, const QString& label)
-        : QObject(parent), _label(label) {}
+        ConfigParameter *primaryParam() const { return _primaryParam; }
 
-    Q_PROPERTY(QString label                        READ label            CONSTANT)
-    Q_PROPERTY(QmlObjectListModel* channels         READ channels         NOTIFY channelsChanged)
-    Q_PROPERTY(QmlObjectListModel* channelConfigs   READ channelConfigs   NOTIFY channelConfigsChanged)
-    Q_PROPERTY(ConfigParameter* primaryParam        READ primaryParam     CONSTANT)
-    Q_PROPERTY(QmlObjectListModel* configParams     READ configParams     CONSTANT)
+        void addConfigParam(ConfigParameter *param);
 
-    const QString& label() const { return _label; }
+        QmlObjectListModel *configParams() { return _params; }
 
-    // per-channel-params
-    QmlObjectListModel* channelConfigs() { return _channelConfigs; }
-    void addChannelConfig(ChannelConfig* channelConfig);
+        const QList<ActuatorActions::Config> &actions() const { return _actions; }
 
+        void addAction(const ActuatorActions::Config &action) { _actions.append(action); }
 
-    QmlObjectListModel* channels() { return _channels; }
-    void addChannel(ActuatorOutputChannel* channel);
+      signals:
+        void channelsChanged();
+        void channelConfigsChanged();
 
-    ConfigParameter* primaryParam() const { return _primaryParam; }
-    void addConfigParam(ConfigParameter* param);
-    QmlObjectListModel* configParams() { return _params; }
+      private:
+        const QString _label;
+        QmlObjectListModel *_channels = new QmlObjectListModel(this);       ///< list of ActuatorOutputChannel*
+        QmlObjectListModel *_channelConfigs = new QmlObjectListModel(this); ///< list of ChannelConfig*
 
-    const QList<ActuatorActions::Config>& actions() const { return _actions; }
-    void addAction(const ActuatorActions::Config& action) { _actions.append(action); }
+        ConfigParameter *_primaryParam{ nullptr };
+        QmlObjectListModel *_params = new QmlObjectListModel(this); ///< list of ConfigParameter*
 
-signals:
-    void channelsChanged();
-    void channelConfigsChanged();
-private:
+        QList<ActuatorActions::Config> _actions;
+    };
 
-    const QString _label;
-    QmlObjectListModel* _channels = new QmlObjectListModel(this); ///< list of ActuatorOutputChannel*
-    QmlObjectListModel* _channelConfigs = new QmlObjectListModel(this); ///< list of ChannelConfig*
+    class ActuatorOutput : public QObject {
+        Q_OBJECT
+      public:
+        ActuatorOutput(QObject *parent, const QString &label, const Condition &groupVisibilityCondition);
 
-    ConfigParameter* _primaryParam{nullptr};
-    QmlObjectListModel* _params  = new QmlObjectListModel(this); ///< list of ConfigParameter*
+        Q_PROPERTY(QString label READ label CONSTANT)
+        Q_PROPERTY(bool groupsVisible READ groupsVisible NOTIFY groupsVisibleChanged)
+        Q_PROPERTY(QmlObjectListModel *subgroups READ subgroups NOTIFY subgroupsChanged)
+        Q_PROPERTY(ConfigParameter *enableParam READ enableParam CONSTANT)
+        Q_PROPERTY(QmlObjectListModel *configParams READ configParams CONSTANT)
+        Q_PROPERTY(QStringList notes READ notes NOTIFY notesChanged)
 
-    QList<ActuatorActions::Config> _actions;
-};
+        const QString &label() const { return _label; }
 
-class ActuatorOutput : public QObject
-{
-    Q_OBJECT
-public:
-    ActuatorOutput(QObject* parent, const QString& label, const Condition& groupVisibilityCondition);
+        QmlObjectListModel *subgroups() { return _subgroups; }
 
-    Q_PROPERTY(QString label                     READ label              CONSTANT)
-    Q_PROPERTY(bool groupsVisible                READ groupsVisible      NOTIFY groupsVisibleChanged)
-    Q_PROPERTY(QmlObjectListModel* subgroups     READ subgroups          NOTIFY subgroupsChanged)
-    Q_PROPERTY(ConfigParameter* enableParam      READ enableParam        CONSTANT)
-    Q_PROPERTY(QmlObjectListModel* configParams  READ configParams       CONSTANT)
-    Q_PROPERTY(QStringList notes                 READ notes              NOTIFY notesChanged)
+        bool groupsVisible() const { return _groupVisibilityCondition.evaluate(); }
 
-    const QString& label() const { return _label; }
+        ConfigParameter *enableParam() const { return _enableParam; }
 
-    QmlObjectListModel* subgroups() { return _subgroups; }
-    bool groupsVisible() const { return _groupVisibilityCondition.evaluate(); }
-    ConfigParameter* enableParam() const { return _enableParam; }
-    QmlObjectListModel* configParams() { return _params; }
+        QmlObjectListModel *configParams() { return _params; }
 
-    void addSubgroup(ActuatorOutputSubgroup* subgroup);
+        void addSubgroup(ActuatorOutputSubgroup *subgroup);
 
-    void addConfigParam(ConfigParameter* param);
+        void addConfigParam(ConfigParameter *param);
 
-    void getAllChannelFunctions(QList<Fact*>& allFunctions) const;
+        void getAllChannelFunctions(QList<Fact *> &allFunctions) const;
 
-    bool hasExistingOutputFunctionParams() const;
+        bool hasExistingOutputFunctionParams() const;
 
-    void addNote(const QString& note) { _notes.append(note); emit notesChanged(); }
-    void clearNotes() { _notes.clear(); emit notesChanged(); }
-    const QStringList& notes() const { return _notes; }
+        void addNote(const QString &note) {
+            _notes.append(note);
+            emit notesChanged();
+        }
 
-    void forEachOutputFunction(std::function<void(ActuatorOutputSubgroup*, ChannelConfigInstance*, Fact*)> callback) const;
+        void clearNotes() {
+            _notes.clear();
+            emit notesChanged();
+        }
 
-signals:
-    void subgroupsChanged();
-    void groupsVisibleChanged();
-    void notesChanged();
+        const QStringList &notes() const { return _notes; }
 
-private:
-    const QString _label;
-    const Condition _groupVisibilityCondition;
-    QmlObjectListModel* _subgroups = new QmlObjectListModel(this); ///< list of ActuatorOutputSubgroup*
+        void forEachOutputFunction(std::function<void(ActuatorOutputSubgroup *, ChannelConfigInstance *, Fact *)> callback) const;
 
-    ConfigParameter* _enableParam{nullptr};
-    QmlObjectListModel* _params  = new QmlObjectListModel(this); ///< list of ConfigParameter*
-    QStringList _notes;
-};
+      signals:
+        void subgroupsChanged();
+        void groupsVisibleChanged();
+        void notesChanged();
+
+      private:
+        const QString _label;
+        const Condition _groupVisibilityCondition;
+        QmlObjectListModel *_subgroups = new QmlObjectListModel(this); ///< list of ActuatorOutputSubgroup*
+
+        ConfigParameter *_enableParam{ nullptr };
+        QmlObjectListModel *_params = new QmlObjectListModel(this); ///< list of ConfigParameter*
+        QStringList _notes;
+    };
 
 } // namespace ActuatorOutputs

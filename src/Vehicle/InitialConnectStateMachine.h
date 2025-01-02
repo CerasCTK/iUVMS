@@ -9,68 +9,58 @@
 
 #pragma once
 
-#include "StateMachine.h"
 #include "MAVLinkLib.h"
+#include "StateMachine.h"
 #include "Vehicle.h"
 
 #include <QtCore/QLoggingCategory>
 
 Q_DECLARE_LOGGING_CATEGORY(InitialConnectStateMachineLog)
 
-class InitialConnectStateMachine : public StateMachine
-{
+class InitialConnectStateMachine : public StateMachine {
     Q_OBJECT
 
-public:
+  public:
     InitialConnectStateMachine(Vehicle *vehicle, QObject *parent = nullptr);
     ~InitialConnectStateMachine();
 
     // Overrides from StateMachine
-    int             stateCount      (void) const final;
-    const StateFn*  rgStates        (void) const final;
-    void            statesCompleted (void) const final;
+    int stateCount(void) const final;
+    const StateFn *rgStates(void) const final;
+    void statesCompleted(void) const final;
 
     void advance() override;
 
-signals:
+  signals:
     void progressUpdate(float progress);
 
-private slots:
+  private slots:
     void gotProgressUpdate(float progressValue);
     void standardModesRequestCompleted();
 
-private:
-    static void _stateRequestAutopilotVersion           (StateMachine* stateMachine);
-    static void _stateRequestProtocolVersion            (StateMachine* stateMachine);
-    static void _stateRequestCompInfo                   (StateMachine* stateMachine);
-    static void _stateRequestStandardModes              (StateMachine* stateMachine);
-    static void _stateRequestCompInfoComplete           (void* requestAllCompleteFnData);
-    static void _stateRequestParameters                 (StateMachine* stateMachine);
-    static void _stateRequestMission                    (StateMachine* stateMachine);
-    static void _stateRequestGeoFence                   (StateMachine* stateMachine);
-    static void _stateRequestRallyPoints                (StateMachine* stateMachine);
-    static void _stateSignalInitialConnectComplete      (StateMachine* stateMachine);
+  private:
+    static void _stateRequestAutopilotVersion(StateMachine *stateMachine);
+    static void _stateRequestProtocolVersion(StateMachine *stateMachine);
+    static void _stateRequestCompInfo(StateMachine *stateMachine);
+    static void _stateRequestStandardModes(StateMachine *stateMachine);
+    static void _stateRequestCompInfoComplete(void *requestAllCompleteFnData);
+    static void _stateRequestParameters(StateMachine *stateMachine);
+    static void _stateRequestMission(StateMachine *stateMachine);
+    static void _stateRequestGeoFence(StateMachine *stateMachine);
+    static void _stateRequestRallyPoints(StateMachine *stateMachine);
+    static void _stateSignalInitialConnectComplete(StateMachine *stateMachine);
 
-    static void _autopilotVersionRequestMessageHandler  (void* resultHandlerData, MAV_RESULT commandResult, Vehicle::RequestMessageResultHandlerFailureCode_t failureCode, const mavlink_message_t& message);
-    static void _protocolVersionRequestMessageHandler   (void* resultHandlerData, MAV_RESULT commandResult, Vehicle::RequestMessageResultHandlerFailureCode_t failureCode, const mavlink_message_t& message);
+    static void _autopilotVersionRequestMessageHandler(void *resultHandlerData, MAV_RESULT commandResult, Vehicle::RequestMessageResultHandlerFailureCode_t failureCode, const mavlink_message_t &message);
+    static void _protocolVersionRequestMessageHandler(void *resultHandlerData, MAV_RESULT commandResult, Vehicle::RequestMessageResultHandlerFailureCode_t failureCode, const mavlink_message_t &message);
 
     float _progress(float subProgress = 0.f);
 
-    Vehicle* _vehicle;
+    Vehicle *_vehicle;
 
     int _progressWeightTotal;
 
-    static constexpr const StateMachine::StateFn _rgStates[] = {
-        _stateRequestAutopilotVersion,
-        _stateRequestProtocolVersion,
-        _stateRequestStandardModes,
-        _stateRequestCompInfo,
-        _stateRequestParameters,
-        _stateRequestMission,
-        _stateRequestGeoFence,
-        _stateRequestRallyPoints,
-        _stateSignalInitialConnectComplete
-    };
+    static constexpr const StateMachine::StateFn _rgStates[] = { _stateRequestAutopilotVersion, _stateRequestProtocolVersion, _stateRequestStandardModes,        _stateRequestCompInfo, _stateRequestParameters, _stateRequestMission,
+                                                                 _stateRequestGeoFence,         _stateRequestRallyPoints,     _stateSignalInitialConnectComplete };
 
     static constexpr const int _rgProgressWeights[] = {
         1, //_stateRequestCapabilities

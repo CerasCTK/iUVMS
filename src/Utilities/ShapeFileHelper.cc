@@ -12,8 +12,7 @@
 #include "KMLHelper.h"
 #include "SHPFileHelper.h"
 
-QVariantList ShapeFileHelper::determineShapeType(const QString& file)
-{
+QVariantList ShapeFileHelper::determineShapeType(const QString &file) {
     QString errorString;
     ShapeType shapeType = determineShapeType(file, errorString);
 
@@ -24,8 +23,7 @@ QVariantList ShapeFileHelper::determineShapeType(const QString& file)
     return varList;
 }
 
-bool ShapeFileHelper::_fileIsKML(const QString& file, QString& errorString)
-{
+bool ShapeFileHelper::_fileIsKML(const QString &file, QString &errorString) {
     errorString.clear();
 
     if (file.endsWith(AppSettings::kmlFileExtension)) {
@@ -39,8 +37,7 @@ bool ShapeFileHelper::_fileIsKML(const QString& file, QString& errorString)
     return true;
 }
 
-ShapeFileHelper::ShapeType ShapeFileHelper::determineShapeType(const QString& file, QString& errorString)
-{
+ShapeFileHelper::ShapeType ShapeFileHelper::determineShapeType(const QString &file, QString &errorString) {
     ShapeType shapeType = Error;
 
     errorString.clear();
@@ -57,8 +54,7 @@ ShapeFileHelper::ShapeType ShapeFileHelper::determineShapeType(const QString& fi
     return shapeType;
 }
 
-bool ShapeFileHelper::loadPolygonFromFile(const QString& file, QList<QGeoCoordinate>& vertices, QString& errorString)
-{
+bool ShapeFileHelper::loadPolygonFromFile(const QString &file, QList<QGeoCoordinate> &vertices, QString &errorString) {
     bool success = false;
 
     errorString.clear();
@@ -76,8 +72,7 @@ bool ShapeFileHelper::loadPolygonFromFile(const QString& file, QList<QGeoCoordin
     return success;
 }
 
-bool ShapeFileHelper::loadPolylineFromFile(const QString& file, QList<QGeoCoordinate>& coords, QString& errorString)
-{
+bool ShapeFileHelper::loadPolylineFromFile(const QString &file, QList<QGeoCoordinate> &coords, QString &errorString) {
     errorString.clear();
     coords.clear();
 
@@ -93,12 +88,6 @@ bool ShapeFileHelper::loadPolylineFromFile(const QString& file, QList<QGeoCoordi
     return errorString.isEmpty();
 }
 
-QStringList ShapeFileHelper::fileDialogKMLFilters(void) const
-{
-    return QStringList(tr("KML Files (*.%1)").arg(AppSettings::kmlFileExtension));
-}
+QStringList ShapeFileHelper::fileDialogKMLFilters(void) const { return QStringList(tr("KML Files (*.%1)").arg(AppSettings::kmlFileExtension)); }
 
-QStringList ShapeFileHelper::fileDialogKMLOrSHPFilters(void) const
-{
-    return QStringList(tr("KML/SHP Files (*.%1 *.%2)").arg(AppSettings::kmlFileExtension).arg(AppSettings::shpFileExtension));
-}
+QStringList ShapeFileHelper::fileDialogKMLOrSHPFilters(void) const { return QStringList(tr("KML/SHP Files (*.%1 *.%2)").arg(AppSettings::kmlFileExtension).arg(AppSettings::shpFileExtension)); }

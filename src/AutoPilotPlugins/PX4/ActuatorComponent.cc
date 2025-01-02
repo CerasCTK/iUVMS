@@ -8,18 +8,15 @@
  ****************************************************************************/
 
 #include "ActuatorComponent.h"
-#include "QGCApplication.h"
-#include "GeometryImage.h"
 #include "Actuators/Actuators.h"
+#include "GeometryImage.h"
+#include "QGCApplication.h"
 
 #include <QtQml/QQmlApplicationEngine>
 
-static bool imageProviderAdded{false};
+static bool imageProviderAdded{ false };
 
-ActuatorComponent::ActuatorComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent) :
-    VehicleComponent(vehicle, autopilot, parent),
-    _name(tr("Actuators")), _actuators(*vehicle->actuators())
-{
+ActuatorComponent::ActuatorComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent) : VehicleComponent(vehicle, autopilot, parent), _name(tr("Actuators")), _actuators(*vehicle->actuators()) {
     if (!imageProviderAdded) {
         // TODO: qmlAppEngine should not be accessed inside app
         qgcApp()->qmlAppEngine()->addImageProvider(QLatin1String("actuators"), GeometryImage::VehicleGeometryImageProvider::instance());
@@ -29,42 +26,18 @@ ActuatorComponent::ActuatorComponent(Vehicle* vehicle, AutoPilotPlugin* autopilo
     connect(&_actuators, &Actuators::hasUnsetRequiredFunctionsChanged, this, [this]() { _triggerUpdated({}); });
 }
 
-QString ActuatorComponent::name(void) const
-{
-    return _name;
-}
+QString ActuatorComponent::name(void) const { return _name; }
 
-QString ActuatorComponent::description(void) const
-{
-    return "";
-}
+QString ActuatorComponent::description(void) const { return ""; }
 
-QString ActuatorComponent::iconResource(void) const
-{
-    return QStringLiteral("/qmlimages/MotorComponentIcon.svg");
-}
+QString ActuatorComponent::iconResource(void) const { return QStringLiteral("/qmlimages/MotorComponentIcon.svg"); }
 
-bool ActuatorComponent::requiresSetup(void) const
-{
-    return true;
-}
+bool ActuatorComponent::requiresSetup(void) const { return true; }
 
-bool ActuatorComponent::setupComplete(void) const
-{
-    return !_actuators.hasUnsetRequiredFunctions();
-}
+bool ActuatorComponent::setupComplete(void) const { return !_actuators.hasUnsetRequiredFunctions(); }
 
-QStringList ActuatorComponent::setupCompleteChangedTriggerList(void) const
-{
-    return QStringList();
-}
+QStringList ActuatorComponent::setupCompleteChangedTriggerList(void) const { return QStringList(); }
 
-QUrl ActuatorComponent::setupSource(void) const
-{
-    return QUrl::fromUserInput(QStringLiteral("qrc:/qml/ActuatorComponent.qml"));
-}
+QUrl ActuatorComponent::setupSource(void) const { return QUrl::fromUserInput(QStringLiteral("qrc:/qml/ActuatorComponent.qml")); }
 
-QUrl ActuatorComponent::summaryQmlSource(void) const
-{
-    return QUrl();
-}
+QUrl ActuatorComponent::summaryQmlSource(void) const { return QUrl(); }

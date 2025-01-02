@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include "FactPanelController.h"
@@ -18,25 +17,24 @@
 
 Q_DECLARE_LOGGING_CATEGORY(RCChannelMonitorControllerLog)
 
-class RCChannelMonitorController : public FactPanelController
-{
+class RCChannelMonitorController : public FactPanelController {
     Q_OBJECT
     QML_ELEMENT
     Q_PROPERTY(int channelCount READ channelCount NOTIFY channelCountChanged)
 
-public:
+  public:
     explicit RCChannelMonitorController(QObject *parent = nullptr);
     ~RCChannelMonitorController();
 
     int channelCount() const { return _chanCount; }
 
-signals:
+  signals:
     void channelCountChanged(int channelCount);
     void channelRCValueChanged(int channel, int rcValue);
 
-private slots:
+  private slots:
     void _rcChannelsChanged(int channelCount, int pwmValues[QGCMAVLink::maxRcChannels]);
 
-private:
+  private:
     int _chanCount = 0;
 };

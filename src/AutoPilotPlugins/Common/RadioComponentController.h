@@ -7,8 +7,6 @@
  *
  ****************************************************************************/
 
-
-
 /// @file
 ///     @brief Radio Config Qml Controller
 ///     @author Don Gagne <don@thegagnes.com
@@ -18,8 +16,8 @@
 #include "FactPanelController.h"
 #include "QGCMAVLink.h"
 
-#include <QtCore/QLoggingCategory>
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QLoggingCategory>
 #include <QtQuick/QQuickItem>
 
 Q_DECLARE_LOGGING_CATEGORY(RadioComponentControllerLog)
@@ -31,24 +29,22 @@ namespace Ui {
     class RadioComponentController;
 }
 
-
-class RadioComponentController : public FactPanelController
-{
+class RadioComponentController : public FactPanelController {
     Q_OBJECT
 
-    //friend class RadioConfigTest; ///< This allows our unit test to access internal information needed.
+    // friend class RadioConfigTest; ///< This allows our unit test to access internal information needed.
 
-public:
+  public:
     RadioComponentController(void);
     ~RadioComponentController();
 
     Q_PROPERTY(int minChannelCount MEMBER _chanMinimum CONSTANT)
     Q_PROPERTY(int channelCount READ channelCount NOTIFY channelCountChanged)
 
-    Q_PROPERTY(QQuickItem* statusText   MEMBER _statusText      NOTIFY statusTextChanged)
-    Q_PROPERTY(QQuickItem* cancelButton MEMBER _cancelButton    NOTIFY cancelButtonChanged)
-    Q_PROPERTY(QQuickItem* nextButton   MEMBER _nextButton      NOTIFY nextButtonChanged)
-    Q_PROPERTY(QQuickItem* skipButton   MEMBER _skipButton      NOTIFY skipButtonChanged)
+    Q_PROPERTY(QQuickItem *statusText MEMBER _statusText NOTIFY statusTextChanged)
+    Q_PROPERTY(QQuickItem *cancelButton MEMBER _cancelButton NOTIFY cancelButtonChanged)
+    Q_PROPERTY(QQuickItem *nextButton MEMBER _nextButton NOTIFY nextButtonChanged)
+    Q_PROPERTY(QQuickItem *skipButton MEMBER _skipButton NOTIFY skipButtonChanged)
 
     Q_PROPERTY(bool rollChannelMapped READ rollChannelMapped NOTIFY rollChannelMappedChanged)
     Q_PROPERTY(bool pitchChannelMapped READ pitchChannelMapped NOTIFY pitchChannelMappedChanged)
@@ -68,11 +64,7 @@ public:
     Q_PROPERTY(int transmitterMode READ transmitterMode WRITE setTransmitterMode NOTIFY transmitterModeChanged)
     Q_PROPERTY(QString imageHelp MEMBER _imageHelp NOTIFY imageHelpChanged)
 
-    enum BindModes {
-        DSM2,
-        DSMX7,
-        DSMX8
-    };
+    enum BindModes { DSM2, DSMX7, DSMX8 };
     Q_ENUM(BindModes)
 
     Q_INVOKABLE void spektrumBindMode(int mode);
@@ -100,10 +92,11 @@ public:
 
     int channelCount(void) const;
 
-    int transmitterMode(void) const{ return _transmitterMode; }
+    int transmitterMode(void) const { return _transmitterMode; }
+
     void setTransmitterMode(int mode);
 
-signals:
+  signals:
     void statusTextChanged(void);
     void cancelButtonChanged(void);
     void nextButtonChanged(void);
@@ -139,10 +132,10 @@ signals:
     /// Signalled to Qml to indicate cal failure due to reversed throttle
     void throttleReversedCalFailure(void);
 
-private slots:
+  private slots:
     void _rcChannelsChanged(int channelCount, int pwmValues[QGCMAVLink::maxRcChannels]);
 
-private:
+  private:
     /// @brief These identify the various controls functions. They are also used as indices into the _rgFunctioInfo
     /// array.
     enum rcCalFunctions {
@@ -154,46 +147,38 @@ private:
     };
 
     /// @brief The states of the calibration state machine.
-    enum rcCalStates {
-        rcCalStateChannelWait,
-        rcCalStateBegin,
-        rcCalStateIdentify,
-        rcCalStateMinMax,
-        rcCalStateCenterThrottle,
-        rcCalStateDetectInversion,
-        rcCalStateTrims,
-        rcCalStateSave
-    };
+    enum rcCalStates { rcCalStateChannelWait, rcCalStateBegin, rcCalStateIdentify, rcCalStateMinMax, rcCalStateCenterThrottle, rcCalStateDetectInversion, rcCalStateTrims, rcCalStateSave };
 
     typedef void (RadioComponentController::*inputFn)(enum rcCalFunctions function, int chan, int value);
     typedef void (RadioComponentController::*buttonFn)(void);
+
     struct stateMachineEntry {
         enum rcCalFunctions function;
-        const char*         instructions;
-        const char*         image;
-        inputFn             rcInputFn;
-        buttonFn            nextFn;
-        buttonFn            skipFn;
+        const char *instructions;
+        const char *image;
+        inputFn rcInputFn;
+        buttonFn nextFn;
+        buttonFn skipFn;
     };
 
     /// @brief A set of information associated with a function.
     struct FunctionInfo {
-        const char* parameterName;  ///< Parameter name for function mapping
+        const char *parameterName; ///< Parameter name for function mapping
     };
 
     /// @brief A set of information associated with a radio channel.
     struct ChannelInfo {
-        enum rcCalFunctions function;   ///< Function mapped to this channel, rcCalFunctionMax for none
-        bool                reversed;   ///< true: channel is reverse, false: not reversed
-        int                 rcMin;      ///< Minimum RC value
-        int                 rcMax;      ///< Maximum RC value
-        int                 rcTrim;     ///< Trim position
+        enum rcCalFunctions function; ///< Function mapped to this channel, rcCalFunctionMax for none
+        bool reversed;                ///< true: channel is reverse, false: not reversed
+        int rcMin;                    ///< Minimum RC value
+        int rcMax;                    ///< Maximum RC value
+        int rcTrim;                   ///< Trim position
     };
 
-    int _currentStep;  ///< Current step of state machine
+    int _currentStep; ///< Current step of state machine
 
-    const struct stateMachineEntry* _getStateMachineEntry(int step) const;
-    const struct FunctionInfo* _functionInfo(void) const;
+    const struct stateMachineEntry *_getStateMachineEntry(int step) const;
+    const struct FunctionInfo *_functionInfo(void) const;
     bool _px4Vehicle(void) const;
 
     void _advanceState(void);
@@ -225,7 +210,7 @@ private:
 
     void _rcCalSaveCurrentValues(void);
 
-    void _setHelpImage(const char* imageFile);
+    void _setHelpImage(const char *imageFile);
 
     void _loadSettings(void);
     void _storeSettings(void);
@@ -236,99 +221,89 @@ private:
     void _setChannelReversedParamValue(int channel, bool reversed);
 
     // @brief Called by unit test code to set the mode to unit testing
-    void _setUnitTestMode(void){ _unitTestMode = true; }
+    void _setUnitTestMode(void) { _unitTestMode = true; }
 
     // Member variables
 
-    int _transmitterMode;   ///< 1: transmitter is mode 1, 2: transmitted is mode 2
+    int _transmitterMode; ///< 1: transmitter is mode 1, 2: transmitted is mode 2
 
-    int _rgFunctionChannelMapping[rcCalFunctionMax];                    ///< Maps from rcCalFunctions to channel index. _chanMax indicates channel not set for this function.
+    int _rgFunctionChannelMapping[rcCalFunctionMax]; ///< Maps from rcCalFunctions to channel index. _chanMax indicates channel not set for this function.
 
     static const int _attitudeControls = 5;
 
-    int _chanCount;                     ///< Number of actual rc channels available
-    static const int _chanMax = 18;     ///< Maximum number of support rc channels by this implementation
-    static const int _chanMinimum = 5;  ///< Minimum numner of channels required to run
+    int _chanCount;                    ///< Number of actual rc channels available
+    static const int _chanMax = 18;    ///< Maximum number of support rc channels by this implementation
+    static const int _chanMinimum = 5; ///< Minimum numner of channels required to run
 
-    struct ChannelInfo _rgChannelInfo[_chanMax];    ///< Information associated with each rc channel
+    struct ChannelInfo _rgChannelInfo[_chanMax]; ///< Information associated with each rc channel
 
-    enum rcCalStates _rcCalState;       ///< Current calibration state
-    int _rcCalStateCurrentChannel;      ///< Current channel being worked on in rcCalStateIdentify and rcCalStateDetectInversion
-    bool _rcCalStateChannelComplete;    ///< Work associated with current channel is complete
-    int _rcCalStateIdentifyOldMapping;  ///< Previous mapping for channel being currently identified
-    int _rcCalStateReverseOldMapping;   ///< Previous mapping for channel being currently used to detect inversion
+    enum rcCalStates _rcCalState;      ///< Current calibration state
+    int _rcCalStateCurrentChannel;     ///< Current channel being worked on in rcCalStateIdentify and rcCalStateDetectInversion
+    bool _rcCalStateChannelComplete;   ///< Work associated with current channel is complete
+    int _rcCalStateIdentifyOldMapping; ///< Previous mapping for channel being currently identified
+    int _rcCalStateReverseOldMapping;  ///< Previous mapping for channel being currently used to detect inversion
 
-    QString             _revParamFormat;
-    bool                _revParamIsBool;
+    QString _revParamFormat;
+    bool _revParamIsBool;
 
-    int _rcValueSave[_chanMax];        ///< Saved values prior to detecting channel movement
+    int _rcValueSave[_chanMax]; ///< Saved values prior to detecting channel movement
 
-    int _rcRawValue[_chanMax];         ///< Current set of raw channel values
+    int _rcRawValue[_chanMax]; ///< Current set of raw channel values
 
-    int     _stickDetectChannel;
-    int     _stickDetectValue;
-    bool    _stickDetectSettleStarted;
-    QElapsedTimer   _stickDetectSettleElapsed;
+    int _stickDetectChannel;
+    int _stickDetectValue;
+    bool _stickDetectSettleStarted;
+    QElapsedTimer _stickDetectSettleElapsed;
 
-    bool        _unitTestMode   = false;
+    bool _unitTestMode = false;
 
-    QQuickItem* _statusText     = nullptr;
-    QQuickItem* _cancelButton   = nullptr;
-    QQuickItem* _nextButton     = nullptr;
-    QQuickItem* _skipButton     = nullptr;
+    QQuickItem *_statusText = nullptr;
+    QQuickItem *_cancelButton = nullptr;
+    QQuickItem *_nextButton = nullptr;
+    QQuickItem *_skipButton = nullptr;
 
     QString _imageHelp;
 
 #ifdef UNITTEST_BUILD
     // Nasty hack to expose controller to unit test code
-    static RadioComponentController*    _unitTestController;
+    static RadioComponentController *_unitTestController;
 #endif
 
-    static constexpr int _updateInterval = 150;              ///< Interval for timer which updates radio channel widgets
-    static constexpr int _rcCalPWMValidMinValue =    1300;   ///< Largest valid minimum PWM Min range value
-    static constexpr int _rcCalPWMValidMaxValue =    1700;   ///< Smallest valid maximum PWM Max range value
+    static constexpr int _updateInterval = 150;         ///< Interval for timer which updates radio channel widgets
+    static constexpr int _rcCalPWMValidMinValue = 1300; ///< Largest valid minimum PWM Min range value
+    static constexpr int _rcCalPWMValidMaxValue = 1700; ///< Smallest valid maximum PWM Max range value
     static constexpr int _rcCalPWMCenterPoint = ((_rcCalPWMValidMaxValue - _rcCalPWMValidMinValue) / 2.0f) + _rcCalPWMValidMinValue;
-    static constexpr int _rcCalPWMDefaultMinValue =  1000;   ///< Default value for Min if not set
-    static constexpr int _rcCalPWMDefaultMaxValue =  2000;   ///< Default value for Max if not set
-    static constexpr int _rcCalRoughCenterDelta =    50;     ///< Delta around center point which is considered to be roughly centered
-    static constexpr int _rcCalMoveDelta =           300;    ///< Amount of delta past center which is considered stick movement
-    static constexpr int _rcCalSettleDelta =         20;     ///< Amount of delta which is considered no stick movement
-    static constexpr int _rcCalMinDelta =            100;    ///< Amount of delta allowed around min value to consider channel at min
+    static constexpr int _rcCalPWMDefaultMinValue = 1000; ///< Default value for Min if not set
+    static constexpr int _rcCalPWMDefaultMaxValue = 2000; ///< Default value for Max if not set
+    static constexpr int _rcCalRoughCenterDelta = 50;     ///< Delta around center point which is considered to be roughly centered
+    static constexpr int _rcCalMoveDelta = 300;           ///< Amount of delta past center which is considered stick movement
+    static constexpr int _rcCalSettleDelta = 20;          ///< Amount of delta which is considered no stick movement
+    static constexpr int _rcCalMinDelta = 100;            ///< Amount of delta allowed around min value to consider channel at min
 
     static constexpr int _stickDetectSettleMSecs = 500;
 
-    static constexpr const char*  _imageFilePrefix =   "calibration/";
-    static constexpr const char*  _imageFileMode1Dir = "mode1/";
-    static constexpr const char*  _imageFileMode2Dir = "mode2/";
-    static constexpr const char*  _imageCenter =       "radioCenter.png";
-    static constexpr const char*  _imageHome =         "radioHome.png";
-    static constexpr const char*  _imageThrottleUp =   "radioThrottleUp.png";
-    static constexpr const char*  _imageThrottleDown = "radioThrottleDown.png";
-    static constexpr const char*  _imageYawLeft =      "radioYawLeft.png";
-    static constexpr const char*  _imageYawRight =     "radioYawRight.png";
-    static constexpr const char*  _imageRollLeft =     "radioRollLeft.png";
-    static constexpr const char*  _imageRollRight =    "radioRollRight.png";
-    static constexpr const char*  _imagePitchUp =      "radioPitchUp.png";
-    static constexpr const char*  _imagePitchDown =    "radioPitchDown.png";
-    static constexpr const char*  _imageSwitchMinMax = "radioSwitchMinMax.png";
+    static constexpr const char *_imageFilePrefix = "calibration/";
+    static constexpr const char *_imageFileMode1Dir = "mode1/";
+    static constexpr const char *_imageFileMode2Dir = "mode2/";
+    static constexpr const char *_imageCenter = "radioCenter.png";
+    static constexpr const char *_imageHome = "radioHome.png";
+    static constexpr const char *_imageThrottleUp = "radioThrottleUp.png";
+    static constexpr const char *_imageThrottleDown = "radioThrottleDown.png";
+    static constexpr const char *_imageYawLeft = "radioYawLeft.png";
+    static constexpr const char *_imageYawRight = "radioYawRight.png";
+    static constexpr const char *_imageRollLeft = "radioRollLeft.png";
+    static constexpr const char *_imageRollRight = "radioRollRight.png";
+    static constexpr const char *_imagePitchUp = "radioPitchUp.png";
+    static constexpr const char *_imagePitchDown = "radioPitchDown.png";
+    static constexpr const char *_imageSwitchMinMax = "radioSwitchMinMax.png";
 
-    static constexpr const char* _settingsGroup =              "RadioCalibration";
-    static constexpr const char* _settingsKeyTransmitterMode = "TransmitterMode";
+    static constexpr const char *_settingsGroup = "RadioCalibration";
+    static constexpr const char *_settingsKeyTransmitterMode = "TransmitterMode";
 
-    static constexpr const char* _px4RevParamFormat =      "RC%1_REV";
-    static constexpr const char* _apmNewRevParamFormat =   "RC%1_REVERSED";
+    static constexpr const char *_px4RevParamFormat = "RC%1_REV";
+    static constexpr const char *_apmNewRevParamFormat = "RC%1_REVERSED";
 
-    static constexpr const struct FunctionInfo _rgFunctionInfoPX4[rcCalFunctionMax] = {
-        { "RC_MAP_ROLL" },
-        { "RC_MAP_PITCH" },
-        { "RC_MAP_YAW" },
-        { "RC_MAP_THROTTLE" }
-    };
+    static constexpr const struct FunctionInfo _rgFunctionInfoPX4[rcCalFunctionMax] = { { "RC_MAP_ROLL" }, { "RC_MAP_PITCH" }, { "RC_MAP_YAW" }, { "RC_MAP_THROTTLE" } };
 
-    static constexpr const struct FunctionInfo _rgFunctionInfoAPM[rcCalFunctionMax] = {
-        { "RCMAP_ROLL" },
-        { "RCMAP_PITCH" },
-        { "RCMAP_YAW" },
-        { "RCMAP_THROTTLE" }
-    };
+    static constexpr const struct FunctionInfo _rgFunctionInfoAPM[rcCalFunctionMax] = { { "RCMAP_ROLL" }, { "RCMAP_PITCH" }, { "RCMAP_YAW" }, { "RCMAP_THROTTLE" } };
 };

@@ -35,13 +35,11 @@
 #include "qt6glitem.h"
 #include <QtQml/QQmlApplicationEngine>
 
-void
-qt6_element_init (GstPlugin * plugin)
-{
-  static gsize res = FALSE;
-  if (g_once_init_enter (&res)) {
-    /* this means the plugin must be loaded before the qml engine is loaded */
-    qmlRegisterType<Qt6GLVideoItem> ("org.freedesktop.gstreamer.Qt6GLVideoItem", 1, 0, "GstGLQt6VideoItem");
-    g_once_init_leave (&res, TRUE);
-  }
+void qt6_element_init(GstPlugin *plugin) {
+    static gsize res = FALSE;
+    if (g_once_init_enter(&res)) {
+        /* this means the plugin must be loaded before the qml engine is loaded */
+        qmlRegisterType<Qt6GLVideoItem>("org.freedesktop.gstreamer.Qt6GLVideoItem", 1, 0, "GstGLQt6VideoItem");
+        g_once_init_leave(&res, TRUE);
+    }
 }

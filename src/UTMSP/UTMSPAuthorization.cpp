@@ -8,27 +8,22 @@
  ****************************************************************************/
 
 // #include <nlohmann/json.hpp>
-#include <string>
-#include <QByteArray>
 #include <QBitArray>
+#include <QByteArray>
 #include <QString>
+#include <string>
 
-#include "UTMSPLogger.h"
-#include "UTMSPAuthorization.h"
 #include "parse/nlohmann/json.hpp"
+#include "UTMSPAuthorization.h"
+#include "UTMSPLogger.h"
 
 using json = nlohmann::ordered_json;
 
-UTMSPAuthorization::UTMSPAuthorization(QObject *parent):
-    QObject(parent)
-{
-
-}
+UTMSPAuthorization::UTMSPAuthorization(QObject *parent) : QObject(parent) {}
 
 thread_local std::string clientToken = "";
 
-bool UTMSPAuthorization::requestOAuth2Client(const QString &clientID, const QString &clientSecret)
-{
+bool UTMSPAuthorization::requestOAuth2Client(const QString &clientID, const QString &clientSecret) {
     QString combinedCredential = clientID + ":" + clientSecret;
     QString encodedBasicToken = combinedCredential.toUtf8().toBase64();
     _utmspRestInterface.setBasicToken(encodedBasicToken);
@@ -39,20 +34,16 @@ bool UTMSPAuthorization::requestOAuth2Client(const QString &clientID, const QStr
     auto [status, response] = _utmspRestInterface.executeRequest();
     UTMSP_LOG_INFO() << "UTMSPAuthorization: Authorization Response: " << response;
 
-    if(status == 200)
-    {
+    if (status == 200) {
         try {
             json responseJson = json::parse(response);
             clientToken = responseJson["access_token"];
             _isValidToken = true;
-        }
-        catch (const json::parse_error& e) {
+        } catch (const json::parse_error &e) {
             UTMSP_LOG_ERROR() << "UTMSPAuthorization: Invalid Token: " << e.what();
             _isValidToken = false;
         }
-    }
-    else
-    {
+    } else {
         UTMSP_LOG_ERROR() << "UTMSPAuthorization: Invalid Status Code ";
         _isValidToken = false;
     }
@@ -60,7 +51,4 @@ bool UTMSPAuthorization::requestOAuth2Client(const QString &clientID, const QStr
     return _isValidToken;
 }
 
-const std::string &UTMSPAuthorization::getOAuth2Token()
-{
-    return clientToken;
-}
+const std::string &UTMSPAuthorization::getOAuth2Token() { return clientToken; }

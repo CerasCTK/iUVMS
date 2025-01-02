@@ -8,12 +8,12 @@
  ****************************************************************************/
 
 #include "CorridorScanComplexItem.h"
-#include "JsonHelper.h"
-#include "SettingsManager.h"
 #include "AppSettings.h"
+#include "JsonHelper.h"
 #include "PlanMasterController.h"
 #include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
+#include "SettingsManager.h"
 
 #include <QtCore/QJsonArray>
 
@@ -21,12 +21,9 @@ QGC_LOGGING_CATEGORY(CorridorScanComplexItemLog, "CorridorScanComplexItemLog")
 
 const QString CorridorScanComplexItem::name(CorridorScanComplexItem::tr("Corridor Scan"));
 
-CorridorScanComplexItem::CorridorScanComplexItem(PlanMasterController* masterController, bool flyView, const QString& kmlFile)
-    : TransectStyleComplexItem  (masterController, flyView, settingsGroup)
-    , _entryPoint               (0)
-    , _metaDataMap              (FactMetaData::createMapFromJsonFile(QStringLiteral(":/json/CorridorScan.SettingsGroup.json"), this))
-    , _corridorWidthFact        (settingsGroup, _metaDataMap[corridorWidthName])
-{
+CorridorScanComplexItem::CorridorScanComplexItem(PlanMasterController *masterController, bool flyView, const QString &kmlFile)
+    : TransectStyleComplexItem(masterController, flyView, settingsGroup), _entryPoint(0), _metaDataMap(FactMetaData::createMapFromJsonFile(QStringLiteral(":/json/CorridorScan.SettingsGroup.json"), this)),
+      _corridorWidthFact(settingsGroup, _metaDataMap[corridorWidthName]) {
     _editorQml = "qrc:/qml/CorridorScanEditor.qml";
 
     // We override the altitude to the mission default
@@ -34,16 +31,16 @@ CorridorScanComplexItem::CorridorScanComplexItem(PlanMasterController* masterCon
         _cameraCalc.distanceToSurface()->setRawValue(SettingsManager::instance()->appSettings()->defaultMissionItemAltitude()->rawValue());
     }
 
-    connect(&_corridorWidthFact,    &Fact::valueChanged,                            this, &CorridorScanComplexItem::_setDirty);
-    connect(&_corridorPolyline,     &QGCMapPolyline::pathChanged,                   this, &CorridorScanComplexItem::_setDirty);
+    connect(&_corridorWidthFact, &Fact::valueChanged, this, &CorridorScanComplexItem::_setDirty);
+    connect(&_corridorPolyline, &QGCMapPolyline::pathChanged, this, &CorridorScanComplexItem::_setDirty);
 
-    connect(&_corridorPolyline,     &QGCMapPolyline::dirtyChanged,                  this, &CorridorScanComplexItem::_polylineDirtyChanged);
+    connect(&_corridorPolyline, &QGCMapPolyline::dirtyChanged, this, &CorridorScanComplexItem::_polylineDirtyChanged);
 
-    connect(&_corridorPolyline,     &QGCMapPolyline::pathChanged,                   this, &CorridorScanComplexItem::_rebuildCorridorPolygon);
-    connect(&_corridorWidthFact,    &Fact::valueChanged,                            this, &CorridorScanComplexItem::_rebuildCorridorPolygon);
+    connect(&_corridorPolyline, &QGCMapPolyline::pathChanged, this, &CorridorScanComplexItem::_rebuildCorridorPolygon);
+    connect(&_corridorWidthFact, &Fact::valueChanged, this, &CorridorScanComplexItem::_rebuildCorridorPolygon);
 
-    connect(&_corridorPolyline,     &QGCMapPolyline::isValidChanged,                this, &CorridorScanComplexItem::_updateWizardMode);
-    connect(&_corridorPolyline,     &QGCMapPolyline::traceModeChanged,              this, &CorridorScanComplexItem::_updateWizardMode);
+    connect(&_corridorPolyline, &QGCMapPolyline::isValidChanged, this, &CorridorScanComplexItem::_updateWizardMode);
+    connect(&_corridorPolyline, &QGCMapPolyline::traceModeChanged, this, &CorridorScanComplexItem::_updateWizardMode);
 
     if (!kmlFile.isEmpty()) {
         _corridorPolyline.loadKMLFile(kmlFile);
@@ -52,37 +49,33 @@ CorridorScanComplexItem::CorridorScanComplexItem(PlanMasterController* masterCon
     setDirty(false);
 }
 
-void CorridorScanComplexItem::save(QJsonArray&  planItems)
-{
+void CorridorScanComplexItem::save(QJsonArray &planItems) {
     QJsonObject saveObject;
 
     _saveCommon(saveObject);
     planItems.append(saveObject);
 }
 
-void CorridorScanComplexItem::savePreset(const QString& name)
-{
+void CorridorScanComplexItem::savePreset(const QString &name) {
     QJsonObject saveObject;
 
     _saveCommon(saveObject);
     _savePresetJson(name, saveObject);
 }
 
-void CorridorScanComplexItem::_saveCommon(QJsonObject& saveObject)
-{
+void CorridorScanComplexItem::_saveCommon(QJsonObject &saveObject) {
     TransectStyleComplexItem::_save(saveObject);
 
-    saveObject[JsonHelper::jsonVersionKey] =                    2;
-    saveObject[VisualMissionItem::jsonTypeKey] =                VisualMissionItem::jsonTypeComplexItemValue;
-    saveObject[ComplexMissionItem::jsonComplexItemTypeKey] =    jsonComplexItemTypeValue;
-    saveObject[corridorWidthName] =                             _corridorWidthFact.rawValue().toDouble();
-    saveObject[_jsonEntryPointKey] =                            _entryPoint;
+    saveObject[JsonHelper::jsonVersionKey] = 2;
+    saveObject[VisualMissionItem::jsonTypeKey] = VisualMissionItem::jsonTypeComplexItemValue;
+    saveObject[ComplexMissionItem::jsonComplexItemTypeKey] = jsonComplexItemTypeValue;
+    saveObject[corridorWidthName] = _corridorWidthFact.rawValue().toDouble();
+    saveObject[_jsonEntryPointKey] = _entryPoint;
 
     _corridorPolyline.saveToJson(saveObject);
 }
 
-void CorridorScanComplexItem::loadPreset(const QString& name)
-{
+void CorridorScanComplexItem::loadPreset(const QString &name) {
     QString errorString;
 
     QJsonObject presetObject = _loadPresetJson(name);
@@ -92,17 +85,16 @@ void CorridorScanComplexItem::loadPreset(const QString& name)
     _rebuildTransects();
 }
 
-bool CorridorScanComplexItem::_loadWorker(const QJsonObject& complexObject, int sequenceNumber, QString& errorString, bool forPresets)
-{
+bool CorridorScanComplexItem::_loadWorker(const QJsonObject &complexObject, int sequenceNumber, QString &errorString, bool forPresets) {
     _ignoreRecalc = !forPresets;
 
     QList<JsonHelper::KeyValidateInfo> keyInfoList = {
-        { JsonHelper::jsonVersionKey,                   QJsonValue::Double, true },
-        { VisualMissionItem::jsonTypeKey,               QJsonValue::String, true },
-        { ComplexMissionItem::jsonComplexItemTypeKey,   QJsonValue::String, true },
-        { corridorWidthName,                            QJsonValue::Double, true },
-        { _jsonEntryPointKey,                           QJsonValue::Double, true },
-        { QGCMapPolyline::jsonPolylineKey,              QJsonValue::Array,  true },
+        { JsonHelper::jsonVersionKey, QJsonValue::Double, true },
+        { VisualMissionItem::jsonTypeKey, QJsonValue::String, true },
+        { ComplexMissionItem::jsonComplexItemTypeKey, QJsonValue::String, true },
+        { corridorWidthName, QJsonValue::Double, true },
+        { _jsonEntryPointKey, QJsonValue::Double, true },
+        { QGCMapPolyline::jsonPolylineKey, QJsonValue::Array, true },
     };
     if (!JsonHelper::validateKeys(complexObject, keyInfoList, errorString)) {
         _ignoreRecalc = false;
@@ -153,31 +145,22 @@ bool CorridorScanComplexItem::_loadWorker(const QJsonObject& complexObject, int 
     return true;
 }
 
-bool CorridorScanComplexItem::load(const QJsonObject& complexObject, int sequenceNumber, QString& errorString)
-{
-    return _loadWorker(complexObject, sequenceNumber, errorString, false /* forPresets */);
-}
+bool CorridorScanComplexItem::load(const QJsonObject &complexObject, int sequenceNumber, QString &errorString) { return _loadWorker(complexObject, sequenceNumber, errorString, false /* forPresets */); }
 
-bool CorridorScanComplexItem::specifiesCoordinate(void) const
-{
-    return _corridorPolyline.count() > 1;
-}
+bool CorridorScanComplexItem::specifiesCoordinate(void) const { return _corridorPolyline.count() > 1; }
 
-int CorridorScanComplexItem::_calcTransectCount(void) const
-{
+int CorridorScanComplexItem::_calcTransectCount(void) const {
     double fullWidth = _corridorWidthFact.rawValue().toDouble();
     return fullWidth > 0.0 ? qCeil(fullWidth / _calcTransectSpacing()) : 1;
 }
 
-void CorridorScanComplexItem::_polylineDirtyChanged(bool dirty)
-{
+void CorridorScanComplexItem::_polylineDirtyChanged(bool dirty) {
     if (dirty) {
         setDirty(true);
     }
 }
 
-void CorridorScanComplexItem::rotateEntryPoint(void)
-{
+void CorridorScanComplexItem::rotateEntryPoint(void) {
     _entryPoint++;
     if (_entryPoint > 3) {
         _entryPoint = 0;
@@ -186,8 +169,7 @@ void CorridorScanComplexItem::rotateEntryPoint(void)
     _rebuildTransects();
 }
 
-void CorridorScanComplexItem::_rebuildCorridorPolygon(void)
-{
+void CorridorScanComplexItem::_rebuildCorridorPolygon(void) {
     if (_corridorPolyline.count() < 2) {
         _surveyAreaPolygon.clear();
         return;
@@ -201,17 +183,16 @@ void CorridorScanComplexItem::_rebuildCorridorPolygon(void)
     _surveyAreaPolygon.clear();
 
     QList<QGeoCoordinate> rgCoord;
-    for (const QGeoCoordinate& vertex: firstSideVertices) {
+    for (const QGeoCoordinate &vertex : firstSideVertices) {
         rgCoord.append(vertex);
     }
-    for (int i=secondSideVertices.count() - 1; i >= 0; i--) {
+    for (int i = secondSideVertices.count() - 1; i >= 0; i--) {
         rgCoord.append(secondSideVertices[i]);
     }
     _surveyAreaPolygon.appendVertices(rgCoord);
 }
 
-void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
-{
+void CorridorScanComplexItem::_rebuildTransectsPhase1(void) {
     if (_ignoreRecalc) {
         return;
     }
@@ -231,9 +212,9 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
 
     if (_corridorPolyline.count() >= 2) {
         // First build up the transects all going the same direction
-        //qDebug() << "_rebuildTransectsPhase1";
-        for (int i=0; i<transectCount; i++) {
-            //qDebug() << "start transect";
+        // qDebug() << "_rebuildTransectsPhase1";
+        for (int i = 0; i < transectCount; i++) {
+            // qDebug() << "start transect";
             double offsetDistance;
             if (transectCount == 1) {
                 // Single transect is flown over scan line
@@ -246,7 +227,7 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
             // Turn transect into CoordInfo transect
             QList<TransectStyleComplexItem::CoordInfo_t> transect;
             QList<QGeoCoordinate> transectCoords = _corridorPolyline.offsetPolyline(offsetDistance);
-            for (int j=1; j<transectCoords.count() - 1; j++) {
+            for (int j = 1; j < transectCoords.count() - 1; j++) {
                 TransectStyleComplexItem::CoordInfo_t coordInfo = { transectCoords[j], CoordTypeInterior };
                 transect.append(coordInfo);
             }
@@ -293,34 +274,34 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
         bool reverseTransects = false;
         bool reverseVertices = false;
         switch (_entryPoint) {
-        case 0:
-            reverseTransects = false;
-            reverseVertices = false;
-            break;
-        case 1:
-            reverseTransects = true;
-            reverseVertices = false;
-            break;
-        case 2:
-            reverseTransects = false;
-            reverseVertices = true;
-            break;
-        case 3:
-            reverseTransects = true;
-            reverseVertices = true;
-            break;
+            case 0:
+                reverseTransects = false;
+                reverseVertices = false;
+                break;
+            case 1:
+                reverseTransects = true;
+                reverseVertices = false;
+                break;
+            case 2:
+                reverseTransects = false;
+                reverseVertices = true;
+                break;
+            case 3:
+                reverseTransects = true;
+                reverseVertices = true;
+                break;
         }
         if (reverseTransects) {
             QList<QList<TransectStyleComplexItem::CoordInfo_t>> reversedTransects;
-            for (const QList<TransectStyleComplexItem::CoordInfo_t>& transect: _transects) {
+            for (const QList<TransectStyleComplexItem::CoordInfo_t> &transect : _transects) {
                 reversedTransects.prepend(transect);
             }
             _transects = reversedTransects;
         }
         if (reverseVertices) {
-            for (int i=0; i<_transects.count(); i++) {
+            for (int i = 0; i < _transects.count(); i++) {
                 QList<TransectStyleComplexItem::CoordInfo_t> reversedVertices;
-                for (const TransectStyleComplexItem::CoordInfo_t& vertex: _transects[i]) {
+                for (const TransectStyleComplexItem::CoordInfo_t &vertex : _transects[i]) {
                     reversedVertices.prepend(vertex);
                 }
                 _transects[i] = reversedVertices;
@@ -329,13 +310,13 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
 
         // Adjust to lawnmower pattern
         reverseVertices = false;
-        for (int i=0; i<_transects.count(); i++) {
+        for (int i = 0; i < _transects.count(); i++) {
             // We must reverse the vertices for every other transect in order to make a lawnmower pattern
             QList<TransectStyleComplexItem::CoordInfo_t> transectVertices = _transects[i];
             if (reverseVertices) {
                 reverseVertices = false;
                 QList<TransectStyleComplexItem::CoordInfo_t> reversedVertices;
-                for (int j=transectVertices.count()-1; j>=0; j--) {
+                for (int j = transectVertices.count() - 1; j >= 0; j--) {
                     reversedVertices.append(transectVertices[j]);
 
                     // as we are flying the transect reversed, we also need to swap entry and exit coordinate types
@@ -355,8 +336,7 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
     }
 }
 
-void CorridorScanComplexItem::_recalcCameraShots(void)
-{
+void CorridorScanComplexItem::_recalcCameraShots(void) {
     double triggerDistance = _cameraCalc.adjustedFootprintFrontal()->rawValue().toDouble();
     if (triggerDistance == 0) {
         _cameraShots = 0;
@@ -371,18 +351,11 @@ void CorridorScanComplexItem::_recalcCameraShots(void)
     emit cameraShotsChanged();
 }
 
-CorridorScanComplexItem::ReadyForSaveState CorridorScanComplexItem::readyForSaveState(void) const
-{
-    return TransectStyleComplexItem::readyForSaveState();
-}
+CorridorScanComplexItem::ReadyForSaveState CorridorScanComplexItem::readyForSaveState(void) const { return TransectStyleComplexItem::readyForSaveState(); }
 
-double CorridorScanComplexItem::timeBetweenShots(void)
-{
-    return _vehicleSpeed == 0 ? 0 : _cameraCalc.adjustedFootprintFrontal()->rawValue().toDouble() / _vehicleSpeed;
-}
+double CorridorScanComplexItem::timeBetweenShots(void) { return _vehicleSpeed == 0 ? 0 : _cameraCalc.adjustedFootprintFrontal()->rawValue().toDouble() / _vehicleSpeed; }
 
-double CorridorScanComplexItem::_calcTransectSpacing(void) const
-{
+double CorridorScanComplexItem::_calcTransectSpacing(void) const {
     double transectSpacing = _cameraCalc.adjustedFootprintSide()->rawValue().toDouble();
     if (transectSpacing < 0.5) {
         // We can't let spacing get too small otherwise we will end up with too many transects.
@@ -394,8 +367,7 @@ double CorridorScanComplexItem::_calcTransectSpacing(void) const
     return transectSpacing;
 }
 
-void CorridorScanComplexItem::_updateWizardMode(void)
-{
+void CorridorScanComplexItem::_updateWizardMode(void) {
     if (_corridorPolyline.isValid() && !_corridorPolyline.traceMode()) {
         setWizardMode(false);
     }

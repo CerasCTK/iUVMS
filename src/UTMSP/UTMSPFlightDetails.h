@@ -9,8 +9,8 @@
 
 #pragma once
 
-class UTMSPFlightDetails{
-public:
+class UTMSPFlightDetails {
+  public:
     UTMSPFlightDetails();
     void flightID();
     void status();

@@ -14,11 +14,10 @@
 
 Q_DECLARE_LOGGING_CATEGORY(StateMachineLog)
 
-class StateMachine : public QObject
-{
+class StateMachine : public QObject {
     Q_OBJECT
 
-public:
+  public:
     StateMachine(QObject *parent = nullptr);
     ~StateMachine();
 
@@ -46,7 +45,7 @@ public:
 
     bool active() const { return _active; }
 
-protected:
+  protected:
     bool _active = false;
     int _stateIndex = -1;
 };

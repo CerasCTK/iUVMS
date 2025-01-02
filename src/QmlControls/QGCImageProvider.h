@@ -14,16 +14,16 @@
 #include <QtQuick/QQuickImageProvider>
 
 /// This is used to expose images from ImageProtocolHandler
-class QGCImageProvider : public QQuickImageProvider
-{
-public:
+class QGCImageProvider : public QQuickImageProvider {
+  public:
     QGCImageProvider(QQmlImageProviderBase::ImageType type = QQmlImageProviderBase::ImageType::Image);
     ~QGCImageProvider();
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) final;
+
     void setImage(const QImage &image, uint8_t vehicleId = 0) { _images[vehicleId] = image.mirrored(); }
 
-private:
+  private:
     QMap<uint8_t, QImage> _images;
     QImage _dummy;
 };

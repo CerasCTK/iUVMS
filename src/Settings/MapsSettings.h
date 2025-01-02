@@ -11,11 +11,10 @@
 
 #include "SettingsGroup.h"
 
-class MapsSettings : public SettingsGroup
-{
+class MapsSettings : public SettingsGroup {
     Q_OBJECT
-public:
-    MapsSettings(QObject* parent = nullptr);
+  public:
+    MapsSettings(QObject *parent = nullptr);
 
     DEFINE_SETTING_NAME_GROUP()
 

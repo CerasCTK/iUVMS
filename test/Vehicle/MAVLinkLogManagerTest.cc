@@ -13,11 +13,10 @@
 #include "Vehicle.h"
 
 #include <QtCore/QStandardPaths>
-#include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
+#include <QtTest/QTest>
 
-void MAVLinkLogManagerTest::_testInitMAVLinkLogManager()
-{
+void MAVLinkLogManagerTest::_testInitMAVLinkLogManager() {
     _connectMockLinkNoInitialConnectSequence();
 
     MultiVehicleManager *const vehicleMgr = MultiVehicleManager::instance();

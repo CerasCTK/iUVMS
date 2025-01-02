@@ -11,9 +11,9 @@
 #ifndef NO_SERIAL_LINK
 #include "SerialLink.h"
 #endif
-#include "UDPLink.h"
-#include "TCPLink.h"
 #include "LogReplayLink.h"
+#include "TCPLink.h"
+#include "UDPLink.h"
 #ifdef UVMS_ENABLE_BLUETOOTH
 #include "BluetoothLink.h"
 #endif
@@ -24,33 +24,22 @@
 #include "AirLinkLink.h"
 #endif
 
-LinkConfiguration::LinkConfiguration(const QString &name, QObject *parent)
-    : QObject(parent)
-    , _name(name)
-{
+LinkConfiguration::LinkConfiguration(const QString &name, QObject *parent) : QObject(parent), _name(name) {
     // qCDebug(AudioOutputLog) << Q_FUNC_INFO << this;
 }
 
 LinkConfiguration::LinkConfiguration(const LinkConfiguration *copy, QObject *parent)
-    : QObject(parent)
-    , _link(copy->_link)
-    , _name(copy->name())
-    , _dynamic(copy->isDynamic())
-    , _autoConnect(copy->isAutoConnect())
-    , _highLatency(copy->isHighLatency())
-{
+    : QObject(parent), _link(copy->_link), _name(copy->name()), _dynamic(copy->isDynamic()), _autoConnect(copy->isAutoConnect()), _highLatency(copy->isHighLatency()) {
     // qCDebug(AudioOutputLog) << Q_FUNC_INFO << this;
 
     Q_ASSERT(!_name.isEmpty());
 }
 
-LinkConfiguration::~LinkConfiguration()
-{
+LinkConfiguration::~LinkConfiguration() {
     // qCDebug(AudioOutputLog) << Q_FUNC_INFO << this;
 }
 
-void LinkConfiguration::copyFrom(const LinkConfiguration *source)
-{
+void LinkConfiguration::copyFrom(const LinkConfiguration *source) {
     Q_ASSERT(source);
 
     setLink(source->_link.lock());
@@ -60,126 +49,89 @@ void LinkConfiguration::copyFrom(const LinkConfiguration *source)
     setHighLatency(source->isHighLatency());
 }
 
-LinkConfiguration *LinkConfiguration::createSettings(int type, const QString &name)
-{
+LinkConfiguration *LinkConfiguration::createSettings(int type, const QString &name) {
     LinkConfiguration *config = nullptr;
 
     switch (static_cast<LinkType>(type)) {
 #ifndef NO_SERIAL_LINK
-    case TypeSerial:
-        config = new SerialConfiguration(name);
-        break;
+        case TypeSerial: config = new SerialConfiguration(name); break;
 #endif
-    case TypeUdp:
-        config = new UDPConfiguration(name);
-        break;
-    case TypeTcp:
-        config = new TCPConfiguration(name);
-        break;
+        case TypeUdp: config = new UDPConfiguration(name); break;
+        case TypeTcp: config = new TCPConfiguration(name); break;
 #ifdef UVMS_ENABLE_BLUETOOTH
-    case TypeBluetooth:
-        config = new BluetoothConfiguration(name);
-        break;
+        case TypeBluetooth: config = new BluetoothConfiguration(name); break;
 #endif
-    case TypeLogReplay:
-        config = new LogReplayLinkConfiguration(name);
-        break;
+        case TypeLogReplay: config = new LogReplayLinkConfiguration(name); break;
 #ifdef QT_DEBUG
-    case TypeMock:
-        config = new MockConfiguration(name);
-        break;
+        case TypeMock: config = new MockConfiguration(name); break;
 #endif
 #ifndef UVMS_AIRLINK_DISABLED
-    case AirLink:
-        config = new AirLinkConfiguration(name);
-        break;
+        case AirLink: config = new AirLinkConfiguration(name); break;
 #endif
-    case TypeLast:
-    default:
-        break;
+        case TypeLast:
+        default: break;
     }
 
     return config;
 }
 
-LinkConfiguration *LinkConfiguration::duplicateSettings(const LinkConfiguration *source)
-{
+LinkConfiguration *LinkConfiguration::duplicateSettings(const LinkConfiguration *source) {
     LinkConfiguration *dupe = nullptr;
 
-    switch(source->type()) {
+    switch (source->type()) {
 #ifndef NO_SERIAL_LINK
-    case TypeSerial:
-        dupe = new SerialConfiguration(qobject_cast<const SerialConfiguration*>(source));
-        break;
+        case TypeSerial: dupe = new SerialConfiguration(qobject_cast<const SerialConfiguration *>(source)); break;
 #endif
-    case TypeUdp:
-        dupe = new UDPConfiguration(qobject_cast<const UDPConfiguration*>(source));
-        break;
-    case TypeTcp:
-        dupe = new TCPConfiguration(qobject_cast<const TCPConfiguration*>(source));
-        break;
+        case TypeUdp: dupe = new UDPConfiguration(qobject_cast<const UDPConfiguration *>(source)); break;
+        case TypeTcp: dupe = new TCPConfiguration(qobject_cast<const TCPConfiguration *>(source)); break;
 #ifdef UVMS_ENABLE_BLUETOOTH
-    case TypeBluetooth:
-        dupe = new BluetoothConfiguration(qobject_cast<const BluetoothConfiguration*>(source));
-        break;
+        case TypeBluetooth: dupe = new BluetoothConfiguration(qobject_cast<const BluetoothConfiguration *>(source)); break;
 #endif
-    case TypeLogReplay:
-        dupe = new LogReplayLinkConfiguration(qobject_cast<const LogReplayLinkConfiguration*>(source));
-        break;
+        case TypeLogReplay: dupe = new LogReplayLinkConfiguration(qobject_cast<const LogReplayLinkConfiguration *>(source)); break;
 #ifdef QT_DEBUG
-    case TypeMock:
-        dupe = new MockConfiguration(qobject_cast<const MockConfiguration*>(source));
-        break;
+        case TypeMock: dupe = new MockConfiguration(qobject_cast<const MockConfiguration *>(source)); break;
 #endif
 #ifndef UVMS_AIRLINK_DISABLED
-    case AirLink:
-        dupe = new AirLinkConfiguration(qobject_cast<const AirLinkConfiguration*>(source));
-        break;
+        case AirLink: dupe = new AirLinkConfiguration(qobject_cast<const AirLinkConfiguration *>(source)); break;
 #endif
-    case TypeLast:
-    default:
-        break;
+        case TypeLast:
+        default: break;
     }
 
     return dupe;
 }
 
-void LinkConfiguration::setName(const QString &name)
-{
+void LinkConfiguration::setName(const QString &name) {
     if (name != _name) {
         _name = name;
         emit nameChanged(name);
     }
 }
 
-void LinkConfiguration::setLink(const SharedLinkInterfacePtr link)
-{
+void LinkConfiguration::setLink(const SharedLinkInterfacePtr link) {
     if (link.get() != this->link()) {
         _link = link;
         emit linkChanged();
 
-        (void) connect(link.get(), &LinkInterface::disconnected, this, &LinkConfiguration::linkChanged, Qt::QueuedConnection);
+        (void)connect(link.get(), &LinkInterface::disconnected, this, &LinkConfiguration::linkChanged, Qt::QueuedConnection);
     }
 }
 
-void LinkConfiguration::setDynamic(bool dynamic)
-{
+void LinkConfiguration::setDynamic(bool dynamic) {
     if (dynamic != _dynamic) {
         _dynamic = dynamic;
         emit dynamicChanged();
     }
 }
 
-void LinkConfiguration::setAutoConnect(bool autoc)
-{
+void LinkConfiguration::setAutoConnect(bool autoc) {
     if (autoc != _autoConnect) {
         _autoConnect = autoc;
         emit autoConnectChanged();
     }
 }
 
-void LinkConfiguration::setHighLatency(bool hl)
-{
+void LinkConfiguration::setHighLatency(bool hl) {
     if (hl != _highLatency) {
         _highLatency = hl;
         emit highLatencyChanged();

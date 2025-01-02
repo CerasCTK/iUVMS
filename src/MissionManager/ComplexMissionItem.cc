@@ -8,36 +8,32 @@
  ****************************************************************************/
 
 #include "ComplexMissionItem.h"
+#include "FlightPathSegment.h"
+#include "KMLPlanDomDocument.h"
+#include "MissionController.h"
+#include "PlanMasterController.h"
 #include "QGCApplication.h"
 #include "QGCCorePlugin.h"
 #include "QGCOptions.h"
-#include "PlanMasterController.h"
-#include "FlightPathSegment.h"
-#include "MissionController.h"
-#include "KMLPlanDomDocument.h"
 #include "SettingsManager.h"
 
 #include <QtCore/QCborMap>
 #include <QtCore/QSettings>
 
-ComplexMissionItem::ComplexMissionItem(PlanMasterController* masterController, bool flyView)
-    : VisualMissionItem (masterController, flyView)
-{
-    connect(_missionController, &MissionController::plannedHomePositionChanged,         this, &ComplexMissionItem::_amslEntryAltChanged);
-    connect(_missionController, &MissionController::plannedHomePositionChanged,         this, &ComplexMissionItem::_amslExitAltChanged);
-    connect(_missionController, &MissionController::plannedHomePositionChanged,         this, &ComplexMissionItem::minAMSLAltitudeChanged);
-    connect(_missionController, &MissionController::plannedHomePositionChanged,         this, &ComplexMissionItem::maxAMSLAltitudeChanged);
+ComplexMissionItem::ComplexMissionItem(PlanMasterController *masterController, bool flyView) : VisualMissionItem(masterController, flyView) {
+    connect(_missionController, &MissionController::plannedHomePositionChanged, this, &ComplexMissionItem::_amslEntryAltChanged);
+    connect(_missionController, &MissionController::plannedHomePositionChanged, this, &ComplexMissionItem::_amslExitAltChanged);
+    connect(_missionController, &MissionController::plannedHomePositionChanged, this, &ComplexMissionItem::minAMSLAltitudeChanged);
+    connect(_missionController, &MissionController::plannedHomePositionChanged, this, &ComplexMissionItem::maxAMSLAltitudeChanged);
 }
 
-const ComplexMissionItem& ComplexMissionItem::operator=(const ComplexMissionItem& other)
-{
+const ComplexMissionItem &ComplexMissionItem::operator=(const ComplexMissionItem &other) {
     VisualMissionItem::operator=(other);
 
     return *this;
 }
 
-QStringList ComplexMissionItem::presetNames(void)
-{
+QStringList ComplexMissionItem::presetNames(void) {
     QStringList names;
 
     QSettings settings;
@@ -47,20 +43,17 @@ QStringList ComplexMissionItem::presetNames(void)
     return settings.childKeys();
 }
 
-void ComplexMissionItem::loadPreset(const QString& name)
-{
+void ComplexMissionItem::loadPreset(const QString &name) {
     Q_UNUSED(name);
     qgcApp()->showAppMessage(tr("This Pattern does not support Presets."));
 }
 
-void ComplexMissionItem::savePreset(const QString& name)
-{
+void ComplexMissionItem::savePreset(const QString &name) {
     Q_UNUSED(name);
     qgcApp()->showAppMessage(tr("This Pattern does not support Presets."));
 }
 
-void ComplexMissionItem::deletePreset(const QString& name)
-{
+void ComplexMissionItem::deletePreset(const QString &name) {
     if (QGCCorePlugin::instance()->options()->surveyBuiltInPresetNames().contains(name)) {
         qgcApp()->showAppMessage(tr("'%1' is a built-in preset which cannot be deleted.").arg(name));
         return;
@@ -73,16 +66,15 @@ void ComplexMissionItem::deletePreset(const QString& name)
     emit presetNamesChanged();
 }
 
-void ComplexMissionItem::_savePresetJson(const QString& name, QJsonObject& presetObject)
-{
+void ComplexMissionItem::_savePresetJson(const QString &name, QJsonObject &presetObject) {
     QSettings settings;
     settings.beginGroup(presetsSettingsGroup());
     settings.beginGroup(_presetSettingsKey);
     settings.setValue(name, QCborMap::fromJsonObject(presetObject).toCborValue().toVariant());
 
-    // Use this to save a survey preset as a JSON file to be included in the build
-    // as a built-in survey preset that cannot be deleted.
-    #if 0
+// Use this to save a survey preset as a JSON file to be included in the build
+// as a built-in survey preset that cannot be deleted.
+#if 0
     QString savePath = SettingsManager::instance()->appSettings()->missionSavePath();
     QDir saveDir(savePath);
 
@@ -97,31 +89,28 @@ void ComplexMissionItem::_savePresetJson(const QString& name, QJsonObject& prese
     qDebug() << "Saving survey preset to JSON";
     auto jsonDoc = QJsonDocument(jsonObj);
     jsonFile.write(jsonDoc.toJson());
-    #endif
+#endif
 
     emit presetNamesChanged();
 }
 
-QJsonObject ComplexMissionItem::_loadPresetJson(const QString& name)
-{
+QJsonObject ComplexMissionItem::_loadPresetJson(const QString &name) {
     QSettings settings;
     settings.beginGroup(presetsSettingsGroup());
     settings.beginGroup(_presetSettingsKey);
     return QCborValue::fromVariant(settings.value(name)).toMap().toJsonObject();
 }
 
-void ComplexMissionItem::addKMLVisuals(KMLPlanDomDocument& /* domDocument */)
-{
+void ComplexMissionItem::addKMLVisuals(KMLPlanDomDocument & /* domDocument */) {
     // Default implementation has no visuals
 }
 
-void ComplexMissionItem::_appendFlightPathSegment(FlightPathSegment::SegmentType segmentType, const QGeoCoordinate& coord1, double coord1AMSLAlt, const QGeoCoordinate& coord2, double coord2AMSLAlt)
-{
-    FlightPathSegment* segment = new FlightPathSegment(segmentType, coord1, coord1AMSLAlt, coord2, coord2AMSLAlt, true /* queryTerrainData */, this /* parent */);
+void ComplexMissionItem::_appendFlightPathSegment(FlightPathSegment::SegmentType segmentType, const QGeoCoordinate &coord1, double coord1AMSLAlt, const QGeoCoordinate &coord2, double coord2AMSLAlt) {
+    FlightPathSegment *segment = new FlightPathSegment(segmentType, coord1, coord1AMSLAlt, coord2, coord2AMSLAlt, true /* queryTerrainData */, this /* parent */);
 
-    connect(segment, &FlightPathSegment::terrainCollisionChanged,       this,               &ComplexMissionItem::_segmentTerrainCollisionChanged);
-    connect(segment, &FlightPathSegment::terrainCollisionChanged,       _missionController, &MissionController::recalcTerrainProfile, Qt::QueuedConnection);
-    connect(segment, &FlightPathSegment::amslTerrainHeightsChanged,     _missionController, &MissionController::recalcTerrainProfile, Qt::QueuedConnection);
+    connect(segment, &FlightPathSegment::terrainCollisionChanged, this, &ComplexMissionItem::_segmentTerrainCollisionChanged);
+    connect(segment, &FlightPathSegment::terrainCollisionChanged, _missionController, &MissionController::recalcTerrainProfile, Qt::QueuedConnection);
+    connect(segment, &FlightPathSegment::amslTerrainHeightsChanged, _missionController, &MissionController::recalcTerrainProfile, Qt::QueuedConnection);
 
     // Signals may have been emitted in contructor so we need to deal with that now since they were missed
 
@@ -135,8 +124,7 @@ void ComplexMissionItem::_appendFlightPathSegment(FlightPathSegment::SegmentType
     }
 }
 
-void ComplexMissionItem::_segmentTerrainCollisionChanged(bool terrainCollision)
-{
+void ComplexMissionItem::_segmentTerrainCollisionChanged(bool terrainCollision) {
     if (terrainCollision) {
         _cTerrainCollisionSegments++;
     } else {
@@ -144,4 +132,3 @@ void ComplexMissionItem::_segmentTerrainCollisionChanged(bool terrainCollision)
     }
     emit terrainCollisionChanged(_cTerrainCollisionSegments != 0);
 }
-

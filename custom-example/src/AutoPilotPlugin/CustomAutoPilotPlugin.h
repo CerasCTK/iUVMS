@@ -16,17 +16,16 @@
 
 class Vehicle;
 
-class CustomAutoPilotPlugin : public PX4AutoPilotPlugin
-{
+class CustomAutoPilotPlugin : public PX4AutoPilotPlugin {
     Q_OBJECT
-public:
-    CustomAutoPilotPlugin(Vehicle* vehicle, QObject* parent);
+  public:
+    CustomAutoPilotPlugin(Vehicle *vehicle, QObject *parent);
 
-    const QVariantList& vehicleComponents() final;
+    const QVariantList &vehicleComponents() final;
 
-private slots:
-    void         _advancedChanged        (bool advanced);
+  private slots:
+    void _advancedChanged(bool advanced);
 
-private:
+  private:
     QVariantList _components;
 };

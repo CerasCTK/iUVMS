@@ -20,11 +20,10 @@ class FirmwarePluginFactory;
 Q_DECLARE_LOGGING_CATEGORY(FirmwarePluginManagerLog)
 
 /// FirmwarePluginManager is a singleton which is used to return the correct FirmwarePlugin for a MAV_AUTOPILOT type.
-class FirmwarePluginManager : public QObject
-{
+class FirmwarePluginManager : public QObject {
     Q_OBJECT
 
-public:
+  public:
     /// Constructs an FirmwarePluginManager object.
     ///     @param parent The parent QObject.
     explicit FirmwarePluginManager(QObject *parent = nullptr);
@@ -48,7 +47,7 @@ public:
     /// @return Singleton FirmwarePlugin instance for the specified MAV_AUTOPILOT.
     FirmwarePlugin *firmwarePluginForAutopilot(MAV_AUTOPILOT firmwareType, MAV_TYPE vehicleType);
 
-private:
+  private:
     FirmwarePluginFactory *_findPluginFactory(QGCMAVLink::FirmwareClass_t firmwareClass);
 
     FirmwarePlugin *_genericFirmwarePlugin = nullptr;

@@ -11,38 +11,37 @@
 
 #include "QGCMAVLink.h"
 
+#include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtCore/QMap>
 
 class MissionCommandUIInfo;
 
 /// Maintains a list of MissionCommandUIInfo objects loaded from a json file.
-class MissionCommandList : public QObject
-{
+class MissionCommandList : public QObject {
     Q_OBJECT
-    
-public:
+
+  public:
     /// @param baseCommandList true: bottomost level of mission command hierarchy (partial spec allowed), false: override level of hierarchy
-    MissionCommandList(const QString& jsonFilename, bool baseCommandList, QObject* parent = nullptr);
+    MissionCommandList(const QString &jsonFilename, bool baseCommandList, QObject *parent = nullptr);
 
     /// Returns list of categories in this list
-    QStringList& categories(void) { return _categories; }
+    QStringList &categories(void) { return _categories; }
 
     /// Returns the ui info for specified command, NULL if command not found
-    MissionCommandUIInfo* getUIInfo(MAV_CMD command) const;
+    MissionCommandUIInfo *getUIInfo(MAV_CMD command) const;
 
-    const QList<MAV_CMD>& commandIds(void) const { return _ids; }
-    
-    static constexpr const char* qgcFileType = "MavCmdInfo";
+    const QList<MAV_CMD> &commandIds(void) const { return _ids; }
 
-private:
-    void _loadMavCmdInfoJson(const QString& jsonFilename, bool baseCommandList);
+    static constexpr const char *qgcFileType = "MavCmdInfo";
 
-    QMap<MAV_CMD, MissionCommandUIInfo*>    _infoMap;
-    QList<MAV_CMD>                          _ids;
-    QStringList                             _categories;
+  private:
+    void _loadMavCmdInfoJson(const QString &jsonFilename, bool baseCommandList);
 
-    static constexpr const char* _versionJsonKey =       "version";
-    static constexpr const char* _mavCmdInfoJsonKey =    "mavCmdInfo";
+    QMap<MAV_CMD, MissionCommandUIInfo *> _infoMap;
+    QList<MAV_CMD> _ids;
+    QStringList _categories;
+
+    static constexpr const char *_versionJsonKey = "version";
+    static constexpr const char *_mavCmdInfoJsonKey = "mavCmdInfo";
 };

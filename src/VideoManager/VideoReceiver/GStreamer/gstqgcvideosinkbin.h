@@ -14,7 +14,7 @@
 G_BEGIN_DECLS
 
 #define GST_TYPE_UVMS_VIDEO_SINK_BIN (gst_qgc_video_sink_bin_get_type())
-G_DECLARE_FINAL_TYPE (GstQgcVideoSinkBin, gst_qgc_video_sink_bin, GST, UVMS_VIDEO_SINK_BIN, GstBin)
+G_DECLARE_FINAL_TYPE(GstQgcVideoSinkBin, gst_qgc_video_sink_bin, GST, UVMS_VIDEO_SINK_BIN, GstBin)
 #define GST_UVMS_VIDEO_SINK_BIN_CAST(obj) ((GstQgcVideoSinkBin *)(obj))
 #define GST_UVMS_VIDEO_SINK_BIN(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), GST_TYPE_UVMS_VIDEO_SINK_BIN, GstQgcVideoSinkBin))
 #define GST_UVMS_VIDEO_SINK_BIN_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), GST_TYPE_UVMS_VIDEO_SINK_BIN, GstQgcVideoSinkBinClass))
@@ -31,6 +31,6 @@ struct _GstQgcVideoSinkBinClass {
     GstBinClass parent_class;
 };
 
-GstQgcVideoSinkBin* gst_qgc_video_sink_bin_new(void);
+GstQgcVideoSinkBin *gst_qgc_video_sink_bin_new(void);
 
 G_END_DECLS

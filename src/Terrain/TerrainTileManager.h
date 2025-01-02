@@ -23,12 +23,12 @@ class UnitTestTerrainQuery;
 
 Q_DECLARE_LOGGING_CATEGORY(TerrainTileManagerLog)
 
-class TerrainTileManager : public QObject
-{
+class TerrainTileManager : public QObject {
     Q_OBJECT
 
     friend class UnitTestTerrainQuery;
-public:
+
+  public:
     explicit TerrainTileManager(QObject *parent = nullptr);
     ~TerrainTileManager();
 
@@ -42,10 +42,10 @@ public:
     void addCoordinateQuery(TerrainQueryInterface *terrainQueryInterface, const QList<QGeoCoordinate> &coordinates);
     void addPathQuery(TerrainQueryInterface *terrainQueryInterface, const QGeoCoordinate &startPoint, const QGeoCoordinate &endPoint);
 
-private slots:
+  private slots:
     void _terrainDone();
 
-private:
+  private:
     /// Returns a list of individual coordinates along the requested path spaced according to the terrain tile value spacing
     static QList<QGeoCoordinate> _pathQueryToCoords(const QGeoCoordinate &fromCoord, const QGeoCoordinate &toCoord, double &distanceBetween, double &finalDistanceBetween);
     void _tileFailed();
@@ -55,8 +55,8 @@ private:
     struct QueuedRequestInfo_t {
         TerrainQueryInterface *terrainQueryInterface;
         TerrainQuery::QueryMode queryMode;
-        double distanceBetween;                         ///< Distance between each returned height
-        double finalDistanceBetween;                    ///< Distance between for final height
+        double distanceBetween;      ///< Distance between each returned height
+        double finalDistanceBetween; ///< Distance between for final height
         QList<QGeoCoordinate> coordinates;
     };
 
@@ -64,7 +64,7 @@ private:
     TerrainQuery::State _state = TerrainQuery::State::Idle;
 
     QMutex _tilesMutex;
-    QHash<QString, TerrainTile*> _tiles;
+    QHash<QString, TerrainTile *> _tiles;
 
     QNetworkAccessManager *_networkManager = nullptr;
 };

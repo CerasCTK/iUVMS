@@ -10,15 +10,9 @@
 #include "TrajectoryPoints.h"
 #include "Vehicle.h"
 
-TrajectoryPoints::TrajectoryPoints(Vehicle* vehicle, QObject* parent)
-    : QObject       (parent)
-    , _vehicle      (vehicle)
-    , _lastAzimuth  (qQNaN())
-{
-}
+TrajectoryPoints::TrajectoryPoints(Vehicle *vehicle, QObject *parent) : QObject(parent), _vehicle(vehicle), _lastAzimuth(qQNaN()) {}
 
-void TrajectoryPoints::_vehicleCoordinateChanged(QGeoCoordinate coordinate)
-{
+void TrajectoryPoints::_vehicleCoordinateChanged(QGeoCoordinate coordinate) {
     // The goal of this algorithm is to limit the number of trajectory points whic represent the vehicle path.
     // Fewer points means higher performance of map display.
 
@@ -51,19 +45,14 @@ void TrajectoryPoints::_vehicleCoordinateChanged(QGeoCoordinate coordinate)
     }
 }
 
-void TrajectoryPoints::start(void)
-{
+void TrajectoryPoints::start(void) {
     clear();
     connect(_vehicle, &Vehicle::coordinateChanged, this, &TrajectoryPoints::_vehicleCoordinateChanged);
 }
 
-void TrajectoryPoints::stop(void)
-{
-    disconnect(_vehicle, &Vehicle::coordinateChanged, this, &TrajectoryPoints::_vehicleCoordinateChanged);
-}
+void TrajectoryPoints::stop(void) { disconnect(_vehicle, &Vehicle::coordinateChanged, this, &TrajectoryPoints::_vehicleCoordinateChanged); }
 
-void TrajectoryPoints::clear(void)
-{
+void TrajectoryPoints::clear(void) {
     _points.clear();
     _lastPoint = QGeoCoordinate();
     _lastAzimuth = qQNaN();

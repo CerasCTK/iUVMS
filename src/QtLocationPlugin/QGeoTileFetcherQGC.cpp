@@ -8,22 +8,19 @@
  ****************************************************************************/
 
 #include "QGeoTileFetcherQGC.h"
-#include "QGeoTiledMappingManagerEngineQGC.h"
-#include "QGeoMapReplyQGC.h"
-#include "QGCMapUrlEngine.h"
 #include "MapProvider.h"
+#include "QGCMapUrlEngine.h"
+#include "QGeoMapReplyQGC.h"
+#include "QGeoTiledMappingManagerEngineQGC.h"
 #include <QGCLoggingCategory.h>
 
-#include <QtNetwork/QNetworkRequest>
 #include <QtLocation/private/qgeotiledmappingmanagerengine_p.h>
 #include <QtLocation/private/qgeotilespec_p.h>
+#include <QtNetwork/QNetworkRequest>
 
 QGC_LOGGING_CATEGORY(QGeoTileFetcherQGCLog, "qgc.qtlocationplugin.qgeotilefetcherqgc")
 
-QGeoTileFetcherQGC::QGeoTileFetcherQGC(QNetworkAccessManager *networkManager, const QVariantMap &parameters, QGeoTiledMappingManagerEngineQGC *parent)
-    : QGeoTileFetcher(parent)
-    , m_networkManager(networkManager)
-{
+QGeoTileFetcherQGC::QGeoTileFetcherQGC(QNetworkAccessManager *networkManager, const QVariantMap &parameters, QGeoTiledMappingManagerEngineQGC *parent) : QGeoTileFetcher(parent), m_networkManager(networkManager) {
     Q_CHECK_PTR(networkManager);
 
     // qCDebug(QGeoTileFetcherQGCLog) << Q_FUNC_INFO << this;
@@ -34,13 +31,11 @@ QGeoTileFetcherQGC::QGeoTileFetcherQGC(QNetworkAccessManager *networkManager, co
     }*/
 }
 
-QGeoTileFetcherQGC::~QGeoTileFetcherQGC()
-{
+QGeoTileFetcherQGC::~QGeoTileFetcherQGC() {
     // qCDebug(QGeoTileFetcherQGCLog) << Q_FUNC_INFO << this;
 }
 
-QGeoTiledMapReply* QGeoTileFetcherQGC::getTileImage(const QGeoTileSpec &spec)
-{
+QGeoTiledMapReply *QGeoTileFetcherQGC::getTileImage(const QGeoTileSpec &spec) {
     const SharedMapProvider provider = UrlFactory::getMapProviderFromQtMapId(spec.mapId());
     if (!provider) {
         return nullptr;
@@ -58,23 +53,13 @@ QGeoTiledMapReply* QGeoTileFetcherQGC::getTileImage(const QGeoTileSpec &spec)
     return new QGeoTiledMapReplyQGC(m_networkManager, request, spec);
 }
 
-bool QGeoTileFetcherQGC::initialized() const
-{
-    return (m_networkManager != nullptr);
-}
+bool QGeoTileFetcherQGC::initialized() const { return (m_networkManager != nullptr); }
 
-bool QGeoTileFetcherQGC::fetchingEnabled() const
-{
-    return initialized();
-}
+bool QGeoTileFetcherQGC::fetchingEnabled() const { return initialized(); }
 
-void QGeoTileFetcherQGC::timerEvent(QTimerEvent *event)
-{
-    QGeoTileFetcher::timerEvent(event);
-}
+void QGeoTileFetcherQGC::timerEvent(QTimerEvent *event) { QGeoTileFetcher::timerEvent(event); }
 
-void QGeoTileFetcherQGC::handleReply(QGeoTiledMapReply *reply, const QGeoTileSpec &spec)
-{
+void QGeoTileFetcherQGC::handleReply(QGeoTiledMapReply *reply, const QGeoTileSpec &spec) {
     if (!reply) {
         return;
     }
@@ -92,8 +77,7 @@ void QGeoTileFetcherQGC::handleReply(QGeoTiledMapReply *reply, const QGeoTileSpe
     }
 }
 
-QNetworkRequest QGeoTileFetcherQGC::getNetworkRequest(int mapId, int x, int y, int zoom)
-{
+QNetworkRequest QGeoTileFetcherQGC::getNetworkRequest(int mapId, int x, int y, int zoom) {
     const SharedMapProvider mapProvider = UrlFactory::getMapProviderFromQtMapId(mapId);
 
     QNetworkRequest request;

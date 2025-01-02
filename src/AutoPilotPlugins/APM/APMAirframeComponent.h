@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include "VehicleComponent.h"
@@ -15,13 +14,12 @@
 class AutoPilotPlugin;
 class Fact;
 
-class APMAirframeComponent : public VehicleComponent
-{
+class APMAirframeComponent : public VehicleComponent {
     Q_OBJECT
-    
-public:
-    APMAirframeComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent = nullptr);
-    
+
+  public:
+    APMAirframeComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent = nullptr);
+
     // Virtuals from VehicleComponent
     QStringList setupCompleteChangedTriggerList(void) const override;
 
@@ -34,10 +32,10 @@ public:
     QUrl setupSource(void) const override;
     QUrl summaryQmlSource(void) const override;
 
-private:
-    bool            _requiresFrameSetup; ///< true: FRAME parameter must be set
-    const QString   _name;
-    Fact*           _frameClassFact;
+  private:
+    bool _requiresFrameSetup; ///< true: FRAME parameter must be set
+    const QString _name;
+    Fact *_frameClassFact;
 
-    static constexpr const char* _frameClassParam = "FRAME_CLASS";
+    static constexpr const char *_frameClassParam = "FRAME_CLASS";
 };

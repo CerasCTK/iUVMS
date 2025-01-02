@@ -12,26 +12,28 @@
 #include "FactPanelController.h"
 #include "SettingsFact.h"
 
-class APMFollowComponentController : public FactPanelController
-{
+class APMFollowComponentController : public FactPanelController {
     Q_OBJECT
 
-    Q_PROPERTY(Fact *angle          READ angleFact      CONSTANT)
-    Q_PROPERTY(Fact *distance       READ distanceFact   CONSTANT)
-    Q_PROPERTY(Fact *height         READ heightFact     CONSTANT)
-    Q_PROPERTY(bool roverFirmware   READ roverFirmware  CONSTANT)
+    Q_PROPERTY(Fact *angle READ angleFact CONSTANT)
+    Q_PROPERTY(Fact *distance READ distanceFact CONSTANT)
+    Q_PROPERTY(Fact *height READ heightFact CONSTANT)
+    Q_PROPERTY(bool roverFirmware READ roverFirmware CONSTANT)
 
-public:
+  public:
     APMFollowComponentController(QObject *parent = nullptr);
     ~APMFollowComponentController();
 
     Fact *angleFact() { return _angleFact; }
+
     Fact *distanceFact() { return _distanceFact; }
+
     Fact *heightFact() { return _heightFact; }
+
     bool roverFirmware();
 
-private:
-    QMap<QString, FactMetaData*> _metaDataMap;
+  private:
+    QMap<QString, FactMetaData *> _metaDataMap;
 
     SettingsFact *_angleFact = nullptr;
     SettingsFact *_distanceFact = nullptr;

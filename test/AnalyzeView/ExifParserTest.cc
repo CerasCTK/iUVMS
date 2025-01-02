@@ -4,8 +4,7 @@
 
 #include <QtTest/QTest>
 
-void ExifParserTest::_readTimeTest()
-{
+void ExifParserTest::_readTimeTest() {
     QFile file(":/DSCN0010.jpg");
     QVERIFY(file.open(QIODevice::ReadOnly));
 
@@ -23,8 +22,7 @@ void ExifParserTest::_readTimeTest()
     QCOMPARE(imageTime, expectedTime);
 }
 
-void ExifParserTest::_writeTest()
-{
+void ExifParserTest::_writeTest() {
     QFile file(":/DSCN0010.jpg");
     QVERIFY(file.open(QIODevice::ReadOnly));
 

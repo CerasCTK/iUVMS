@@ -12,7 +12,7 @@
 #include <string>
 
 class UTMSPOperator {
-public:
+  public:
     UTMSPOperator();
     std::string operatorID();
     std::string operatorClass();

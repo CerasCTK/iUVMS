@@ -9,20 +9,14 @@
 
 #include "UdpIODevice.h"
 
-
-UdpIODevice::UdpIODevice(QObject *parent) : QUdpSocket(parent)
-{
+UdpIODevice::UdpIODevice(QObject *parent) : QUdpSocket(parent) {
     // this might cause data to be available only after a second readyRead() signal
     connect(this, &QUdpSocket::readyRead, this, &UdpIODevice::_readAvailableData);
 }
 
-bool UdpIODevice::canReadLine() const
-{
-    return _buffer.indexOf('\n') > -1;
-}
+bool UdpIODevice::canReadLine() const { return _buffer.indexOf('\n') > -1; }
 
-qint64 UdpIODevice::readLineData(char *data, qint64 maxSize)
-{
+qint64 UdpIODevice::readLineData(char *data, qint64 maxSize) {
     int length = _buffer.indexOf('\n') + 1; // add 1 to include the '\n'
     if (length == 0) {
         return 0;

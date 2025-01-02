@@ -8,41 +8,28 @@
  ****************************************************************************/
 
 #include "QGCMapPolyline.h"
-#include "QGCGeo.h"
 #include "JsonHelper.h"
-#include "QGCQGeoCoordinate.h"
-#include "QGCApplication.h"
 #include "KMLHelper.h"
+#include "QGCApplication.h"
+#include "QGCGeo.h"
 #include "QGCLoggingCategory.h"
+#include "QGCQGeoCoordinate.h"
 
 #include <QtCore/QLineF>
 
-QGCMapPolyline::QGCMapPolyline(QObject* parent)
-    : QObject               (parent)
-    , _dirty                (false)
-    , _interactive          (false)
-    , _resetActive          (false)
-{
-    _init();
-}
+QGCMapPolyline::QGCMapPolyline(QObject *parent) : QObject(parent), _dirty(false), _interactive(false), _resetActive(false) { _init(); }
 
-QGCMapPolyline::QGCMapPolyline(const QGCMapPolyline& other, QObject* parent)
-    : QObject               (parent)
-    , _dirty                (false)
-    , _interactive          (false)
-    , _resetActive          (false)
-{
+QGCMapPolyline::QGCMapPolyline(const QGCMapPolyline &other, QObject *parent) : QObject(parent), _dirty(false), _interactive(false), _resetActive(false) {
     *this = other;
 
     _init();
 }
 
-const QGCMapPolyline& QGCMapPolyline::operator=(const QGCMapPolyline& other)
-{
+const QGCMapPolyline &QGCMapPolyline::operator=(const QGCMapPolyline &other) {
     clear();
 
     QVariantList vertices = other.path();
-    for (int i=0; i<vertices.count(); i++) {
+    for (int i = 0; i < vertices.count(); i++) {
         appendVertex(vertices[i].value<QGeoCoordinate>());
     }
 
@@ -51,8 +38,7 @@ const QGCMapPolyline& QGCMapPolyline::operator=(const QGCMapPolyline& other)
     return *this;
 }
 
-void QGCMapPolyline::_init(void)
-{
+void QGCMapPolyline::_init(void) {
     connect(&_polylineModel, &QmlObjectListModel::dirtyChanged, this, &QGCMapPolyline::_polylineModelDirtyChanged);
     connect(&_polylineModel, &QmlObjectListModel::countChanged, this, &QGCMapPolyline::_polylineModelCountChanged);
 
@@ -60,8 +46,7 @@ void QGCMapPolyline::_init(void)
     connect(this, &QGCMapPolyline::countChanged, this, &QGCMapPolyline::isEmptyChanged);
 }
 
-void QGCMapPolyline::clear(void)
-{
+void QGCMapPolyline::clear(void) {
     _polylinePath.clear();
     emit pathChanged();
 
@@ -72,16 +57,14 @@ void QGCMapPolyline::clear(void)
     setDirty(true);
 }
 
-void QGCMapPolyline::adjustVertex(int vertexIndex, const QGeoCoordinate coordinate)
-{
+void QGCMapPolyline::adjustVertex(int vertexIndex, const QGeoCoordinate coordinate) {
     _polylinePath[vertexIndex] = QVariant::fromValue(coordinate);
     emit pathChanged();
-    _polylineModel.value<QGCQGeoCoordinate*>(vertexIndex)->setCoordinate(coordinate);
+    _polylineModel.value<QGCQGeoCoordinate *>(vertexIndex)->setCoordinate(coordinate);
     setDirty(true);
 }
 
-void QGCMapPolyline::setDirty(bool dirty)
-{
+void QGCMapPolyline::setDirty(bool dirty) {
     if (_dirty != dirty) {
         _dirty = dirty;
         if (!dirty) {
@@ -90,8 +73,8 @@ void QGCMapPolyline::setDirty(bool dirty)
         emit dirtyChanged(dirty);
     }
 }
-QGeoCoordinate QGCMapPolyline::_coordFromPointF(const QPointF& point) const
-{
+
+QGeoCoordinate QGCMapPolyline::_coordFromPointF(const QPointF &point) const {
     QGeoCoordinate coord;
 
     if (_polylinePath.count() > 0) {
@@ -102,8 +85,7 @@ QGeoCoordinate QGCMapPolyline::_coordFromPointF(const QPointF& point) const
     return coord;
 }
 
-QPointF QGCMapPolyline::_pointFFromCoord(const QGeoCoordinate& coordinate) const
-{
+QPointF QGCMapPolyline::_pointFFromCoord(const QGeoCoordinate &coordinate) const {
     if (_polylinePath.count() > 0) {
         double y, x, down;
         QGeoCoordinate tangentOrigin = _polylinePath[0].value<QGeoCoordinate>();
@@ -115,13 +97,12 @@ QPointF QGCMapPolyline::_pointFFromCoord(const QGeoCoordinate& coordinate) const
     return QPointF();
 }
 
-void QGCMapPolyline::setPath(const QList<QGeoCoordinate>& path)
-{
+void QGCMapPolyline::setPath(const QList<QGeoCoordinate> &path) {
     _beginResetIfNotActive();
 
     _polylinePath.clear();
     _polylineModel.clearAndDeleteContents();
-    for (const QGeoCoordinate& coord: path) {
+    for (const QGeoCoordinate &coord : path) {
         _polylinePath.append(QVariant::fromValue(coord));
         _polylineModel.append(new QGCQGeoCoordinate(coord, this));
     }
@@ -131,13 +112,12 @@ void QGCMapPolyline::setPath(const QList<QGeoCoordinate>& path)
     _endResetIfNotActive();
 }
 
-void QGCMapPolyline::setPath(const QVariantList& path)
-{
+void QGCMapPolyline::setPath(const QVariantList &path) {
     _beginResetIfNotActive();
 
     _polylinePath = path;
     _polylineModel.clearAndDeleteContents();
-    for (int i=0; i<_polylinePath.count(); i++) {
+    for (int i = 0; i < _polylinePath.count(); i++) {
         _polylineModel.append(new QGCQGeoCoordinate(_polylinePath[i].value<QGeoCoordinate>(), this));
     }
     setDirty(true);
@@ -145,9 +125,7 @@ void QGCMapPolyline::setPath(const QVariantList& path)
     _endResetIfNotActive();
 }
 
-
-void QGCMapPolyline::saveToJson(QJsonObject& json)
-{
+void QGCMapPolyline::saveToJson(QJsonObject &json) {
     QJsonValue jsonValue;
 
     JsonHelper::saveGeoCoordinateArray(_polylinePath, false /* writeAltitude*/, jsonValue);
@@ -155,8 +133,7 @@ void QGCMapPolyline::saveToJson(QJsonObject& json)
     setDirty(false);
 }
 
-bool QGCMapPolyline::loadFromJson(const QJsonObject& json, bool required, QString& errorString)
-{
+bool QGCMapPolyline::loadFromJson(const QJsonObject &json, bool required, QString &errorString) {
     errorString.clear();
     clear();
 
@@ -172,7 +149,7 @@ bool QGCMapPolyline::loadFromJson(const QJsonObject& json, bool required, QStrin
         return false;
     }
 
-    for (int i=0; i<_polylinePath.count(); i++) {
+    for (int i = 0; i < _polylinePath.count(); i++) {
         _polylineModel.append(new QGCQGeoCoordinate(_polylinePath[i].value<QGeoCoordinate>(), this));
     }
 
@@ -182,19 +159,17 @@ bool QGCMapPolyline::loadFromJson(const QJsonObject& json, bool required, QStrin
     return true;
 }
 
-QList<QGeoCoordinate> QGCMapPolyline::coordinateList(void) const
-{
+QList<QGeoCoordinate> QGCMapPolyline::coordinateList(void) const {
     QList<QGeoCoordinate> coords;
 
-    for (int i=0; i<_polylinePath.count(); i++) {
+    for (int i = 0; i < _polylinePath.count(); i++) {
         coords.append(_polylinePath[i].value<QGeoCoordinate>());
     }
 
     return coords;
 }
 
-void QGCMapPolyline::splitSegment(int vertexIndex)
-{
+void QGCMapPolyline::splitSegment(int vertexIndex) {
     int nextIndex = vertexIndex + 1;
     if (nextIndex > _polylinePath.length() - 1) {
         return;
@@ -216,15 +191,13 @@ void QGCMapPolyline::splitSegment(int vertexIndex)
     }
 }
 
-void QGCMapPolyline::appendVertex(const QGeoCoordinate& coordinate)
-{
+void QGCMapPolyline::appendVertex(const QGeoCoordinate &coordinate) {
     _polylinePath.append(QVariant::fromValue(coordinate));
     _polylineModel.append(new QGCQGeoCoordinate(coordinate, this));
     emit pathChanged();
 }
 
-void QGCMapPolyline::removeVertex(int vertexIndex)
-{
+void QGCMapPolyline::removeVertex(int vertexIndex) {
     if (vertexIndex < 0 || vertexIndex > _polylinePath.length() - 1) {
         qWarning() << "Call to removeVertex with bad vertexIndex:count" << vertexIndex << _polylinePath.length();
         return;
@@ -235,9 +208,9 @@ void QGCMapPolyline::removeVertex(int vertexIndex)
         return;
     }
 
-    QObject* coordObj = _polylineModel.removeAt(vertexIndex);
+    QObject *coordObj = _polylineModel.removeAt(vertexIndex);
     coordObj->deleteLater();
-    if(vertexIndex == _selectedVertexIndex) {
+    if (vertexIndex == _selectedVertexIndex) {
         selectVertex(-1);
     } else if (vertexIndex < _selectedVertexIndex) {
         selectVertex(_selectedVertexIndex - 1);
@@ -247,16 +220,14 @@ void QGCMapPolyline::removeVertex(int vertexIndex)
     emit pathChanged();
 }
 
-void QGCMapPolyline::setInteractive(bool interactive)
-{
+void QGCMapPolyline::setInteractive(bool interactive) {
     if (_interactive != interactive) {
         _interactive = interactive;
         emit interactiveChanged(interactive);
     }
 }
 
-QGeoCoordinate QGCMapPolyline::vertexCoordinate(int vertex) const
-{
+QGeoCoordinate QGCMapPolyline::vertexCoordinate(int vertex) const {
     if (vertex >= 0 && vertex < _polylinePath.count()) {
         return _polylinePath[vertex].value<QGeoCoordinate>();
     } else {
@@ -265,14 +236,13 @@ QGeoCoordinate QGCMapPolyline::vertexCoordinate(int vertex) const
     }
 }
 
-QList<QPointF> QGCMapPolyline::nedPolyline(void)
-{
-    QList<QPointF>  nedPolyline;
+QList<QPointF> QGCMapPolyline::nedPolyline(void) {
+    QList<QPointF> nedPolyline;
 
     if (count() > 0) {
-        QGeoCoordinate  tangentOrigin = vertexCoordinate(0);
+        QGeoCoordinate tangentOrigin = vertexCoordinate(0);
 
-        for (int i=0; i<_polylinePath.count(); i++) {
+        for (int i = 0; i < _polylinePath.count(); i++) {
             double y, x, down;
             QGeoCoordinate vertex = vertexCoordinate(i);
             if (i == 0) {
@@ -288,9 +258,7 @@ QList<QPointF> QGCMapPolyline::nedPolyline(void)
     return nedPolyline;
 }
 
-
-QList<QGeoCoordinate> QGCMapPolyline::offsetPolyline(double distance)
-{
+QList<QGeoCoordinate> QGCMapPolyline::offsetPolyline(double distance) {
     QList<QGeoCoordinate> rgNewPolyline;
 
     // I'm sure there is some beautiful famous algorithm to do this, but here is a brute force method
@@ -301,9 +269,9 @@ QList<QGeoCoordinate> QGCMapPolyline::offsetPolyline(double distance)
 
         // Walk the edges, offsetting by the specified distance
         QList<QLineF> rgOffsetEdges;
-        for (int i=0; i<rgNedVertices.count() - 1; i++) {
-            QLineF  offsetEdge;
-            QLineF  originalEdge(rgNedVertices[i], rgNedVertices[i + 1]);
+        for (int i = 0; i < rgNedVertices.count() - 1; i++) {
+            QLineF offsetEdge;
+            QLineF originalEdge(rgNedVertices[i], rgNedVertices[i + 1]);
 
             QLineF workerLine = originalEdge;
             workerLine.setLength(distance);
@@ -318,7 +286,7 @@ QList<QGeoCoordinate> QGCMapPolyline::offsetPolyline(double distance)
             rgOffsetEdges.append(offsetEdge);
         }
 
-        QGeoCoordinate  tangentOrigin = vertexCoordinate(0);
+        QGeoCoordinate tangentOrigin = vertexCoordinate(0);
 
         // Add first vertex
         QGeoCoordinate coord;
@@ -326,8 +294,8 @@ QList<QGeoCoordinate> QGCMapPolyline::offsetPolyline(double distance)
         rgNewPolyline.append(coord);
 
         // Intersect the offset edges to generate new central vertices
-        QPointF  newVertex;
-        for (int i=1; i<rgOffsetEdges.count(); i++) {
+        QPointF newVertex;
+        for (int i = 1; i < rgOffsetEdges.count(); i++) {
             auto intersect = rgOffsetEdges[i - 1].intersects(rgOffsetEdges[i], &newVertex);
             if (intersect == QLineF::NoIntersection) {
                 // Two lines are colinear
@@ -346,8 +314,7 @@ QList<QGeoCoordinate> QGCMapPolyline::offsetPolyline(double distance)
     return rgNewPolyline;
 }
 
-bool QGCMapPolyline::loadKMLFile(const QString& kmlFile)
-{
+bool QGCMapPolyline::loadKMLFile(const QString &kmlFile) {
     _beginResetIfNotActive();
 
     QString errorString;
@@ -365,38 +332,31 @@ bool QGCMapPolyline::loadKMLFile(const QString& kmlFile)
     return true;
 }
 
-void QGCMapPolyline::_polylineModelDirtyChanged(bool dirty)
-{
+void QGCMapPolyline::_polylineModelDirtyChanged(bool dirty) {
     if (dirty) {
         setDirty(true);
     }
 }
 
-void QGCMapPolyline::_polylineModelCountChanged(int count)
-{
-    emit countChanged(count);
-}
+void QGCMapPolyline::_polylineModelCountChanged(int count) { emit countChanged(count); }
 
-
-double QGCMapPolyline::length(void) const
-{
+double QGCMapPolyline::length(void) const {
     double length = 0;
 
-    for (int i=0; i<_polylinePath.count() - 1; i++) {
+    for (int i = 0; i < _polylinePath.count() - 1; i++) {
         QGeoCoordinate from = _polylinePath[i].value<QGeoCoordinate>();
-        QGeoCoordinate to = _polylinePath[i+1].value<QGeoCoordinate>();
+        QGeoCoordinate to = _polylinePath[i + 1].value<QGeoCoordinate>();
         length += from.distanceTo(to);
     }
 
     return length;
 }
 
-void QGCMapPolyline::appendVertices(const QList<QGeoCoordinate>& coordinates)
-{
+void QGCMapPolyline::appendVertices(const QList<QGeoCoordinate> &coordinates) {
     _beginResetIfNotActive();
 
-    QList<QObject*> objects;
-    for (const QGeoCoordinate& coordinate: coordinates) {
+    QList<QObject *> objects;
+    for (const QGeoCoordinate &coordinate : coordinates) {
         objects.append(new QGCQGeoCoordinate(coordinate, this));
         _polylinePath.append(QVariant::fromValue(coordinate));
     }
@@ -405,54 +365,51 @@ void QGCMapPolyline::appendVertices(const QList<QGeoCoordinate>& coordinates)
     _endResetIfNotActive();
 }
 
-void QGCMapPolyline::beginReset(void)
-{
+void QGCMapPolyline::beginReset(void) {
     _resetActive = true;
     _polylineModel.beginReset();
 }
 
-void QGCMapPolyline::endReset(void)
-{
+void QGCMapPolyline::endReset(void) {
     _resetActive = false;
     _polylineModel.endReset();
     emit pathChanged();
 }
 
-void QGCMapPolyline::_beginResetIfNotActive(void)
-{
+void QGCMapPolyline::_beginResetIfNotActive(void) {
     if (!_resetActive) {
         beginReset();
     }
 }
 
-void QGCMapPolyline::_endResetIfNotActive(void)
-{
+void QGCMapPolyline::_endResetIfNotActive(void) {
     if (!_resetActive) {
         endReset();
     }
 }
 
-void QGCMapPolyline::setTraceMode(bool traceMode)
-{
+void QGCMapPolyline::setTraceMode(bool traceMode) {
     if (traceMode != _traceMode) {
         _traceMode = traceMode;
         emit traceModeChanged(traceMode);
     }
 }
 
-void QGCMapPolyline::selectVertex(int index)
-{
-    if(index == _selectedVertexIndex) return;   // do nothing
+void QGCMapPolyline::selectVertex(int index) {
+    if (index == _selectedVertexIndex)
+        return; // do nothing
 
-    if(-1 <= index && index < count()) {
+    if (-1 <= index && index < count()) {
         _selectedVertexIndex = index;
     } else {
         if (!qgcApp()->runningUnitTests()) {
-            qCWarning(ParameterManagerLog)
-                    << QString("QGCMapPolyline: Selected vertex index (%1) is out of bounds! "
-                               "Polyline vertices indexes range is [%2..%3].").arg(index).arg(0).arg(count()-1);
+            qCWarning(ParameterManagerLog) << QString("QGCMapPolyline: Selected vertex index (%1) is out of bounds! "
+                                                      "Polyline vertices indexes range is [%2..%3].")
+                                                  .arg(index)
+                                                  .arg(0)
+                                                  .arg(count() - 1);
         }
-        _selectedVertexIndex = -1;   // deselect vertex
+        _selectedVertexIndex = -1; // deselect vertex
     }
 
     emit selectedVertexChanged(_selectedVertexIndex);

@@ -19,17 +19,16 @@ class AutoPilotPlugin;
 class CustomCameraManager;
 class Vehicle;
 
-class CustomFirmwarePlugin : public PX4FirmwarePlugin
-{
+class CustomFirmwarePlugin : public PX4FirmwarePlugin {
     Q_OBJECT
-public:
+  public:
     CustomFirmwarePlugin();
 
     // FirmwarePlugin overrides
-    AutoPilotPlugin*    autopilotPlugin (Vehicle* vehicle) final;
-    const QVariantList& toolIndicators  (const Vehicle* vehicle) final;
-    bool                hasGimbal       (Vehicle* vehicle, bool& rollSupported, bool& pitchSupported, bool& yawSupported) final;
+    AutoPilotPlugin *autopilotPlugin(Vehicle *vehicle) final;
+    const QVariantList &toolIndicators(const Vehicle *vehicle) final;
+    bool hasGimbal(Vehicle *vehicle, bool &rollSupported, bool &pitchSupported, bool &yawSupported) final;
 
-private:
+  private:
     QVariantList _toolIndicatorList;
 };

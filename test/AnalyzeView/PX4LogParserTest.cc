@@ -1,11 +1,10 @@
 #include "PX4LogParserTest.h"
-#include "PX4LogParser.h"
 #include "GeoTagWorker.h"
+#include "PX4LogParser.h"
 
 #include <QtTest/QTest>
 
-void PX4LogParserTest::_getTagsFromLogTest()
-{
+void PX4LogParserTest::_getTagsFromLogTest() {
     /*QFile file("SamplePX4Log.");
     QVERIFY(file.open(QIODevice::ReadOnly));
 

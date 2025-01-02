@@ -1,15 +1,14 @@
 #include "ADSBTest.h"
-#include "ADSBVehicleManager.h"
-#include "ADSBVehicle.h"
 #include "ADSBTCPLink.h"
+#include "ADSBVehicle.h"
+#include "ADSBVehicleManager.h"
 #include "QmlObjectListModel.h"
 
 #include <QtNetwork/QTcpServer>
-#include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
+#include <QtTest/QTest>
 
-void ADSBTest::_adsbVehicleTest()
-{
+void ADSBTest::_adsbVehicleTest() {
     ADSB::VehicleInfo_t vehicleInfo;
     vehicleInfo.icaoAddress = 1;
     vehicleInfo.callsign = QStringLiteral("1");
@@ -19,7 +18,7 @@ void ADSBTest::_adsbVehicleTest()
     vehicleInfo.alert = false;
     vehicleInfo.availableFlags = ADSB::CallsignAvailable;
 
-    ADSBVehicle* const adsbVehicle = new ADSBVehicle(vehicleInfo, this);
+    ADSBVehicle *const adsbVehicle = new ADSBVehicle(vehicleInfo, this);
     QVERIFY(adsbVehicle != nullptr);
     QVERIFY(!adsbVehicle->expired());
 
@@ -43,25 +42,24 @@ void ADSBTest::_adsbVehicleTest()
     QCOMPARE(adsbVehicle->coordinate(), vehicleInfo2.location);
 }
 
-void ADSBTest::_adsbTcpLinkTest()
-{
-    QTcpServer* const server = new QTcpServer(this);
+void ADSBTest::_adsbTcpLinkTest() {
+    QTcpServer *const server = new QTcpServer(this);
     QVERIFY(server);
     QVERIFY(server->listen(QHostAddress::SpecialAddress::AnyIPv4, 30003));
 
-    ADSBTCPLink* const adsbLink = new ADSBTCPLink(QHostAddress::LocalHost, 30003, this);
+    ADSBTCPLink *const adsbLink = new ADSBTCPLink(QHostAddress::LocalHost, 30003, this);
     QVERIFY(adsbLink);
     QSignalSpy spy(adsbLink, &ADSBTCPLink::adsbVehicleUpdate);
 
     bool timeout = false;
     QVERIFY(server->waitForNewConnection(1000, &timeout));
     QVERIFY(!timeout);
-    QTcpSocket* const clientSocket = server->nextPendingConnection();
+    QTcpSocket *const clientSocket = server->nextPendingConnection();
     QVERIFY(clientSocket != nullptr);
 
     const QByteArray message("MSG,8D4840D6202CC371C32CE0576098");
     for (uint8_t i = 0; i < 50; i++) {
-        (void) clientSocket->write(message);
+        (void)clientSocket->write(message);
     }
 
     // QVERIFY(spy.wait(5000));
@@ -69,9 +67,8 @@ void ADSBTest::_adsbTcpLinkTest()
     server->close();
 }
 
-void ADSBTest::_adsbVehicleManagerTest()
-{
-    ADSBVehicleManager* const manager = ADSBVehicleManager::instance();
+void ADSBTest::_adsbVehicleManagerTest() {
+    ADSBVehicleManager *const manager = ADSBVehicleManager::instance();
     QVERIFY(manager);
     QVERIFY(manager->adsbVehicles());
     QCOMPARE(manager->adsbVehicles()->count(), 0);

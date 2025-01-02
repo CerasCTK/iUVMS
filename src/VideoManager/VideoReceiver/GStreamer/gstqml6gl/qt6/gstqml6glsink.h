@@ -30,41 +30,40 @@
 #ifndef __GST_QT6_SINK_H__
 #define __GST_QT6_SINK_H__
 
+#include "qt6glitem.h"
+#include <gst/gl/gl.h>
 #include <gst/gst.h>
 #include <gst/video/gstvideosink.h>
 #include <gst/video/video.h>
-#include <gst/gl/gl.h>
-#include "qt6glitem.h"
 
 typedef struct _GstQml6GLSinkPrivate GstQml6GLSinkPrivate;
 
 G_BEGIN_DECLS
 
 #define GST_TYPE_QML6_GL_SINK (gst_qml6_gl_sink_get_type())
-G_DECLARE_FINAL_TYPE (GstQml6GLSink, gst_qml6_gl_sink, GST, QML6_GL_SINK, GstVideoSink)
-#define GST_QML6_GL_SINK_CAST(obj) ((GstQml6GLSink*)(obj))
+G_DECLARE_FINAL_TYPE(GstQml6GLSink, gst_qml6_gl_sink, GST, QML6_GL_SINK, GstVideoSink)
+#define GST_QML6_GL_SINK_CAST(obj) ((GstQml6GLSink *)(obj))
 
 /**
  * GstQml6GLSink:
  *
  * Opaque #GstQml6GLSink object
  */
-struct _GstQml6GLSink
-{
-  /* <private> */
-  GstVideoSink          parent;
+struct _GstQml6GLSink {
+    /* <private> */
+    GstVideoSink parent;
 
-  GstVideoInfo          v_info;
-  GstBufferPool        *pool;
+    GstVideoInfo v_info;
+    GstBufferPool *pool;
 
-  GstGLDisplay         *display;
-  GstGLContext         *context;
-  GstGLContext         *qt_context;
+    GstGLDisplay *display;
+    GstGLContext *context;
+    GstGLContext *qt_context;
 
-  QSharedPointer<Qt6GLVideoItemInterface> widget;
+    QSharedPointer<Qt6GLVideoItemInterface> widget;
 };
 
-GstQml6GLSink *    gst_qml6_gl_sink_new (void);
+GstQml6GLSink *gst_qml6_gl_sink_new(void);
 
 G_END_DECLS
 

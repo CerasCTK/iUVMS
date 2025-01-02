@@ -35,13 +35,10 @@ void ParseCmdLineOptions(
             QString arg(argv[iArg]);
             QString optionStr(prgOpts[iOption].optionStr);
 
-            if (arg.startsWith(
-                    QString("%1:").arg(optionStr), Qt::CaseInsensitive
-                )) {
+            if (arg.startsWith(QString("%1:").arg(optionStr), Qt::CaseInsensitive)) {
                 found = true;
                 if (prgOpts[iOption].optionArg) {
-                    *prgOpts[iOption].optionArg
-                        = arg.right(arg.length() - (optionStr.length() + 1));
+                    *prgOpts[iOption].optionArg = arg.right(arg.length() - (optionStr.length() + 1));
                 }
             } else if (arg.compare(optionStr, Qt::CaseInsensitive) == 0) {
                 found = true;

@@ -8,20 +8,17 @@
  ****************************************************************************/
 
 #include "SimulatedPosition.h"
-#include "QGCApplication.h"
 #include "MultiVehicleManager.h"
-#include "Vehicle.h"
+#include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
+#include "Vehicle.h"
 
 #include <QtCore/QDateTime>
 #include <QtCore/QTimer>
 
 QGC_LOGGING_CATEGORY(SimulatedPositionLog, "qgc.positionmanager.simulatedposition")
 
-SimulatedPosition::SimulatedPosition(QObject* parent)
-    : QGeoPositionInfoSource(parent)
-    , _updateTimer(new QTimer(this))
-{
+SimulatedPosition::SimulatedPosition(QObject *parent) : QGeoPositionInfoSource(parent), _updateTimer(new QTimer(this)) {
     // qCDebug(SimulatedPositionLog) << Q_FUNC_INFO << this;
 
     _lastPosition.setTimestamp(QDateTime::currentDateTime());
@@ -30,34 +27,23 @@ SimulatedPosition::SimulatedPosition(QObject* parent)
     _lastPosition.setAttribute(QGeoPositionInfo::Attribute::GroundSpeed, kHorizontalVelocityMetersPerSec);
     _lastPosition.setAttribute(QGeoPositionInfo::Attribute::VerticalSpeed, kVerticalVelocityMetersPerSec);
 
-    (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::vehicleAdded, this, &SimulatedPosition::_vehicleAdded);
+    (void)connect(MultiVehicleManager::instance(), &MultiVehicleManager::vehicleAdded, this, &SimulatedPosition::_vehicleAdded);
 
     _updateTimer->setSingleShot(false);
-    (void) connect(_updateTimer, &QTimer::timeout, this, &SimulatedPosition::_updatePosition);
+    (void)connect(_updateTimer, &QTimer::timeout, this, &SimulatedPosition::_updatePosition);
 }
 
-SimulatedPosition::~SimulatedPosition()
-{
+SimulatedPosition::~SimulatedPosition() {
     // qCDebug(SimulatedPositionLog) << Q_FUNC_INFO << this;
 }
 
-void SimulatedPosition::startUpdates()
-{
-    _updateTimer->start(qMax(updateInterval(), minimumUpdateInterval()));
-}
+void SimulatedPosition::startUpdates() { _updateTimer->start(qMax(updateInterval(), minimumUpdateInterval())); }
 
-void SimulatedPosition::stopUpdates()
-{
-    _updateTimer->stop();
-}
+void SimulatedPosition::stopUpdates() { _updateTimer->stop(); }
 
-void SimulatedPosition::requestUpdate(int /*timeout*/)
-{
-    emit errorOccurred(QGeoPositionInfoSource::UpdateTimeoutError);
-}
+void SimulatedPosition::requestUpdate(int /*timeout*/) { emit errorOccurred(QGeoPositionInfoSource::UpdateTimeoutError); }
 
-void SimulatedPosition::_updatePosition()
-{
+void SimulatedPosition::_updatePosition() {
     const int intervalMsecs = _updateTimer->interval();
 
     const QGeoCoordinate coord = _lastPosition.coordinate();
@@ -68,8 +54,7 @@ void SimulatedPosition::_updatePosition()
     emit positionUpdated(_lastPosition);
 }
 
-void SimulatedPosition::_vehicleAdded(Vehicle* vehicle)
-{
+void SimulatedPosition::_vehicleAdded(Vehicle *vehicle) {
     if (!vehicle) {
         return;
     }
@@ -81,12 +66,11 @@ void SimulatedPosition::_vehicleAdded(Vehicle* vehicle)
     }
 }
 
-void SimulatedPosition::_vehicleHomePositionChanged(QGeoCoordinate homePosition)
-{
+void SimulatedPosition::_vehicleHomePositionChanged(QGeoCoordinate homePosition) {
     if (homePosition.isValid()) {
         _lastPosition.setCoordinate(homePosition);
         if (_homePositionChangedConnection) {
-            (void) disconnect(_homePositionChangedConnection);
+            (void)disconnect(_homePositionChangedConnection);
             _homePositionChangedConnection = QMetaObject::Connection();
         }
     }

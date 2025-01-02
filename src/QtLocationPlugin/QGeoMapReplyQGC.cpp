@@ -30,34 +30,33 @@ QByteArray QGeoTiledMapReplyQGC::_bingNoTileImage;
 QByteArray QGeoTiledMapReplyQGC::_badTile;
 
 QGeoTiledMapReplyQGC::QGeoTiledMapReplyQGC(QNetworkAccessManager *networkManager, const QNetworkRequest &request, const QGeoTileSpec &spec, QObject *parent)
-    : QGeoTiledMapReply(spec, parent)
-    , _networkManager(networkManager)
-    , _request(request)
-{
+    : QGeoTiledMapReply(spec, parent), _networkManager(networkManager), _request(request) {
     // qCDebug(QGeoTiledMapReplyQGCLog) << Q_FUNC_INFO << this;
 
     _initDataFromResources();
 
-    (void) connect(this, &QGeoTiledMapReplyQGC::errorOccurred, this, [this](QGeoTiledMapReply::Error error, const QString &errorString) {
-        qCWarning(QGeoTiledMapReplyQGCLog) << error << errorString;
-        setMapImageData(_badTile);
-        setMapImageFormat("png");
-        setCached(false);
-    }, Qt::AutoConnection);
+    (void)connect(
+        this, &QGeoTiledMapReplyQGC::errorOccurred, this,
+        [this](QGeoTiledMapReply::Error error, const QString &errorString) {
+            qCWarning(QGeoTiledMapReplyQGCLog) << error << errorString;
+            setMapImageData(_badTile);
+            setMapImageFormat("png");
+            setCached(false);
+        },
+        Qt::AutoConnection
+    );
 
-    QGCFetchTileTask* const task = QGeoFileTileCacheQGC::createFetchTileTask(UrlFactory::getProviderTypeFromQtMapId(spec.mapId()), spec.x(), spec.y(), spec.zoom());
-    (void) connect(task, &QGCFetchTileTask::tileFetched, this, &QGeoTiledMapReplyQGC::_cacheReply);
-    (void) connect(task, &QGCMapTask::error, this, &QGeoTiledMapReplyQGC::_cacheError);
+    QGCFetchTileTask *const task = QGeoFileTileCacheQGC::createFetchTileTask(UrlFactory::getProviderTypeFromQtMapId(spec.mapId()), spec.x(), spec.y(), spec.zoom());
+    (void)connect(task, &QGCFetchTileTask::tileFetched, this, &QGeoTiledMapReplyQGC::_cacheReply);
+    (void)connect(task, &QGCMapTask::error, this, &QGeoTiledMapReplyQGC::_cacheError);
     getQGCMapEngine()->addTask(task);
 }
 
-QGeoTiledMapReplyQGC::~QGeoTiledMapReplyQGC()
-{
+QGeoTiledMapReplyQGC::~QGeoTiledMapReplyQGC() {
     // qCDebug(QGeoTiledMapReplyQGCLog) << Q_FUNC_INFO << this;
 }
 
-void QGeoTiledMapReplyQGC::_initDataFromResources()
-{
+void QGeoTiledMapReplyQGC::_initDataFromResources() {
     if (_bingNoTileImage.isEmpty()) {
         QFile file("://res/BingNoTileBytes.dat");
         if (file.open(QFile::ReadOnly)) {
@@ -75,9 +74,8 @@ void QGeoTiledMapReplyQGC::_initDataFromResources()
     }
 }
 
-void QGeoTiledMapReplyQGC::_networkReplyFinished()
-{
-    QNetworkReply* const reply = qobject_cast<QNetworkReply*>(sender());
+void QGeoTiledMapReplyQGC::_networkReplyFinished() {
+    QNetworkReply *const reply = qobject_cast<QNetworkReply *>(sender());
     if (!reply) {
         setError(QGeoTiledMapReply::UnknownError, tr("Unexpected Error"));
         return;
@@ -135,10 +133,9 @@ void QGeoTiledMapReplyQGC::_networkReplyFinished()
     setFinished(true);
 }
 
-void QGeoTiledMapReplyQGC::_networkReplyError(QNetworkReply::NetworkError error)
-{
+void QGeoTiledMapReplyQGC::_networkReplyError(QNetworkReply::NetworkError error) {
     if (error != QNetworkReply::OperationCanceledError) {
-        const QNetworkReply* const reply = qobject_cast<const QNetworkReply*>(sender());
+        const QNetworkReply *const reply = qobject_cast<const QNetworkReply *>(sender());
         if (!reply) {
             setError(QGeoTiledMapReply::CommunicationError, tr("Invalid Reply"));
         } else {
@@ -149,14 +146,13 @@ void QGeoTiledMapReplyQGC::_networkReplyError(QNetworkReply::NetworkError error)
     }
 }
 
-void QGeoTiledMapReplyQGC::_networkReplySslErrors(const QList<QSslError> &errors)
-{
+void QGeoTiledMapReplyQGC::_networkReplySslErrors(const QList<QSslError> &errors) {
     QString errorString;
     for (const QSslError &error : errors) {
         if (!errorString.isEmpty()) {
-            (void) errorString.append('\n');
+            (void)errorString.append('\n');
         }
-        (void) errorString.append(error.errorString());
+        (void)errorString.append(error.errorString());
     }
 
     if (!errorString.isEmpty()) {
@@ -164,8 +160,7 @@ void QGeoTiledMapReplyQGC::_networkReplySslErrors(const QList<QSslError> &errors
     }
 }
 
-void QGeoTiledMapReplyQGC::_cacheReply(QGCCacheTile *tile)
-{
+void QGeoTiledMapReplyQGC::_cacheReply(QGCCacheTile *tile) {
     if (tile) {
         setMapImageData(tile->img());
         setMapImageFormat(tile->format());
@@ -177,8 +172,7 @@ void QGeoTiledMapReplyQGC::_cacheReply(QGCCacheTile *tile)
     }
 }
 
-void QGeoTiledMapReplyQGC::_cacheError(QGCMapTask::TaskType type, QStringView errorString)
-{
+void QGeoTiledMapReplyQGC::_cacheError(QGCMapTask::TaskType type, QStringView errorString) {
     Q_UNUSED(errorString);
 
     Q_ASSERT(type == QGCMapTask::taskFetchTile);
@@ -190,17 +184,14 @@ void QGeoTiledMapReplyQGC::_cacheError(QGCMapTask::TaskType type, QStringView er
 
     _request.setOriginatingObject(this);
 
-    QNetworkReply* const reply = _networkManager->get(_request);
+    QNetworkReply *const reply = _networkManager->get(_request);
     reply->setParent(this);
     QGCFileDownload::setIgnoreSSLErrorsIfNeeded(*reply);
 
-    (void) connect(reply, &QNetworkReply::finished, this, &QGeoTiledMapReplyQGC::_networkReplyFinished);
-    (void) connect(reply, &QNetworkReply::errorOccurred, this, &QGeoTiledMapReplyQGC::_networkReplyError);
-    (void) connect(reply, &QNetworkReply::sslErrors, this, &QGeoTiledMapReplyQGC::_networkReplySslErrors);
-    (void) connect(this, &QGeoTiledMapReplyQGC::aborted, reply, &QNetworkReply::abort);
+    (void)connect(reply, &QNetworkReply::finished, this, &QGeoTiledMapReplyQGC::_networkReplyFinished);
+    (void)connect(reply, &QNetworkReply::errorOccurred, this, &QGeoTiledMapReplyQGC::_networkReplyError);
+    (void)connect(reply, &QNetworkReply::sslErrors, this, &QGeoTiledMapReplyQGC::_networkReplySslErrors);
+    (void)connect(this, &QGeoTiledMapReplyQGC::aborted, reply, &QNetworkReply::abort);
 }
 
-void QGeoTiledMapReplyQGC::abort()
-{
-    QGeoTiledMapReply::abort();
-}
+void QGeoTiledMapReplyQGC::abort() { QGeoTiledMapReply::abort(); }

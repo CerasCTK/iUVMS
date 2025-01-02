@@ -11,11 +11,10 @@
 
 #include "SettingsGroup.h"
 
-class RTKSettings : public SettingsGroup
-{
+class RTKSettings : public SettingsGroup {
     Q_OBJECT
-public:
-    RTKSettings(QObject* parent = nullptr);
+  public:
+    RTKSettings(QObject *parent = nullptr);
     DEFINE_SETTING_NAME_GROUP()
     DEFINE_SETTINGFACT(surveyInAccuracyLimit)
     DEFINE_SETTINGFACT(surveyInMinObservationDuration)

@@ -9,10 +9,10 @@
 
 #pragma once
 
-#include <QtCore/QLoggingCategory>
-#include <QtCore/QString>
 #include <QtCore/QDir>
+#include <QtCore/QLoggingCategory>
 #include <QtCore/QMap>
+#include <QtCore/QString>
 
 Q_DECLARE_LOGGING_CATEGORY(ComponentInformationCacheLog)
 
@@ -23,20 +23,19 @@ Q_DECLARE_LOGGING_CATEGORY(ComponentInformationCacheLog)
  * - only one instance per directory must exist
  * - not thread-safe
  */
-class ComponentInformationCache : public QObject
-{
+class ComponentInformationCache : public QObject {
     Q_OBJECT
-public:
-    ComponentInformationCache(const QDir& path, int maxNumFiles);
+  public:
+    ComponentInformationCache(const QDir &path, int maxNumFiles);
 
-    static ComponentInformationCache& defaultInstance();
+    static ComponentInformationCache &defaultInstance();
 
     /**
      * Try to access a file and set the access counter
      * @param fileTag
      * @return empty string if not found, or file path
      */
-    QString access(const QString& fileTag);
+    QString access(const QString &fileTag);
 
     /**
      * Insert a file into the cache & remove old files if there's too many.
@@ -44,31 +43,30 @@ public:
      * @param fileName file to insert, will be moved (or deleted if already exists)
      * @return cached file name if inserted or already exists, "" on error
      */
-    QString insert(const QString &fileTag, const QString& fileName);
+    QString insert(const QString &fileTag, const QString &fileName);
 
-private:
-
-    static constexpr const char* _metaExtension = ".meta";
-    static constexpr const char* _cacheExtension = ".cache";
+  private:
+    static constexpr const char *_metaExtension = ".meta";
+    static constexpr const char *_cacheExtension = ".cache";
 
     using AccessCounterType = uint64_t;
 
     struct Meta {
-        uint32_t magic{0x9a9cad0e};
-        uint32_t version{0};
-        AccessCounterType accessCounter{0};
+        uint32_t magic{ 0x9a9cad0e };
+        uint32_t version{ 0 };
+        AccessCounterType accessCounter{ 0 };
     };
 
     void initializeDirectory();
     void removeOldEntries();
 
-    QString metaFileName(const QString& fileTag);
-    QString dataFileName(const QString& fileTag);
+    QString metaFileName(const QString &fileTag);
+    QString dataFileName(const QString &fileTag);
 
     const QDir _path;
     const int _maxNumFiles;
 
-    AccessCounterType _nextAccessCounter{0};
-    int _numFiles{0};
+    AccessCounterType _nextAccessCounter{ 0 };
+    int _numFiles{ 0 };
     QMap<AccessCounterType, QString> _cachedFiles;
 };

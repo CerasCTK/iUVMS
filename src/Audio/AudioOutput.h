@@ -19,13 +19,12 @@ class AudioOutputTest;
 Q_DECLARE_LOGGING_CATEGORY(AudioOutputLog)
 
 /// The AudioOutput class provides functionality for audio output using text-to-speech.
-class AudioOutput : public QObject
-{
+class AudioOutput : public QObject {
     Q_OBJECT
 
     friend AudioOutputTest;
 
-public:
+  public:
     /// Enumeration for text modification options.
     enum class TextMod {
         None = 0,
@@ -61,7 +60,7 @@ public:
     ///     @param textMods The text modifications to apply.
     void say(const QString &text, TextMods textMods = TextMod::None);
 
-private:
+  private:
     QTextToSpeech *_engine = nullptr;
     QAtomicInteger<qsizetype> _textQueueSize = 0;
     bool _initialized = false;
@@ -99,6 +98,5 @@ private:
     ///     @param number The extracted number.
     ///     @return True if extraction is successful, false otherwise.
     static bool _getMillisecondString(const QString &string, QString &match, int &number);
-
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(AudioOutput::TextMods)

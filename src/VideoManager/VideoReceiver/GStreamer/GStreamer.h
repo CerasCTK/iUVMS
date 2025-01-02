@@ -17,20 +17,19 @@ Q_DECLARE_LOGGING_CATEGORY(GStreamerAPILog)
 class VideoReceiver;
 class QQuickItem;
 
-namespace GStreamer
-{
-enum VideoDecoderOptions {
-    ForceVideoDecoderDefault = 0,
-    ForceVideoDecoderSoftware,
-    ForceVideoDecoderNVIDIA,
-    ForceVideoDecoderVAAPI,
-    ForceVideoDecoderDirectX3D,
-    ForceVideoDecoderVideoToolbox,
-};
+namespace GStreamer {
+    enum VideoDecoderOptions {
+        ForceVideoDecoderDefault = 0,
+        ForceVideoDecoderSoftware,
+        ForceVideoDecoderNVIDIA,
+        ForceVideoDecoderVAAPI,
+        ForceVideoDecoderDirectX3D,
+        ForceVideoDecoderVideoToolbox,
+    };
 
-void initialize();
-void blacklist(VideoDecoderOptions option);
-void *createVideoSink(QObject *parent, QQuickItem *widget);
-void releaseVideoSink(void *sink);
-VideoReceiver *createVideoReceiver(QObject *parent = nullptr);
-};
+    void initialize();
+    void blacklist(VideoDecoderOptions option);
+    void *createVideoSink(QObject *parent, QQuickItem *widget);
+    void releaseVideoSink(void *sink);
+    VideoReceiver *createVideoReceiver(QObject *parent = nullptr);
+}; // namespace GStreamer

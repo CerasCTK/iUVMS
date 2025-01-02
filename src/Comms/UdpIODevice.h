@@ -20,17 +20,16 @@
  *
  **/
 
-class UdpIODevice: public QUdpSocket
-{
+class UdpIODevice : public QUdpSocket {
     Q_OBJECT
-public:
+  public:
     UdpIODevice(QObject *parent = nullptr);
-    bool     canReadLine() const;
-    qint64   readLineData(char *data, qint64 maxSize);
+    bool canReadLine() const;
+    qint64 readLineData(char *data, qint64 maxSize);
 
-private slots:
+  private slots:
     void _readAvailableData();
 
-private:
+  private:
     QByteArray _buffer;
 };

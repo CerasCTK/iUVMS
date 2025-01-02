@@ -14,79 +14,40 @@ QT_BEGIN_NAMESPACE
 class QSerialPortInfo;
 class QSerialPortPrivate;
 
-class Q_SERIALPORT_EXPORT QSerialPort : public QIODevice
-{
+class Q_SERIALPORT_EXPORT QSerialPort : public QIODevice {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSerialPort)
 
     Q_PROPERTY(qint32 baudRate READ baudRate WRITE setBaudRate NOTIFY baudRateChanged)
-    Q_PROPERTY(DataBits dataBits READ dataBits WRITE setDataBits NOTIFY dataBitsChanged
-                BINDABLE bindableDataBits)
+    Q_PROPERTY(DataBits dataBits READ dataBits WRITE setDataBits NOTIFY dataBitsChanged BINDABLE bindableDataBits)
     Q_PROPERTY(Parity parity READ parity WRITE setParity NOTIFY parityChanged BINDABLE bindableParity)
-    Q_PROPERTY(StopBits stopBits READ stopBits WRITE setStopBits NOTIFY stopBitsChanged
-                BINDABLE bindableStopBits)
-    Q_PROPERTY(FlowControl flowControl READ flowControl WRITE setFlowControl NOTIFY flowControlChanged
-                BINDABLE bindableFlowControl)
-    Q_PROPERTY(bool dataTerminalReady READ isDataTerminalReady WRITE setDataTerminalReady
-                NOTIFY dataTerminalReadyChanged)
+    Q_PROPERTY(StopBits stopBits READ stopBits WRITE setStopBits NOTIFY stopBitsChanged BINDABLE bindableStopBits)
+    Q_PROPERTY(FlowControl flowControl READ flowControl WRITE setFlowControl NOTIFY flowControlChanged BINDABLE bindableFlowControl)
+    Q_PROPERTY(bool dataTerminalReady READ isDataTerminalReady WRITE setDataTerminalReady NOTIFY dataTerminalReadyChanged)
     Q_PROPERTY(bool requestToSend READ isRequestToSend WRITE setRequestToSend NOTIFY requestToSendChanged)
     Q_PROPERTY(SerialPortError error READ error RESET clearError NOTIFY errorOccurred BINDABLE bindableError)
-    Q_PROPERTY(bool breakEnabled READ isBreakEnabled WRITE setBreakEnabled NOTIFY breakEnabledChanged
-                BINDABLE bindableIsBreakEnabled)
+    Q_PROPERTY(bool breakEnabled READ isBreakEnabled WRITE setBreakEnabled NOTIFY breakEnabledChanged BINDABLE bindableIsBreakEnabled)
 
     typedef int Handle;
 
-public:
-
-    enum Direction  {
-        Input = 1,
-        Output = 2,
-        AllDirections = Input | Output
-    };
+  public:
+    enum Direction { Input = 1, Output = 2, AllDirections = Input | Output };
     Q_FLAG(Direction)
     Q_DECLARE_FLAGS(Directions, Direction)
 
-    enum BaudRate {
-        Baud1200 = 1200,
-        Baud2400 = 2400,
-        Baud4800 = 4800,
-        Baud9600 = 9600,
-        Baud19200 = 19200,
-        Baud38400 = 38400,
-        Baud57600 = 57600,
-        Baud115200 = 115200
-    };
+    enum BaudRate { Baud1200 = 1200, Baud2400 = 2400, Baud4800 = 4800, Baud9600 = 9600, Baud19200 = 19200, Baud38400 = 38400, Baud57600 = 57600, Baud115200 = 115200 };
     Q_ENUM(BaudRate)
 
-    enum DataBits {
-        Data5 = 5,
-        Data6 = 6,
-        Data7 = 7,
-        Data8 = 8
-    };
+    enum DataBits { Data5 = 5, Data6 = 6, Data7 = 7, Data8 = 8 };
     Q_ENUM(DataBits)
 
-    enum Parity {
-        NoParity = 0,
-        EvenParity = 2,
-        OddParity = 3,
-        SpaceParity = 4,
-        MarkParity = 5
-    };
+    enum Parity { NoParity = 0, EvenParity = 2, OddParity = 3, SpaceParity = 4, MarkParity = 5 };
     Q_ENUM(Parity)
 
-    enum StopBits {
-        OneStop = 1,
-        OneAndHalfStop = 3,
-        TwoStop = 2
-    };
+    enum StopBits { OneStop = 1, OneAndHalfStop = 3, TwoStop = 2 };
     Q_ENUM(StopBits)
 
-    enum FlowControl {
-        NoFlowControl,
-        HardwareControl,
-        SoftwareControl
-    };
+    enum FlowControl { NoFlowControl, HardwareControl, SoftwareControl };
     Q_ENUM(FlowControl)
 
     enum PinoutSignal {
@@ -103,19 +64,7 @@ public:
     Q_FLAG(PinoutSignal)
     Q_DECLARE_FLAGS(PinoutSignals, PinoutSignal)
 
-    enum SerialPortError {
-        NoError,
-        DeviceNotFoundError,
-        PermissionError,
-        OpenError,
-        WriteError,
-        ReadError,
-        ResourceError,
-        UnsupportedOperationError,
-        UnknownError,
-        TimeoutError,
-        NotOpenError
-    };
+    enum SerialPortError { NoError, DeviceNotFoundError, PermissionError, OpenError, WriteError, ReadError, ResourceError, UnsupportedOperationError, UnknownError, TimeoutError, NotOpenError };
     Q_ENUM(SerialPortError)
 
     explicit QSerialPort(QObject *parent = nullptr);
@@ -183,7 +132,7 @@ public:
 
     Handle handle() const;
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void baudRateChanged(qint32 baudRate, QSerialPort::Directions directions);
     void dataBitsChanged(QSerialPort::DataBits dataBits);
     void parityChanged(QSerialPort::Parity parity);
@@ -194,12 +143,12 @@ Q_SIGNALS:
     void errorOccurred(QSerialPort::SerialPortError error);
     void breakEnabledChanged(bool set);
 
-protected:
+  protected:
     qint64 readData(char *data, qint64 maxSize) override;
     qint64 readLineData(char *data, qint64 maxSize) override;
     qint64 writeData(const char *data, qint64 maxSize) override;
 
-private:
+  private:
     Q_DISABLE_COPY(QSerialPort)
 };
 

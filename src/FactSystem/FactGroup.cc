@@ -7,38 +7,27 @@
  *
  ****************************************************************************/
 
-
 #include "FactGroup.h"
 
 #include <QtQml/QQmlEngine>
 
-FactGroup::FactGroup(int updateRateMsecs, const QString& metaDataFile, QObject* parent, bool ignoreCamelCase)
-    : QObject(parent)
-    , _updateRateMSecs(updateRateMsecs)
-    , _ignoreCamelCase(ignoreCamelCase)
-{
+FactGroup::FactGroup(int updateRateMsecs, const QString &metaDataFile, QObject *parent, bool ignoreCamelCase) : QObject(parent), _updateRateMSecs(updateRateMsecs), _ignoreCamelCase(ignoreCamelCase) {
     _setupTimer();
     _nameToFactMetaDataMap = FactMetaData::createMapFromJsonFile(metaDataFile, this);
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 }
 
-FactGroup::FactGroup(int updateRateMsecs, QObject* parent, bool ignoreCamelCase)
-    : QObject(parent)
-    , _updateRateMSecs(updateRateMsecs)
-    , _ignoreCamelCase(ignoreCamelCase)
-{
+FactGroup::FactGroup(int updateRateMsecs, QObject *parent, bool ignoreCamelCase) : QObject(parent), _updateRateMSecs(updateRateMsecs), _ignoreCamelCase(ignoreCamelCase) {
     _setupTimer();
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 }
 
-void FactGroup::_loadFromJsonArray(const QJsonArray jsonArray)
-{
+void FactGroup::_loadFromJsonArray(const QJsonArray jsonArray) {
     QMap<QString, QString> defineMap;
     _nameToFactMetaDataMap = FactMetaData::createMapFromJsonArray(jsonArray, defineMap, this);
 }
 
-void FactGroup::_setupTimer()
-{
+void FactGroup::_setupTimer() {
     if (_updateRateMSecs > 0) {
         connect(&_updateTimer, &QTimer::timeout, this, &FactGroup::_updateAllValues);
         _updateTimer.setSingleShot(false);
@@ -47,8 +36,7 @@ void FactGroup::_setupTimer()
     }
 }
 
-bool FactGroup::factExists(const QString& name)
-{
+bool FactGroup::factExists(const QString &name) {
     if (name.contains(".")) {
         QStringList parts = name.split(".");
         if (parts.count() != 2) {
@@ -56,7 +44,7 @@ bool FactGroup::factExists(const QString& name)
             return false;
         }
 
-        FactGroup * factGroup = getFactGroup(parts[0]);
+        FactGroup *factGroup = getFactGroup(parts[0]);
         if (!factGroup) {
             qWarning() << "Unknown FactGroup" << parts[0];
             return false;
@@ -70,8 +58,7 @@ bool FactGroup::factExists(const QString& name)
     return _nameToFactMap.contains(camelCaseName);
 }
 
-Fact* FactGroup::getFact(const QString& name)
-{
+Fact *FactGroup::getFact(const QString &name) {
     if (name.contains(".")) {
         QStringList parts = name.split(".");
         if (parts.count() != 2) {
@@ -79,7 +66,7 @@ Fact* FactGroup::getFact(const QString& name)
             return nullptr;
         }
 
-        FactGroup * factGroup = getFactGroup(parts[0]);
+        FactGroup *factGroup = getFactGroup(parts[0]);
         if (!factGroup) {
             qWarning() << "Unknown FactGroup" << parts[0];
             return nullptr;
@@ -88,7 +75,7 @@ Fact* FactGroup::getFact(const QString& name)
         return factGroup->getFact(parts[1]);
     }
 
-    Fact*   fact =          nullptr;
+    Fact *fact = nullptr;
     QString camelCaseName = _ignoreCamelCase ? name : _camelCase(name);
 
     if (_nameToFactMap.contains(camelCaseName)) {
@@ -101,10 +88,9 @@ Fact* FactGroup::getFact(const QString& name)
     return fact;
 }
 
-FactGroup* FactGroup::getFactGroup(const QString& name)
-{
-    FactGroup*  factGroup = nullptr;
-    QString     camelCaseName = _ignoreCamelCase ? name : _camelCase(name);
+FactGroup *FactGroup::getFactGroup(const QString &name) {
+    FactGroup *factGroup = nullptr;
+    QString camelCaseName = _ignoreCamelCase ? name : _camelCase(name);
 
     if (_nameToFactGroupMap.contains(camelCaseName)) {
         factGroup = _nameToFactGroupMap[camelCaseName];
@@ -116,8 +102,7 @@ FactGroup* FactGroup::getFactGroup(const QString& name)
     return factGroup;
 }
 
-void FactGroup::_addFact(Fact* fact, const QString& name)
-{
+void FactGroup::_addFact(Fact *fact, const QString &name) {
     if (_nameToFactMap.contains(name)) {
         qWarning() << "Duplicate Fact" << name;
         return;
@@ -133,8 +118,7 @@ void FactGroup::_addFact(Fact* fact, const QString& name)
     emit factNamesChanged();
 }
 
-void FactGroup::_addFactGroup(FactGroup* factGroup, const QString& name)
-{
+void FactGroup::_addFactGroup(FactGroup *factGroup, const QString &name) {
     if (_nameToFactGroupMap.contains(name)) {
         qWarning() << "Duplicate FactGroup" << name;
         return;
@@ -145,15 +129,13 @@ void FactGroup::_addFactGroup(FactGroup* factGroup, const QString& name)
     emit factGroupNamesChanged();
 }
 
-void FactGroup::_updateAllValues(void)
-{
-    for(Fact* fact: _nameToFactMap) {
+void FactGroup::_updateAllValues(void) {
+    for (Fact *fact : _nameToFactMap) {
         fact->sendDeferredValueChangedSignal();
     }
 }
 
-void FactGroup::setLiveUpdates(bool liveUpdates)
-{
+void FactGroup::setLiveUpdates(bool liveUpdates) {
     if (_updateTimer.interval() == 0) {
         return;
     }
@@ -163,24 +145,18 @@ void FactGroup::setLiveUpdates(bool liveUpdates)
     } else {
         _updateTimer.start();
     }
-    for(Fact* fact: _nameToFactMap) {
+    for (Fact *fact : _nameToFactMap) {
         fact->setSendValueChangedSignals(liveUpdates);
     }
 }
 
+QString FactGroup::_camelCase(const QString &text) { return text[0].toLower() + text.right(text.length() - 1); }
 
-QString FactGroup::_camelCase(const QString& text)
-{
-    return text[0].toLower() + text.right(text.length() - 1);
-}
-
-void FactGroup::handleMessage(Vehicle* /* vehicle */, mavlink_message_t& /* message */)
-{
+void FactGroup::handleMessage(Vehicle * /* vehicle */, mavlink_message_t & /* message */) {
     // Default implementation does nothing
 }
 
-void FactGroup::_setTelemetryAvailable (bool telemetryAvailable)
-{
+void FactGroup::_setTelemetryAvailable(bool telemetryAvailable) {
     if (telemetryAvailable != _telemetryAvailable) {
         _telemetryAvailable = telemetryAvailable;
         emit telemetryAvailableChanged(_telemetryAvailable);

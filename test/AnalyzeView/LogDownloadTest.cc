@@ -14,14 +14,13 @@
 #include "MultiSignalSpyV2.h"
 #include "QmlObjectListModel.h"
 
-#include "MultiVehicleManager.h"
 #include "MAVLinkProtocol.h"
+#include "MultiVehicleManager.h"
 
 #include <QtCore/QDir>
 #include <QtTest/QTest>
 
-void LogDownloadTest::_downloadTest()
-{
+void LogDownloadTest::_downloadTest() {
     MultiVehicleManager::instance()->init();
     MAVLinkProtocol::instance()->init();
 
@@ -42,7 +41,7 @@ void LogDownloadTest::_downloadTest()
 
     QmlObjectListModel *const model = controller->_getModel();
     QVERIFY(model);
-    model->value<QGCLogEntry*>(0)->setSelected(true);
+    model->value<QGCLogEntry *>(0)->setSelected(true);
 
     const QString downloadTo = QDir::currentPath();
     controller->download(downloadTo);
@@ -57,5 +56,5 @@ void LogDownloadTest::_downloadTest()
     const QString downloadFile = QDir(downloadTo).filePath("log_0_UnknownDate.ulg");
     QVERIFY(UnitTest::fileCompare(downloadFile, _mockLink->logDownloadFile()));
 
-    (void) QFile::remove(downloadFile);
+    (void)QFile::remove(downloadFile);
 }

@@ -30,28 +30,27 @@
 #ifndef __QML6_GL_UTILS_H__
 #define __QML6_GL_UTILS_H__
 
-#include <gst/gst.h>
 #include <gst/gl/gl.h>
+#include <gst/gst.h>
 
-#include <QVariant>
 #include <QRunnable>
+#include <QVariant>
 
 G_BEGIN_DECLS
 
 struct RenderJob : public QRunnable {
     using Callable = std::function<void()>;
 
-    explicit RenderJob(Callable c) : _c(c) { }
+    explicit RenderJob(Callable c) : _c(c) {}
 
     void run() { _c(); }
 
-private:
+  private:
     Callable _c;
 };
 
-GstGLDisplay * gst_qml6_get_gl_display (gboolean sink);
-gboolean       gst_qml6_get_gl_wrapcontext (GstGLDisplay * display,
-    GstGLContext **wrap_glcontext, GstGLContext **context);
+GstGLDisplay *gst_qml6_get_gl_display(gboolean sink);
+gboolean gst_qml6_get_gl_wrapcontext(GstGLDisplay *display, GstGLContext **wrap_glcontext, GstGLContext **context);
 
 G_END_DECLS
 

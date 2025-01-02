@@ -24,11 +24,10 @@ Q_DECLARE_LOGGING_CATEGORY(MAVLinkProtocolLog)
 /// MAVLink micro air vehicle protocol reference implementation.
 /// MAVLink is a generic communication protocol for micro air vehicles.
 /// for more information, please see the official website: https://mavlink.io
-class MAVLinkProtocol : public QObject
-{
+class MAVLinkProtocol : public QObject {
     Q_OBJECT
 
-public:
+  public:
     /// Constructs an MAVLinkProtocol object.
     ///     @param parent The parent QObject.
     explicit MAVLinkProtocol(QObject *parent = nullptr);
@@ -74,7 +73,7 @@ public:
     /// Give the user an option to save these orphaned files.
     void checkForLostLogFiles();
 
-signals:
+  signals:
     /// Heartbeat received on link
     void vehicleHeartbeatInfo(LinkInterface *link, int vehicleId, int componentId, int vehicleFirmwareType, int vehicleType);
 
@@ -89,7 +88,7 @@ signals:
 
     void mavlinkMessageStatus(int sysid, uint64_t totalSent, uint64_t totalReceived, uint64_t totalLoss, float lossPercent);
 
-public slots:
+  public slots:
     /// Receive bytes from a communication interface and constructs a MAVLink packet
     ///     @param link The interface to read from
     void receiveBytes(LinkInterface *link, const QByteArray &data);
@@ -108,10 +107,10 @@ public slots:
     /// Deletes any log files which are in the temp directory
     static void deleteTempLogFiles();
 
-private slots:
+  private slots:
     void _vehicleCountChanged();
 
-private:
+  private:
     void _logData(LinkInterface *link, const mavlink_message_t &message);
     bool _closeLogFile();
     void _startLogging();
@@ -130,18 +129,18 @@ private:
     void _storeSettings() const;
     void _loadSettings();
 
-    QGCTemporaryFile * const _tempLogFile = nullptr;
+    QGCTemporaryFile *const _tempLogFile = nullptr;
 
     bool _logSuspendError = false;  ///< true: Logging suspended due to error
     bool _logSuspendReplay = false; ///< true: Logging suspended due to replay
     bool _vehicleWasArmed = false;  ///< true: Vehicle was armed during log sequence
 
-    bool _enableVersionCheck = true;                            ///< Enable checking of version match of MAV and QGC
-    uint8_t _lastIndex[256][256]{};                             ///< Store the last received sequence ID for each system/component pair
-    uint8_t _firstMessage[256][256]{};                          ///< First message flag
-    uint64_t _totalReceiveCounter[MAVLINK_COMM_NUM_BUFFERS]{};  ///< The total number of successfully received messages
-    uint64_t _totalLossCounter[MAVLINK_COMM_NUM_BUFFERS]{};     ///< Total messages lost during transmission.
-    float _runningLossPercent[MAVLINK_COMM_NUM_BUFFERS]{};      ///< Loss rate
+    bool _enableVersionCheck = true;                           ///< Enable checking of version match of MAV and QGC
+    uint8_t _lastIndex[256][256]{};                            ///< Store the last received sequence ID for each system/component pair
+    uint8_t _firstMessage[256][256]{};                         ///< First message flag
+    uint64_t _totalReceiveCounter[MAVLINK_COMM_NUM_BUFFERS]{}; ///< The total number of successfully received messages
+    uint64_t _totalLossCounter[MAVLINK_COMM_NUM_BUFFERS]{};    ///< Total messages lost during transmission.
+    float _runningLossPercent[MAVLINK_COMM_NUM_BUFFERS]{};     ///< Loss rate
 
     int _systemId = kMaxSysId;
     unsigned _currentVersion = 100;

@@ -11,10 +11,7 @@
 
 #include <QtQml/QQmlEngine>
 
-DECLARE_SETTINGGROUP(FirmwareUpgrade, "FirmwareUpgrade")
-{
-    qmlRegisterUncreatableType<FirmwareUpgradeSettings>("QGroundControl.SettingsManager", 1, 0, "FirmwareUpgradeSettings", "Reference only");
-}
+DECLARE_SETTINGGROUP(FirmwareUpgrade, "FirmwareUpgrade") { qmlRegisterUncreatableType<FirmwareUpgradeSettings>("QGroundControl.SettingsManager", 1, 0, "FirmwareUpgradeSettings", "Reference only"); }
 
 DECLARE_SETTINGSFACT(FirmwareUpgradeSettings, defaultFirmwareType)
 DECLARE_SETTINGSFACT(FirmwareUpgradeSettings, apmChibiOS)

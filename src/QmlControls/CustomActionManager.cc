@@ -8,14 +8,14 @@
  ****************************************************************************/
 
 #include "CustomActionManager.h"
+#include "AppSettings.h"
 #include "CustomAction.h"
 #include "Fact.h"
 #include "JsonHelper.h"
 #include "QGCApplication.h"
-#include "SettingsManager.h"
-#include "AppSettings.h"
 #include "QGCLoggingCategory.h"
 #include "QmlObjectListModel.h"
+#include "SettingsManager.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QJsonArray>
@@ -23,36 +23,25 @@
 
 QGC_LOGGING_CATEGORY(CustomActionManagerLog, "qgc.qmlcontrols.customactionmanager")
 
-CustomActionManager::CustomActionManager(QObject *parent)
-    : QObject(parent)
-    , _actions(new QmlObjectListModel(this))
-{
+CustomActionManager::CustomActionManager(QObject *parent) : QObject(parent), _actions(new QmlObjectListModel(this)) {
     // qCDebug(CustomActionManagerLog) << Q_FUNC_INFO << this;
 }
 
-CustomActionManager::CustomActionManager(Fact *actionFileNameFact, QObject *parent)
-    : QObject(parent)
-    , _actions(new QmlObjectListModel(this))
-{
-    setActionFileNameFact(actionFileNameFact);
-}
+CustomActionManager::CustomActionManager(Fact *actionFileNameFact, QObject *parent) : QObject(parent), _actions(new QmlObjectListModel(this)) { setActionFileNameFact(actionFileNameFact); }
 
-CustomActionManager::~CustomActionManager()
-{
+CustomActionManager::~CustomActionManager() {
     // qCDebug(CustomActionManagerLog) << Q_FUNC_INFO << this;
 }
 
-void CustomActionManager::setActionFileNameFact(Fact *actionFileNameFact)
-{
+void CustomActionManager::setActionFileNameFact(Fact *actionFileNameFact) {
     _actionFileNameFact = actionFileNameFact;
     emit actionFileNameFactChanged();
-    (void) connect(_actionFileNameFact, &Fact::rawValueChanged, this, &CustomActionManager::_loadActionsFile);
+    (void)connect(_actionFileNameFact, &Fact::rawValueChanged, this, &CustomActionManager::_loadActionsFile);
 
     _loadActionsFile();
 }
 
-void CustomActionManager::_loadActionsFile()
-{
+void CustomActionManager::_loadActionsFile() {
     _actions->clearAndDeleteContents();
     const QString actionFileName = _actionFileNameFact->rawValue().toString();
     if (actionFileName.isEmpty()) {
@@ -92,7 +81,7 @@ void CustomActionManager::_loadActionsFile()
     }
 
     const QJsonArray actionList = jsonObject[kActionListKey].toArray();
-    for (const auto &actionJson: actionList) {
+    for (const auto &actionJson : actionList) {
         if (!actionJson.isObject()) {
             qgcApp()->showAppMessage(tr("Custom actions file - incorrect format: JsonValue not an object"));
             _actions->clearAndDeleteContents();
@@ -100,18 +89,11 @@ void CustomActionManager::_loadActionsFile()
         }
 
         const QList<JsonHelper::KeyValidateInfo> actionKeyInfoList = {
-            { "label",          QJsonValue::String, /* required= */ true },
-            { "description",    QJsonValue::String, /* required= */ true },
-            { "mavCmd",         QJsonValue::Double, /* required= */ true },
+            { "label", QJsonValue::String, /* required= */ true },   { "description", QJsonValue::String, /* required= */ true }, { "mavCmd", QJsonValue::Double, /* required= */ true },
 
-            { "compId",         QJsonValue::Double, /* required= */ false },
-            { "param1",         QJsonValue::Double, /* required= */ false },
-            { "param2",         QJsonValue::Double, /* required= */ false },
-            { "param3",         QJsonValue::Double, /* required= */ false },
-            { "param4",         QJsonValue::Double, /* required= */ false },
-            { "param5",         QJsonValue::Double, /* required= */ false },
-            { "param6",         QJsonValue::Double, /* required= */ false },
-            { "param7",         QJsonValue::Double, /* required= */ false },
+            { "compId", QJsonValue::Double, /* required= */ false }, { "param1", QJsonValue::Double, /* required= */ false },     { "param2", QJsonValue::Double, /* required= */ false },
+            { "param3", QJsonValue::Double, /* required= */ false }, { "param4", QJsonValue::Double, /* required= */ false },     { "param5", QJsonValue::Double, /* required= */ false },
+            { "param6", QJsonValue::Double, /* required= */ false }, { "param7", QJsonValue::Double, /* required= */ false },
         };
 
         const auto actionObj = actionJson.toObject();
@@ -135,6 +117,6 @@ void CustomActionManager::_loadActionsFile()
 
         CustomAction *const action = new CustomAction(label, description, mavCmd, compId, param1, param2, param3, param4, param5, param6, param7, this);
         QQmlEngine::setObjectOwnership(action, QQmlEngine::CppOwnership);
-        (void) _actions->append(action);
+        (void)_actions->append(action);
     }
 }

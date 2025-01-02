@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include <QtCore/QString>
-#include <QtCore/QMetaObject>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QMetaObject>
+#include <QtCore/QString>
 
 #include "VideoReceiver.h"
 
@@ -26,11 +26,10 @@ class QTimer;
 class QQuickItem;
 class QQuickVideoOutput;
 
-class QtMultimediaReceiver : public VideoReceiver
-{
+class QtMultimediaReceiver : public VideoReceiver {
     Q_OBJECT
 
-public:
+  public:
     explicit QtMultimediaReceiver(QObject *parent = nullptr);
     virtual ~QtMultimediaReceiver();
 
@@ -38,7 +37,7 @@ public:
     static void releaseVideoSink(void *sink);
     static VideoReceiver *createVideoReceiver(QObject *parent);
 
-public slots:
+  public slots:
     void start(const QString &uri, unsigned timeout, int buffer = 0) override;
     void stop() override;
     void startDecoding(void *sink) override;
@@ -47,7 +46,7 @@ public slots:
     void stopRecording() override;
     void takeScreenshot(const QString &imageFile) override;
 
-protected:
+  protected:
     QMediaPlayer *_mediaPlayer = nullptr;
     QVideoSink *_videoSink = nullptr;
     QMediaCaptureSession *_captureSession = nullptr;

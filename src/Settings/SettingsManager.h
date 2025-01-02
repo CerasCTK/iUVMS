@@ -37,8 +37,7 @@ class Viewer3DSettings;
 Q_DECLARE_LOGGING_CATEGORY(SettingsManagerLog)
 
 /// Provides access to all app settings
-class SettingsManager : public QObject
-{
+class SettingsManager : public QObject {
     Q_OBJECT
     QML_ELEMENT
     QML_UNCREATABLE("")
@@ -66,31 +65,31 @@ class SettingsManager : public QObject
 #ifdef UVMS_VIEWER3D
     Q_MOC_INCLUDE("Viewer3DSettings.h")
 #endif
-    Q_PROPERTY(QObject *adsbVehicleManagerSettings      READ adsbVehicleManagerSettings     CONSTANT)
+    Q_PROPERTY(QObject *adsbVehicleManagerSettings READ adsbVehicleManagerSettings CONSTANT)
 #ifndef NO_ARDUPILOT_DIALECT
-    Q_PROPERTY(QObject *apmMavlinkStreamRateSettings    READ apmMavlinkStreamRateSettings   CONSTANT)
+    Q_PROPERTY(QObject *apmMavlinkStreamRateSettings READ apmMavlinkStreamRateSettings CONSTANT)
 #endif
-    Q_PROPERTY(QObject *appSettings                     READ appSettings                    CONSTANT)
-    Q_PROPERTY(QObject *autoConnectSettings             READ autoConnectSettings            CONSTANT)
-    Q_PROPERTY(QObject *batteryIndicatorSettings        READ batteryIndicatorSettings       CONSTANT)
-    Q_PROPERTY(QObject *brandImageSettings              READ brandImageSettings             CONSTANT)
-    Q_PROPERTY(QObject *customMavlinkActionsSettings    READ customMavlinkActionsSettings   CONSTANT)
-    Q_PROPERTY(QObject *firmwareUpgradeSettings         READ firmwareUpgradeSettings        CONSTANT)
-    Q_PROPERTY(QObject *flightMapSettings               READ flightMapSettings              CONSTANT)
-    Q_PROPERTY(QObject *flightModeSettings              READ flightModeSettings             CONSTANT)
-    Q_PROPERTY(QObject *flyViewSettings                 READ flyViewSettings                CONSTANT)
-    Q_PROPERTY(QObject *gimbalControllerSettings        READ gimbalControllerSettings       CONSTANT)
-    Q_PROPERTY(QObject *mapsSettings                    READ mapsSettings                   CONSTANT)
-    Q_PROPERTY(QObject *offlineMapsSettings             READ offlineMapsSettings            CONSTANT)
-    Q_PROPERTY(QObject *planViewSettings                READ planViewSettings               CONSTANT)
-    Q_PROPERTY(QObject *remoteIDSettings                READ remoteIDSettings               CONSTANT)
-    Q_PROPERTY(QObject *rtkSettings                     READ rtkSettings                    CONSTANT)
-    Q_PROPERTY(QObject *unitsSettings                   READ unitsSettings                  CONSTANT)
-    Q_PROPERTY(QObject *videoSettings                   READ videoSettings                  CONSTANT)
+    Q_PROPERTY(QObject *appSettings READ appSettings CONSTANT)
+    Q_PROPERTY(QObject *autoConnectSettings READ autoConnectSettings CONSTANT)
+    Q_PROPERTY(QObject *batteryIndicatorSettings READ batteryIndicatorSettings CONSTANT)
+    Q_PROPERTY(QObject *brandImageSettings READ brandImageSettings CONSTANT)
+    Q_PROPERTY(QObject *customMavlinkActionsSettings READ customMavlinkActionsSettings CONSTANT)
+    Q_PROPERTY(QObject *firmwareUpgradeSettings READ firmwareUpgradeSettings CONSTANT)
+    Q_PROPERTY(QObject *flightMapSettings READ flightMapSettings CONSTANT)
+    Q_PROPERTY(QObject *flightModeSettings READ flightModeSettings CONSTANT)
+    Q_PROPERTY(QObject *flyViewSettings READ flyViewSettings CONSTANT)
+    Q_PROPERTY(QObject *gimbalControllerSettings READ gimbalControllerSettings CONSTANT)
+    Q_PROPERTY(QObject *mapsSettings READ mapsSettings CONSTANT)
+    Q_PROPERTY(QObject *offlineMapsSettings READ offlineMapsSettings CONSTANT)
+    Q_PROPERTY(QObject *planViewSettings READ planViewSettings CONSTANT)
+    Q_PROPERTY(QObject *remoteIDSettings READ remoteIDSettings CONSTANT)
+    Q_PROPERTY(QObject *rtkSettings READ rtkSettings CONSTANT)
+    Q_PROPERTY(QObject *unitsSettings READ unitsSettings CONSTANT)
+    Q_PROPERTY(QObject *videoSettings READ videoSettings CONSTANT)
 #ifdef UVMS_VIEWER3D
-    Q_PROPERTY(QObject *viewer3DSettings                READ viewer3DSettings               CONSTANT)
+    Q_PROPERTY(QObject *viewer3DSettings READ viewer3DSettings CONSTANT)
 #endif
-public:
+  public:
     SettingsManager(QObject *parent = nullptr);
     ~SettingsManager();
 
@@ -124,7 +123,7 @@ public:
     Viewer3DSettings *viewer3DSettings() const;
 #endif
 
-private:
+  private:
     ADSBVehicleManagerSettings *_adsbVehicleManagerSettings = nullptr;
 #ifndef NO_ARDUPILOT_DIALECT
     APMMavlinkStreamRateSettings *_apmMavlinkStreamRateSettings = nullptr;

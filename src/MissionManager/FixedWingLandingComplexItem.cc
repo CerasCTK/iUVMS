@@ -8,11 +8,11 @@
  ****************************************************************************/
 
 #include "FixedWingLandingComplexItem.h"
+#include "FlightPathSegment.h"
 #include "JsonHelper.h"
 #include "MissionController.h"
 #include "MissionItem.h"
 #include "PlanMasterController.h"
-#include "FlightPathSegment.h"
 #include "QGCLoggingCategory.h"
 
 #include <QtCore/QJsonArray>
@@ -21,28 +21,19 @@ QGC_LOGGING_CATEGORY(FixedWingLandingComplexItemLog, "FixedWingLandingComplexIte
 
 const QString FixedWingLandingComplexItem::name(FixedWingLandingComplexItem::tr("Fixed Wing Landing"));
 
-FixedWingLandingComplexItem::FixedWingLandingComplexItem(PlanMasterController* masterController, bool flyView)
-    : LandingComplexItem        (masterController, flyView)
-    , _metaDataMap              (FactMetaData::createMapFromJsonFile(QStringLiteral(":/json/FWLandingPattern.FactMetaData.json"), this))
-    , _landingDistanceFact      (settingsGroup, _metaDataMap[finalApproachToLandDistanceName])
-    , _finalApproachAltitudeFact(settingsGroup, _metaDataMap[finalApproachAltitudeName])
-    , _loiterRadiusFact         (settingsGroup, _metaDataMap[loiterRadiusName])
-    , _loiterClockwiseFact      (settingsGroup, _metaDataMap[loiterClockwiseName])
-    , _landingHeadingFact       (settingsGroup, _metaDataMap[landingHeadingName])
-    , _landingAltitudeFact      (settingsGroup, _metaDataMap[landingAltitudeName])
-    , _glideSlopeFact           (settingsGroup, _metaDataMap[glideSlopeName])
-    , _useLoiterToAltFact       (settingsGroup, _metaDataMap[useLoiterToAltName])
-    , _stopTakingPhotosFact     (settingsGroup, _metaDataMap[stopTakingPhotosName])
-    , _stopTakingVideoFact      (settingsGroup, _metaDataMap[stopTakingVideoName])
-    , _valueSetIsDistanceFact   (settingsGroup, _metaDataMap[valueSetIsDistanceName])
-{
-    _editorQml      = "qrc:/qml/FWLandingPatternEditor.qml";
-    _isIncomplete   = false;
+FixedWingLandingComplexItem::FixedWingLandingComplexItem(PlanMasterController *masterController, bool flyView)
+    : LandingComplexItem(masterController, flyView), _metaDataMap(FactMetaData::createMapFromJsonFile(QStringLiteral(":/json/FWLandingPattern.FactMetaData.json"), this)),
+      _landingDistanceFact(settingsGroup, _metaDataMap[finalApproachToLandDistanceName]), _finalApproachAltitudeFact(settingsGroup, _metaDataMap[finalApproachAltitudeName]), _loiterRadiusFact(settingsGroup, _metaDataMap[loiterRadiusName]),
+      _loiterClockwiseFact(settingsGroup, _metaDataMap[loiterClockwiseName]), _landingHeadingFact(settingsGroup, _metaDataMap[landingHeadingName]), _landingAltitudeFact(settingsGroup, _metaDataMap[landingAltitudeName]),
+      _glideSlopeFact(settingsGroup, _metaDataMap[glideSlopeName]), _useLoiterToAltFact(settingsGroup, _metaDataMap[useLoiterToAltName]), _stopTakingPhotosFact(settingsGroup, _metaDataMap[stopTakingPhotosName]),
+      _stopTakingVideoFact(settingsGroup, _metaDataMap[stopTakingVideoName]), _valueSetIsDistanceFact(settingsGroup, _metaDataMap[valueSetIsDistanceName]) {
+    _editorQml = "qrc:/qml/FWLandingPatternEditor.qml";
+    _isIncomplete = false;
 
     _init();
 
-    connect(&_glideSlopeFact,           &Fact::valueChanged, this, &FixedWingLandingComplexItem::_glideSlopeChanged);
-    connect(&_valueSetIsDistanceFact,   &Fact::valueChanged, this, &FixedWingLandingComplexItem::_setDirty);
+    connect(&_glideSlopeFact, &Fact::valueChanged, this, &FixedWingLandingComplexItem::_glideSlopeChanged);
+    connect(&_valueSetIsDistanceFact, &Fact::valueChanged, this, &FixedWingLandingComplexItem::_setDirty);
 
     if (_valueSetIsDistanceFact.rawValue().toBool()) {
         _recalcFromHeadingAndDistanceChange();
@@ -52,20 +43,18 @@ FixedWingLandingComplexItem::FixedWingLandingComplexItem(PlanMasterController* m
     setDirty(false);
 }
 
-void FixedWingLandingComplexItem::save(QJsonArray&  missionItems)
-{
+void FixedWingLandingComplexItem::save(QJsonArray &missionItems) {
     QJsonObject saveObject = _save();
 
-    saveObject[JsonHelper::jsonVersionKey]                  = 2;
-    saveObject[VisualMissionItem::jsonTypeKey]              = VisualMissionItem::jsonTypeComplexItemValue;
-    saveObject[ComplexMissionItem::jsonComplexItemTypeKey]  = jsonComplexItemTypeValue;
-    saveObject[_jsonValueSetIsDistanceKey]                  = _valueSetIsDistanceFact.rawValue().toBool();
+    saveObject[JsonHelper::jsonVersionKey] = 2;
+    saveObject[VisualMissionItem::jsonTypeKey] = VisualMissionItem::jsonTypeComplexItemValue;
+    saveObject[ComplexMissionItem::jsonComplexItemTypeKey] = jsonComplexItemTypeValue;
+    saveObject[_jsonValueSetIsDistanceKey] = _valueSetIsDistanceFact.rawValue().toBool();
 
     missionItems.append(saveObject);
 }
 
-bool FixedWingLandingComplexItem::load(const QJsonObject& complexObject, int sequenceNumber, QString& errorString)
-{
+bool FixedWingLandingComplexItem::load(const QJsonObject &complexObject, int sequenceNumber, QString &errorString) {
     QList<JsonHelper::KeyValidateInfo> keyInfoList = {
         { JsonHelper::jsonVersionKey, QJsonValue::Double, true },
     };
@@ -78,7 +67,7 @@ bool FixedWingLandingComplexItem::load(const QJsonObject& complexObject, int seq
         _valueSetIsDistanceFact.setRawValue(true);
     } else if (version == 2) {
         QList<JsonHelper::KeyValidateInfo> v2KeyInfoList = {
-            { _jsonValueSetIsDistanceKey,   QJsonValue::Bool,  true },
+            { _jsonValueSetIsDistanceKey, QJsonValue::Bool, true },
         };
         if (!JsonHelper::validateKeys(complexObject, v2KeyInfoList, errorString)) {
             _ignoreRecalcSignals = false;
@@ -95,21 +84,16 @@ bool FixedWingLandingComplexItem::load(const QJsonObject& complexObject, int seq
     return _load(complexObject, sequenceNumber, jsonComplexItemTypeValue, version == 1 /* useDeprecatedRelAltKeys */, errorString);
 }
 
-MissionItem* FixedWingLandingComplexItem::_createLandItem(int seqNum, bool altRel, double lat, double lon, double alt, QObject* parent)
-{
-    return new MissionItem(seqNum,
-                           MAV_CMD_NAV_LAND,
-                           altRel ? MAV_FRAME_GLOBAL_RELATIVE_ALT : MAV_FRAME_GLOBAL,
-                           0.0, 0.0, 0.0, 0.0,
-                           lat, lon, alt,
-                           true,                               // autoContinue
-                           false,                              // isCurrentItem
-                           parent);
-
+MissionItem *FixedWingLandingComplexItem::_createLandItem(int seqNum, bool altRel, double lat, double lon, double alt, QObject *parent) {
+    return new MissionItem(
+        seqNum, MAV_CMD_NAV_LAND, altRel ? MAV_FRAME_GLOBAL_RELATIVE_ALT : MAV_FRAME_GLOBAL, 0.0, 0.0, 0.0, 0.0, lat, lon, alt,
+        true,  // autoContinue
+        false, // isCurrentItem
+        parent
+    );
 }
 
-void FixedWingLandingComplexItem::_glideSlopeChanged(void)
-{
+void FixedWingLandingComplexItem::_glideSlopeChanged(void) {
     if (!_ignoreRecalcSignals) {
         double landingAltDifference = _finalApproachAltitudeFact.rawValue().toDouble() - _landingAltitudeFact.rawValue().toDouble();
         double glideSlope = _glideSlopeFact.rawValue().toDouble();
@@ -117,16 +101,14 @@ void FixedWingLandingComplexItem::_glideSlopeChanged(void)
     }
 }
 
-void FixedWingLandingComplexItem::_calcGlideSlope(void)
-{
+void FixedWingLandingComplexItem::_calcGlideSlope(void) {
     double landingAltDifference = _finalApproachAltitudeFact.rawValue().toDouble() - _landingAltitudeFact.rawValue().toDouble();
     double landingDistance = _landingDistanceFact.rawValue().toDouble();
 
     _glideSlopeFact.setRawValue(qRadiansToDegrees(qAtan(landingAltDifference / landingDistance)));
 }
 
-void FixedWingLandingComplexItem::moveLandingPosition(const QGeoCoordinate& coordinate)
-{
+void FixedWingLandingComplexItem::moveLandingPosition(const QGeoCoordinate &coordinate) {
     double savedHeading = landingHeading()->rawValue().toDouble();
     double savedDistance = landingDistance()->rawValue().toDouble();
 
@@ -135,25 +117,19 @@ void FixedWingLandingComplexItem::moveLandingPosition(const QGeoCoordinate& coor
     landingDistance()->setRawValue(savedDistance);
 }
 
-bool FixedWingLandingComplexItem::_isValidLandItem(const MissionItem& missionItem)
-{
-    if (missionItem.command() != MAV_CMD_NAV_LAND ||
-            !(missionItem.frame() == MAV_FRAME_GLOBAL_RELATIVE_ALT || missionItem.frame() == MAV_FRAME_GLOBAL) ||
-            missionItem.param1() != 0 || missionItem.param2() != 0 || missionItem.param3() != 0 || missionItem.param4() != 0) {
+bool FixedWingLandingComplexItem::_isValidLandItem(const MissionItem &missionItem) {
+    if (missionItem.command() != MAV_CMD_NAV_LAND || !(missionItem.frame() == MAV_FRAME_GLOBAL_RELATIVE_ALT || missionItem.frame() == MAV_FRAME_GLOBAL) || missionItem.param1() != 0 || missionItem.param2() != 0 || missionItem.param3() != 0
+        || missionItem.param4() != 0) {
         return false;
     } else {
         return true;
     }
 }
 
-bool FixedWingLandingComplexItem::scanForItem(QmlObjectListModel* visualItems, bool flyView, PlanMasterController* masterController)
-{
-    return _scanForItem(visualItems, flyView, masterController, _isValidLandItem, _createItem);
-}
+bool FixedWingLandingComplexItem::scanForItem(QmlObjectListModel *visualItems, bool flyView, PlanMasterController *masterController) { return _scanForItem(visualItems, flyView, masterController, _isValidLandItem, _createItem); }
 
 // Never call this method directly. If you want to update the flight segments you emit _updateFlightPathSegmentsSignal()
-void FixedWingLandingComplexItem::_updateFlightPathSegmentsDontCallDirectly(void)
-{
+void FixedWingLandingComplexItem::_updateFlightPathSegmentsDontCallDirectly(void) {
     if (_cTerrainCollisionSegments != 0) {
         _cTerrainCollisionSegments = 0;
         emit terrainCollisionChanged(false);
@@ -162,10 +138,10 @@ void FixedWingLandingComplexItem::_updateFlightPathSegmentsDontCallDirectly(void
     _flightPathSegments.beginReset();
     _flightPathSegments.clearAndDeleteContents();
     if (useLoiterToAlt()->rawValue().toBool()) {
-        _appendFlightPathSegment(FlightPathSegment::SegmentTypeGeneric, finalApproachCoordinate(), amslEntryAlt(), loiterTangentCoordinate(),  amslEntryAlt()); // Best we can do to simulate loiter circle terrain profile
-        _appendFlightPathSegment(FlightPathSegment::SegmentTypeLand, loiterTangentCoordinate(), amslEntryAlt(), landingCoordinate(),        amslExitAlt());
+        _appendFlightPathSegment(FlightPathSegment::SegmentTypeGeneric, finalApproachCoordinate(), amslEntryAlt(), loiterTangentCoordinate(), amslEntryAlt()); // Best we can do to simulate loiter circle terrain profile
+        _appendFlightPathSegment(FlightPathSegment::SegmentTypeLand, loiterTangentCoordinate(), amslEntryAlt(), landingCoordinate(), amslExitAlt());
     } else {
-        _appendFlightPathSegment(FlightPathSegment::SegmentTypeLand, finalApproachCoordinate(), amslEntryAlt(), landingCoordinate(),        amslExitAlt());
+        _appendFlightPathSegment(FlightPathSegment::SegmentTypeLand, finalApproachCoordinate(), amslEntryAlt(), landingCoordinate(), amslExitAlt());
     }
     _flightPathSegments.endReset();
 

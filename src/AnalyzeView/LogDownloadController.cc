@@ -26,39 +26,29 @@ QGC_LOGGING_CATEGORY(LogDownloadControllerLog, "qgc.analyzeview.logdownloadcontr
 
 Q_APPLICATION_STATIC(LogDownloadController, _logDownloadControllerInstance);
 
-LogDownloadController::LogDownloadController(QObject *parent)
-    : QObject(parent)
-    , _timer(new QTimer(this))
-    , _logEntriesModel(new QmlObjectListModel(this))
-{
+LogDownloadController::LogDownloadController(QObject *parent) : QObject(parent), _timer(new QTimer(this)), _logEntriesModel(new QmlObjectListModel(this)) {
     // qCDebug(LogDownloadControllerLog) << Q_FUNC_INFO << this;
 
-    (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged, this, &LogDownloadController::_setActiveVehicle);
-    (void) connect(_timer, &QTimer::timeout, this, &LogDownloadController::_processDownload);
+    (void)connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged, this, &LogDownloadController::_setActiveVehicle);
+    (void)connect(_timer, &QTimer::timeout, this, &LogDownloadController::_processDownload);
 
     _timer->setSingleShot(false);
 
     _setActiveVehicle(MultiVehicleManager::instance()->activeVehicle());
 }
 
-LogDownloadController::~LogDownloadController()
-{
+LogDownloadController::~LogDownloadController() {
     // qCDebug(LogDownloadControllerLog) << Q_FUNC_INFO << this;
 }
 
-LogDownloadController *LogDownloadController::instance()
-{
-    return _logDownloadControllerInstance();
-}
+LogDownloadController *LogDownloadController::instance() { return _logDownloadControllerInstance(); }
 
-void LogDownloadController::download(const QString &path)
-{
+void LogDownloadController::download(const QString &path) {
     const QString dir = path.isEmpty() ? SettingsManager::instance()->appSettings()->logSavePath() : path;
     _downloadToDirectory(dir);
 }
 
-void LogDownloadController::_downloadToDirectory(const QString &dir)
-{
+void LogDownloadController::_downloadToDirectory(const QString &dir) {
     _receivedAllEntries();
 
     _downloadData.reset();
@@ -81,8 +71,7 @@ void LogDownloadController::_downloadToDirectory(const QString &dir)
     _receivedAllData();
 }
 
-void LogDownloadController::_processDownload()
-{
+void LogDownloadController::_processDownload() {
     if (_requestingLogEntries) {
         _findMissingEntries();
     } else if (_downloadingLogs) {
@@ -90,13 +79,12 @@ void LogDownloadController::_processDownload()
     }
 }
 
-void LogDownloadController::_findMissingEntries()
-{
+void LogDownloadController::_findMissingEntries() {
     const int num_logs = _logEntriesModel->count();
     int start = -1;
     int end = -1;
     for (int i = 0; i < num_logs; i++) {
-        const QGCLogEntry *const entry = _logEntriesModel->value<const QGCLogEntry*>(i);
+        const QGCLogEntry *const entry = _logEntriesModel->value<const QGCLogEntry *>(i);
         if (!entry) {
             continue;
         }
@@ -119,7 +107,7 @@ void LogDownloadController::_findMissingEntries()
 
     if (_retries++ > 2) {
         for (int i = 0; i < num_logs; i++) {
-            QGCLogEntry *const entry = _logEntriesModel->value<QGCLogEntry*>(i);
+            QGCLogEntry *const entry = _logEntriesModel->value<QGCLogEntry *>(i);
             if (entry && !entry->received()) {
                 entry->setStatus(tr("Error"));
             }
@@ -140,28 +128,26 @@ void LogDownloadController::_findMissingEntries()
     _requestLogList(static_cast<uint32_t>(start), static_cast<uint32_t>(end));
 }
 
-void LogDownloadController::_setActiveVehicle(Vehicle *vehicle)
-{
+void LogDownloadController::_setActiveVehicle(Vehicle *vehicle) {
     if (vehicle == _vehicle) {
         return;
     }
 
     if (_vehicle) {
         _logEntriesModel->clearAndDeleteContents();
-        (void) disconnect(_vehicle, &Vehicle::logEntry, this, &LogDownloadController::_logEntry);
-        (void) disconnect(_vehicle, &Vehicle::logData,  this, &LogDownloadController::_logData);
+        (void)disconnect(_vehicle, &Vehicle::logEntry, this, &LogDownloadController::_logEntry);
+        (void)disconnect(_vehicle, &Vehicle::logData, this, &LogDownloadController::_logData);
     }
 
     _vehicle = vehicle;
 
     if (_vehicle) {
-        (void) connect(_vehicle, &Vehicle::logEntry, this, &LogDownloadController::_logEntry);
-        (void) connect(_vehicle, &Vehicle::logData,  this, &LogDownloadController::_logData);
+        (void)connect(_vehicle, &Vehicle::logEntry, this, &LogDownloadController::_logEntry);
+        (void)connect(_vehicle, &Vehicle::logData, this, &LogDownloadController::_logData);
     }
 }
 
-void LogDownloadController::_logEntry(uint32_t time_utc, uint32_t size, uint16_t id, uint16_t num_logs, uint16_t last_log_num)
-{
+void LogDownloadController::_logEntry(uint32_t time_utc, uint32_t size, uint16_t id, uint16_t num_logs, uint16_t last_log_num) {
     Q_UNUSED(last_log_num);
 
     if (!_requestingLogEntries) {
@@ -184,7 +170,7 @@ void LogDownloadController::_logEntry(uint32_t time_utc, uint32_t size, uint16_t
         if ((size > 0) || (_vehicle->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA)) {
             id -= _apmOffset;
             if (id < _logEntriesModel->count()) {
-                QGCLogEntry *const entry = _logEntriesModel->value<QGCLogEntry*>(id);
+                QGCLogEntry *const entry = _logEntriesModel->value<QGCLogEntry *>(id);
                 entry->setSize(size);
                 entry->setTime(QDateTime::fromSecsSinceEpoch(time_utc));
                 entry->setReceived(true);
@@ -206,17 +192,15 @@ void LogDownloadController::_logEntry(uint32_t time_utc, uint32_t size, uint16_t
     }
 }
 
-void LogDownloadController::_receivedAllEntries()
-{
+void LogDownloadController::_receivedAllEntries() {
     _timer->stop();
     _setListing(false);
 }
 
-bool LogDownloadController::_entriesComplete() const
-{
+bool LogDownloadController::_entriesComplete() const {
     const int num_logs = _logEntriesModel->count();
     for (int i = 0; i < num_logs; i++) {
-        const QGCLogEntry *const entry = _logEntriesModel->value<const QGCLogEntry*>(i);
+        const QGCLogEntry *const entry = _logEntriesModel->value<const QGCLogEntry *>(i);
         if (!entry) {
             continue;
         }
@@ -229,8 +213,7 @@ bool LogDownloadController::_entriesComplete() const
     return true;
 }
 
-void LogDownloadController::_logData(uint32_t ofs, uint16_t id, uint8_t count, const uint8_t *data)
-{
+void LogDownloadController::_logData(uint32_t ofs, uint16_t id, uint8_t count, const uint8_t *data) {
     if (!_downloadingLogs || !_downloadData) {
         return;
     }
@@ -269,7 +252,7 @@ void LogDownloadController::_logData(uint32_t ofs, uint16_t id, uint8_t count, c
             }
         }
 
-        if (_downloadData->file.write(reinterpret_cast<const char*>(data), count)) {
+        if (_downloadData->file.write(reinterpret_cast<const char *>(data), count)) {
             _downloadData->written += count;
             _downloadData->rate_bytes += count;
             _updateDataRate();
@@ -283,9 +266,7 @@ void LogDownloadController::_logData(uint32_t ofs, uint16_t id, uint8_t count, c
                 _receivedAllData();
             } else if (_chunkComplete()) {
                 _downloadData->advanceChunk();
-                _requestLogData(_downloadData->ID,
-                                _downloadData->current_chunk * LogDownloadData::kChunkSize,
-                                _downloadData->chunk_table.size() * MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN);
+                _requestLogData(_downloadData->ID, _downloadData->current_chunk * LogDownloadData::kChunkSize, _downloadData->chunk_table.size() * MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN);
             } else if ((bin < (_downloadData->chunk_table.size() - 1)) && _downloadData->chunk_table.at(bin + 1)) {
                 // Likely to be grabbing fragments and got to the end of a gap
                 _findMissingData();
@@ -302,8 +283,7 @@ void LogDownloadController::_logData(uint32_t ofs, uint16_t id, uint8_t count, c
     }
 }
 
-void LogDownloadController::_findMissingData()
-{
+void LogDownloadController::_findMissingData() {
     if (_logComplete()) {
         _receivedAllData();
         return;
@@ -336,8 +316,7 @@ void LogDownloadController::_findMissingData()
     _requestLogData(_downloadData->ID, pos, len, _retries);
 }
 
-void LogDownloadController::_updateDataRate()
-{
+void LogDownloadController::_updateDataRate() {
     if (_downloadData->elapsed.elapsed() < kGUIRateMs) {
         return;
     }
@@ -346,25 +325,17 @@ void LogDownloadController::_updateDataRate()
     _downloadData->rate_avg = (_downloadData->rate_avg * 0.95) + (rate * 0.05);
     _downloadData->rate_bytes = 0;
 
-    const QString status = QStringLiteral("%1 (%2/s)").arg(qgcApp()->bigSizeToString(_downloadData->written),
-                                                           qgcApp()->bigSizeToString(_downloadData->rate_avg));
+    const QString status = QStringLiteral("%1 (%2/s)").arg(qgcApp()->bigSizeToString(_downloadData->written), qgcApp()->bigSizeToString(_downloadData->rate_avg));
 
     _downloadData->entry->setStatus(status);
     _downloadData->elapsed.start();
 }
 
-bool LogDownloadController::_chunkComplete() const
-{
-    return _downloadData->chunkEquals(true);
-}
+bool LogDownloadController::_chunkComplete() const { return _downloadData->chunkEquals(true); }
 
-bool LogDownloadController::_logComplete() const
-{
-    return (_chunkComplete() && ((_downloadData->current_chunk + 1) == _downloadData->numChunks()));
-}
+bool LogDownloadController::_logComplete() const { return (_chunkComplete() && ((_downloadData->current_chunk + 1) == _downloadData->numChunks())); }
 
-void LogDownloadController::_receivedAllData()
-{
+void LogDownloadController::_receivedAllData() {
     _timer->stop();
     if (_prepareLogDownload()) {
         _requestLogData(_downloadData->ID, 0, _downloadData->chunk_table.size() * MAVLINK_MSG_LOG_DATA_FIELD_DATA_LEN);
@@ -375,8 +346,7 @@ void LogDownloadController::_receivedAllData()
     }
 }
 
-bool LogDownloadController::_prepareLogDownload()
-{
+bool LogDownloadController::_prepareLogDownload() {
     _downloadData.reset();
 
     QGCLogEntry *const entry = _getNextSelected();
@@ -413,14 +383,14 @@ bool LogDownloadController::_prepareLogDownload()
             numDups += 1;
             const QString filename = filename_spl[0] + '_' + QString::number(numDups) + '.' + filename_spl[1];
             _downloadData->file.setFileName(filename);
-        } while ( _downloadData->file.exists());
+        } while (_downloadData->file.exists());
     }
 
     bool result = false;
     if (!_downloadData->file.open(QIODevice::WriteOnly)) {
-        qCWarning(LogDownloadControllerLog) << "Failed to create log file:" <<  _downloadData->filename;
+        qCWarning(LogDownloadControllerLog) << "Failed to create log file:" << _downloadData->filename;
     } else if (!_downloadData->file.resize(entry->size())) {
-        qCWarning(LogDownloadControllerLog) << "Failed to allocate space for log file:" <<  _downloadData->filename;
+        qCWarning(LogDownloadControllerLog) << "Failed to allocate space for log file:" << _downloadData->filename;
     } else {
         _downloadData->current_chunk = 0;
         _downloadData->chunk_table = QBitArray(_downloadData->chunkBins(), false);
@@ -430,7 +400,7 @@ bool LogDownloadController::_prepareLogDownload()
 
     if (!result) {
         if (_downloadData->file.exists()) {
-            (void) _downloadData->file.remove();
+            (void)_downloadData->file.remove();
         }
 
         _downloadData->entry->setStatus(QStringLiteral("Error"));
@@ -440,38 +410,35 @@ bool LogDownloadController::_prepareLogDownload()
     return result;
 }
 
-void LogDownloadController::refresh()
-{
+void LogDownloadController::refresh() {
     _logEntriesModel->clearAndDeleteContents();
     _requestLogList(0, 0xffff);
 }
 
-QGCLogEntry *LogDownloadController::_getNextSelected() const
-{
+QGCLogEntry *LogDownloadController::_getNextSelected() const {
     const int numLogs = _logEntriesModel->count();
     for (int i = 0; i < numLogs; i++) {
-        QGCLogEntry *const entry = _logEntriesModel->value<QGCLogEntry*>(i);
+        QGCLogEntry *const entry = _logEntriesModel->value<QGCLogEntry *>(i);
         if (!entry) {
             continue;
         }
 
         if (entry->selected()) {
-           return entry;
+            return entry;
         }
     }
 
     return nullptr;
 }
 
-void LogDownloadController::cancel()
-{
+void LogDownloadController::cancel() {
     _requestLogEnd();
     _receivedAllEntries();
 
     if (_downloadData) {
         _downloadData->entry->setStatus(QStringLiteral("Canceled"));
         if (_downloadData->file.exists()) {
-            (void) _downloadData->file.remove();
+            (void)_downloadData->file.remove();
         }
 
         _downloadData.reset();
@@ -481,11 +448,10 @@ void LogDownloadController::cancel()
     _setDownloading(false);
 }
 
-void LogDownloadController::_resetSelection(bool canceled)
-{
+void LogDownloadController::_resetSelection(bool canceled) {
     const int num_logs = _logEntriesModel->count();
     for (int i = 0; i < num_logs; i++) {
-        QGCLogEntry *const entry = _logEntriesModel->value<QGCLogEntry*>(i);
+        QGCLogEntry *const entry = _logEntriesModel->value<QGCLogEntry *>(i);
         if (!entry) {
             continue;
         }
@@ -501,8 +467,7 @@ void LogDownloadController::_resetSelection(bool canceled)
     emit selectionChanged();
 }
 
-void LogDownloadController::eraseAll()
-{
+void LogDownloadController::eraseAll() {
     if (!_vehicle) {
         qCWarning(LogDownloadControllerLog) << "Vehicle Unavailable";
         return;
@@ -515,14 +480,7 @@ void LogDownloadController::eraseAll()
     }
 
     mavlink_message_t msg{};
-    (void) mavlink_msg_log_erase_pack_chan(
-        MAVLinkProtocol::instance()->getSystemId(),
-        MAVLinkProtocol::getComponentId(),
-        sharedLink->mavlinkChannel(),
-        &msg,
-        _vehicle->id(),
-        _vehicle->defaultComponentId()
-    );
+    (void)mavlink_msg_log_erase_pack_chan(MAVLinkProtocol::instance()->getSystemId(), MAVLinkProtocol::getComponentId(), sharedLink->mavlinkChannel(), &msg, _vehicle->id(), _vehicle->defaultComponentId());
 
     if (!_vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg)) {
         qCWarning(LogDownloadControllerLog) << "Failed to send";
@@ -532,8 +490,7 @@ void LogDownloadController::eraseAll()
     refresh();
 }
 
-void LogDownloadController::_requestLogList(uint32_t start, uint32_t end)
-{
+void LogDownloadController::_requestLogList(uint32_t start, uint32_t end) {
     if (!_vehicle) {
         qCWarning(LogDownloadControllerLog) << "Vehicle Unavailable";
         return;
@@ -546,16 +503,7 @@ void LogDownloadController::_requestLogList(uint32_t start, uint32_t end)
     }
 
     mavlink_message_t msg{};
-    (void) mavlink_msg_log_request_list_pack_chan(
-        MAVLinkProtocol::instance()->getSystemId(),
-        MAVLinkProtocol::getComponentId(),
-        sharedLink->mavlinkChannel(),
-        &msg,
-        _vehicle->id(),
-        _vehicle->defaultComponentId(),
-        start,
-        end
-    );
+    (void)mavlink_msg_log_request_list_pack_chan(MAVLinkProtocol::instance()->getSystemId(), MAVLinkProtocol::getComponentId(), sharedLink->mavlinkChannel(), &msg, _vehicle->id(), _vehicle->defaultComponentId(), start, end);
 
     if (!_vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg)) {
         qCWarning(LogDownloadControllerLog) << "Failed to send";
@@ -567,8 +515,7 @@ void LogDownloadController::_requestLogList(uint32_t start, uint32_t end)
     _timer->start(kRequestLogListTimeoutMs);
 }
 
-void LogDownloadController::_requestLogData(uint16_t id, uint32_t offset, uint32_t count, int retryCount)
-{
+void LogDownloadController::_requestLogData(uint16_t id, uint32_t offset, uint32_t count, int retryCount) {
     if (!_vehicle) {
         qCWarning(LogDownloadControllerLog) << "Vehicle Unavailable";
         return;
@@ -584,25 +531,14 @@ void LogDownloadController::_requestLogData(uint16_t id, uint32_t offset, uint32
     qCDebug(LogDownloadControllerLog) << "Request log data (id:" << id << "offset:" << offset << "size:" << count << "retryCount" << retryCount << ")";
 
     mavlink_message_t msg{};
-    (void) mavlink_msg_log_request_data_pack_chan(
-        MAVLinkProtocol::instance()->getSystemId(),
-        MAVLinkProtocol::getComponentId(),
-        sharedLink->mavlinkChannel(),
-        &msg,
-        _vehicle->id(),
-        _vehicle->defaultComponentId(),
-        id,
-        offset,
-        count
-    );
+    (void)mavlink_msg_log_request_data_pack_chan(MAVLinkProtocol::instance()->getSystemId(), MAVLinkProtocol::getComponentId(), sharedLink->mavlinkChannel(), &msg, _vehicle->id(), _vehicle->defaultComponentId(), id, offset, count);
 
     if (!_vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg)) {
         qCWarning(LogDownloadControllerLog) << "Failed to send";
     }
 }
 
-void LogDownloadController::_requestLogEnd()
-{
+void LogDownloadController::_requestLogEnd() {
     if (!_vehicle) {
         qCWarning(LogDownloadControllerLog) << "Vehicle Unavailable";
         return;
@@ -615,22 +551,14 @@ void LogDownloadController::_requestLogEnd()
     }
 
     mavlink_message_t msg{};
-    (void) mavlink_msg_log_request_end_pack_chan(
-        MAVLinkProtocol::instance()->getSystemId(),
-        MAVLinkProtocol::getComponentId(),
-        sharedLink->mavlinkChannel(),
-        &msg,
-        _vehicle->id(),
-        _vehicle->defaultComponentId()
-    );
+    (void)mavlink_msg_log_request_end_pack_chan(MAVLinkProtocol::instance()->getSystemId(), MAVLinkProtocol::getComponentId(), sharedLink->mavlinkChannel(), &msg, _vehicle->id(), _vehicle->defaultComponentId());
 
     if (!_vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg)) {
         qCWarning(LogDownloadControllerLog) << "Failed to send";
     }
 }
 
-void LogDownloadController::_setDownloading(bool active)
-{
+void LogDownloadController::_setDownloading(bool active) {
     if (_downloadingLogs != active) {
         _downloadingLogs = active;
         _vehicle->vehicleLinkManager()->setCommunicationLostEnabled(!active);
@@ -638,8 +566,7 @@ void LogDownloadController::_setDownloading(bool active)
     }
 }
 
-void LogDownloadController::_setListing(bool active)
-{
+void LogDownloadController::_setListing(bool active) {
     if (_requestingLogEntries != active) {
         _requestingLogEntries = active;
         _vehicle->vehicleLinkManager()->setCommunicationLostEnabled(!active);

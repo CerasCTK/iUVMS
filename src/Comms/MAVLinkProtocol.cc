@@ -8,14 +8,14 @@
  ****************************************************************************/
 
 #include "MAVLinkProtocol.h"
+#include "AppSettings.h"
 #include "LinkManager.h"
 #include "MultiVehicleManager.h"
 #include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
 #include "QGCTemporaryFile.h"
-#include "SettingsManager.h"
-#include "AppSettings.h"
 #include "QmlObjectListModel.h"
+#include "SettingsManager.h"
 
 #include <QtCore/qapplicationstatic.h>
 #include <QtCore/QDir>
@@ -28,43 +28,34 @@ QGC_LOGGING_CATEGORY(MAVLinkProtocolLog, "qgc.comms.mavlinkprotocol")
 
 Q_APPLICATION_STATIC(MAVLinkProtocol, _mavlinkProtocolInstance);
 
-MAVLinkProtocol::MAVLinkProtocol(QObject *parent)
-    : QObject(parent)
-    , _tempLogFile(new QGCTemporaryFile(QStringLiteral("%2.%3").arg(_tempLogFileTemplate, _logFileExtension), this))
-{
+MAVLinkProtocol::MAVLinkProtocol(QObject *parent) : QObject(parent), _tempLogFile(new QGCTemporaryFile(QStringLiteral("%2.%3").arg(_tempLogFileTemplate, _logFileExtension), this)) {
     // qCDebug(MAVLinkProtocolLog) << Q_FUNC_INFO << this;
 }
 
-MAVLinkProtocol::~MAVLinkProtocol()
-{
+MAVLinkProtocol::~MAVLinkProtocol() {
     _storeSettings();
     _closeLogFile();
 
     // qCDebug(MAVLinkProtocolLog) << Q_FUNC_INFO << this;
 }
 
-MAVLinkProtocol *MAVLinkProtocol::instance()
-{
-    return _mavlinkProtocolInstance();
-}
+MAVLinkProtocol *MAVLinkProtocol::instance() { return _mavlinkProtocolInstance(); }
 
-void MAVLinkProtocol::init()
-{
+void MAVLinkProtocol::init() {
     if (_initialized) {
         return;
     }
 
-    (void) memset(_firstMessage, 1, sizeof(_firstMessage));
+    (void)memset(_firstMessage, 1, sizeof(_firstMessage));
 
-    (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::vehicleRemoved, this, &MAVLinkProtocol::_vehicleCountChanged);
+    (void)connect(MultiVehicleManager::instance(), &MultiVehicleManager::vehicleRemoved, this, &MAVLinkProtocol::_vehicleCountChanged);
 
     _loadSettings();
 
     _initialized = true;
 }
 
-void MAVLinkProtocol::setVersion(unsigned version)
-{
+void MAVLinkProtocol::setVersion(unsigned version) {
     const QList<SharedLinkInterfacePtr> sharedLinks = LinkManager::instance()->links();
     for (const SharedLinkInterfacePtr &interface : sharedLinks) {
         mavlink_set_proto_version(interface.get()->mavlinkChannel(), version / 100);
@@ -73,8 +64,7 @@ void MAVLinkProtocol::setVersion(unsigned version)
     _currentVersion = version;
 }
 
-void MAVLinkProtocol::_loadSettings()
-{
+void MAVLinkProtocol::_loadSettings() {
     QSettings settings;
     settings.beginGroup("UVMS_MAVLINK_PROTOCOL");
 
@@ -89,8 +79,7 @@ void MAVLinkProtocol::_loadSettings()
     settings.endGroup();
 }
 
-void MAVLinkProtocol::_storeSettings() const
-{
+void MAVLinkProtocol::_storeSettings() const {
     QSettings settings;
     settings.beginGroup("UVMS_MAVLINK_PROTOCOL");
 
@@ -100,8 +89,7 @@ void MAVLinkProtocol::_storeSettings() const
     settings.endGroup();
 }
 
-void MAVLinkProtocol::resetMetadataForLink(LinkInterface *link)
-{
+void MAVLinkProtocol::resetMetadataForLink(LinkInterface *link) {
     const uint8_t channel = link->mavlinkChannel();
     _totalReceiveCounter[channel] = 0;
     _totalLossCounter[channel] = 0;
@@ -113,8 +101,7 @@ void MAVLinkProtocol::resetMetadataForLink(LinkInterface *link)
     link->setDecodedFirstMavlinkPacket(false);
 }
 
-void MAVLinkProtocol::logSentBytes(const LinkInterface *link, const QByteArray &data)
-{
+void MAVLinkProtocol::logSentBytes(const LinkInterface *link, const QByteArray &data) {
     Q_UNUSED(link);
 
     if (_logSuspendError || _logSuspendReplay || !_tempLogFile->isOpen()) {
@@ -126,8 +113,8 @@ void MAVLinkProtocol::logSentBytes(const LinkInterface *link, const QByteArray &
     qToBigEndian(time, bytes_time);
 
     QByteArray logData = data;
-    QByteArray timeData = QByteArray::fromRawData(reinterpret_cast<const char*>(bytes_time), sizeof(bytes_time));
-    (void) logData.prepend(timeData);
+    QByteArray timeData = QByteArray::fromRawData(reinterpret_cast<const char *>(bytes_time), sizeof(bytes_time));
+    (void)logData.prepend(timeData);
     if (_tempLogFile->write(logData) != logData.length()) {
         const QString message = QStringLiteral("MAVLink Logging failed. Could not write to file %1, logging disabled.").arg(_tempLogFile->fileName());
         qgcApp()->showAppMessage(message, getName());
@@ -136,15 +123,14 @@ void MAVLinkProtocol::logSentBytes(const LinkInterface *link, const QByteArray &
     }
 }
 
-void MAVLinkProtocol::receiveBytes(LinkInterface *link, const QByteArray &data)
-{
+void MAVLinkProtocol::receiveBytes(LinkInterface *link, const QByteArray &data) {
     const SharedLinkInterfacePtr linkPtr = LinkManager::instance()->sharedLinkInterfacePointerForLink(link);
     if (!linkPtr) {
         qCDebug(MAVLinkProtocolLog) << "receiveBytes: link gone!" << data.size() << "bytes arrived too late";
         return;
     }
 
-    for (const uint8_t &byte: data) {
+    for (const uint8_t &byte : data) {
         const uint8_t mavlinkChannel = link->mavlinkChannel();
         mavlink_message_t message{};
         mavlink_status_t status{};
@@ -165,8 +151,7 @@ void MAVLinkProtocol::receiveBytes(LinkInterface *link, const QByteArray &data)
     }
 }
 
-void MAVLinkProtocol::_updateVersion(LinkInterface *link, uint8_t mavlinkChannel)
-{
+void MAVLinkProtocol::_updateVersion(LinkInterface *link, uint8_t mavlinkChannel) {
     if (link->decodedFirstMavlinkPacket()) {
         return;
     }
@@ -184,8 +169,7 @@ void MAVLinkProtocol::_updateVersion(LinkInterface *link, uint8_t mavlinkChannel
     }
 }
 
-void MAVLinkProtocol::_updateCounters(uint8_t mavlinkChannel, const mavlink_message_t &message)
-{
+void MAVLinkProtocol::_updateCounters(uint8_t mavlinkChannel, const mavlink_message_t &message) {
     uint8_t lastSeq = _lastIndex[message.sysid][message.compid];
     uint8_t expectedSeq = lastSeq + 1;
     _totalReceiveCounter[mavlinkChannel]++;
@@ -214,8 +198,7 @@ void MAVLinkProtocol::_updateCounters(uint8_t mavlinkChannel, const mavlink_mess
     _runningLossPercent[mavlinkChannel] = receiveLossPercent;
 }
 
-void MAVLinkProtocol::_forward(const mavlink_message_t &message)
-{
+void MAVLinkProtocol::_forward(const mavlink_message_t &message) {
     if (message.msgid == MAVLINK_MSG_ID_SETUP_SIGNING) {
         return;
     }
@@ -231,11 +214,10 @@ void MAVLinkProtocol::_forward(const mavlink_message_t &message)
 
     uint8_t buf[MAVLINK_MAX_PACKET_LEN]{};
     const uint16_t len = mavlink_msg_to_send_buffer(buf, &message);
-    (void) forwardingLink->writeBytesThreadSafe(reinterpret_cast<const char*>(buf), len);
+    (void)forwardingLink->writeBytesThreadSafe(reinterpret_cast<const char *>(buf), len);
 }
 
-void MAVLinkProtocol::_forwardSupport(const mavlink_message_t &message)
-{
+void MAVLinkProtocol::_forwardSupport(const mavlink_message_t &message) {
     if (message.msgid == MAVLINK_MSG_ID_SETUP_SIGNING) {
         return;
     }
@@ -251,18 +233,17 @@ void MAVLinkProtocol::_forwardSupport(const mavlink_message_t &message)
 
     uint8_t buf[MAVLINK_MAX_PACKET_LEN]{};
     const uint16_t len = mavlink_msg_to_send_buffer(buf, &message);
-    (void) forwardingSupportLink->writeBytesThreadSafe(reinterpret_cast<const char*>(buf), len);
+    (void)forwardingSupportLink->writeBytesThreadSafe(reinterpret_cast<const char *>(buf), len);
 }
 
-void MAVLinkProtocol::_logData(LinkInterface *link, const mavlink_message_t &message)
-{
+void MAVLinkProtocol::_logData(LinkInterface *link, const mavlink_message_t &message) {
     if (!_logSuspendError && !_logSuspendReplay && _tempLogFile->isOpen()) {
         const quint64 timestamp = static_cast<quint64>(QDateTime::currentMSecsSinceEpoch() * 1000);
         uint8_t buf[MAVLINK_MAX_PACKET_LEN + sizeof(timestamp)]{};
         qToBigEndian(timestamp, buf);
 
         const qsizetype len = mavlink_msg_to_send_buffer(buf + sizeof(timestamp), &message) + sizeof(timestamp);
-        const QByteArray log_data(reinterpret_cast<const char*>(buf), len);
+        const QByteArray log_data(reinterpret_cast<const char *>(buf), len);
         if (_tempLogFile->write(log_data) != len) {
             const QString message = QStringLiteral("MAVLink Logging failed. Could not write to file %1, logging disabled.").arg(_tempLogFile->fileName());
             qgcApp()->showAppMessage(message, getName());
@@ -278,35 +259,33 @@ void MAVLinkProtocol::_logData(LinkInterface *link, const mavlink_message_t &mes
     }
 
     switch (message.msgid) {
-    case MAVLINK_MSG_ID_HEARTBEAT: {
-        _startLogging();
-        mavlink_heartbeat_t heartbeat{};
-        mavlink_msg_heartbeat_decode(&message, &heartbeat);
-        emit vehicleHeartbeatInfo(link, message.sysid, message.compid, heartbeat.autopilot, heartbeat.type);
-        break;
-    }
-    case MAVLINK_MSG_ID_HIGH_LATENCY: {
-        _startLogging();
-        mavlink_high_latency_t highLatency{};
-        mavlink_msg_high_latency_decode(&message, &highLatency);
-        // HIGH_LATENCY does not provide autopilot or type information, generic is our safest bet
-        emit vehicleHeartbeatInfo(link, message.sysid, message.compid, MAV_AUTOPILOT_GENERIC, MAV_TYPE_GENERIC);
-        break;
-    }
-    case MAVLINK_MSG_ID_HIGH_LATENCY2: {
-        _startLogging();
-        mavlink_high_latency2_t highLatency2{};
-        mavlink_msg_high_latency2_decode(&message, &highLatency2);
-        emit vehicleHeartbeatInfo(link, message.sysid, message.compid, highLatency2.autopilot, highLatency2.type);
-        break;
-    }
-    default:
-        break;
+        case MAVLINK_MSG_ID_HEARTBEAT: {
+            _startLogging();
+            mavlink_heartbeat_t heartbeat{};
+            mavlink_msg_heartbeat_decode(&message, &heartbeat);
+            emit vehicleHeartbeatInfo(link, message.sysid, message.compid, heartbeat.autopilot, heartbeat.type);
+            break;
+        }
+        case MAVLINK_MSG_ID_HIGH_LATENCY: {
+            _startLogging();
+            mavlink_high_latency_t highLatency{};
+            mavlink_msg_high_latency_decode(&message, &highLatency);
+            // HIGH_LATENCY does not provide autopilot or type information, generic is our safest bet
+            emit vehicleHeartbeatInfo(link, message.sysid, message.compid, MAV_AUTOPILOT_GENERIC, MAV_TYPE_GENERIC);
+            break;
+        }
+        case MAVLINK_MSG_ID_HIGH_LATENCY2: {
+            _startLogging();
+            mavlink_high_latency2_t highLatency2{};
+            mavlink_msg_high_latency2_decode(&message, &highLatency2);
+            emit vehicleHeartbeatInfo(link, message.sysid, message.compid, highLatency2.autopilot, highLatency2.type);
+            break;
+        }
+        default: break;
     }
 }
 
-bool MAVLinkProtocol::_updateStatus(LinkInterface *link, const SharedLinkInterfacePtr linkPtr, uint8_t mavlinkChannel, const mavlink_message_t &message)
-{
+bool MAVLinkProtocol::_updateStatus(LinkInterface *link, const SharedLinkInterfacePtr linkPtr, uint8_t mavlinkChannel, const mavlink_message_t &message) {
     if ((_totalReceiveCounter[mavlinkChannel] % 31) == 0) {
         const uint64_t totalSent = _totalReceiveCounter[mavlinkChannel] + _totalLossCounter[mavlinkChannel];
         emit mavlinkMessageStatus(message.sysid, totalSent, _totalReceiveCounter[mavlinkChannel], _totalLossCounter[mavlinkChannel], _runningLossPercent[mavlinkChannel]);
@@ -321,24 +300,22 @@ bool MAVLinkProtocol::_updateStatus(LinkInterface *link, const SharedLinkInterfa
     return true;
 }
 
-bool MAVLinkProtocol::_closeLogFile()
-{
+bool MAVLinkProtocol::_closeLogFile() {
     if (!_tempLogFile->isOpen()) {
         return false;
     }
 
     if (_tempLogFile->size() == 0) {
-        (void) _tempLogFile->remove();
+        (void)_tempLogFile->remove();
         return false;
     }
 
-    (void) _tempLogFile->flush();
+    (void)_tempLogFile->flush();
     _tempLogFile->close();
     return true;
 }
 
-void MAVLinkProtocol::_startLogging()
-{
+void MAVLinkProtocol::_startLogging() {
     if (qgcApp()->runningUnitTests()) {
         return;
     }
@@ -371,27 +348,25 @@ void MAVLinkProtocol::_startLogging()
     }
 
     qCDebug(MAVLinkProtocolLog) << "Temp log" << _tempLogFile->fileName();
-    (void) _checkTelemetrySavePath();
+    (void)_checkTelemetrySavePath();
 
     _logSuspendError = false;
 }
 
-void MAVLinkProtocol::_stopLogging()
-{
+void MAVLinkProtocol::_stopLogging() {
     if (_tempLogFile->isOpen() && _closeLogFile()) {
         AppSettings *const appSettings = SettingsManager::instance()->appSettings();
         if ((_vehicleWasArmed || appSettings->telemetrySaveNotArmed()->rawValue().toBool()) && appSettings->telemetrySave()->rawValue().toBool() && !appSettings->disableAllPersistence()->rawValue().toBool()) {
             _saveTelemetryLog(_tempLogFile->fileName());
         } else {
-            (void) QFile::remove(_tempLogFile->fileName());
+            (void)QFile::remove(_tempLogFile->fileName());
         }
     }
 
     _vehicleWasArmed = false;
 }
 
-void MAVLinkProtocol::checkForLostLogFiles()
-{
+void MAVLinkProtocol::checkForLostLogFiles() {
     static const QDir tempDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
     static const QString filter(QStringLiteral("*.%1").arg(_logFileExtension));
     static const QStringList filterList(filter);
@@ -399,32 +374,30 @@ void MAVLinkProtocol::checkForLostLogFiles()
     const QFileInfoList fileInfoList = tempDir.entryInfoList(filterList, QDir::Files);
     qCDebug(MAVLinkProtocolLog) << "Orphaned log file count" << fileInfoList.count();
 
-    for (const QFileInfo &fileInfo: fileInfoList) {
+    for (const QFileInfo &fileInfo : fileInfoList) {
         qCDebug(MAVLinkProtocolLog) << "Orphaned log file" << fileInfo.filePath();
         if (fileInfo.size() == 0) {
-            (void) QFile::remove(fileInfo.filePath());
+            (void)QFile::remove(fileInfo.filePath());
             continue;
         }
         _saveTelemetryLog(fileInfo.filePath());
     }
 }
 
-void MAVLinkProtocol::deleteTempLogFiles()
-{
+void MAVLinkProtocol::deleteTempLogFiles() {
     static const QDir tempDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
     static const QString filter(QStringLiteral("*.%1").arg(_logFileExtension));
 
     const QFileInfoList fileInfoList = tempDir.entryInfoList(QStringList(filter), QDir::Files);
     qCDebug(MAVLinkProtocolLog) << "Temp log file count" << fileInfoList.count();
 
-    for (const QFileInfo &fileInfo: fileInfoList) {
+    for (const QFileInfo &fileInfo : fileInfoList) {
         qCDebug(MAVLinkProtocolLog) << "Temp log file" << fileInfo.filePath();
-        (void) QFile::remove(fileInfo.filePath());
+        (void)QFile::remove(fileInfo.filePath());
     }
 }
 
-void MAVLinkProtocol::_saveTelemetryLog(const QString &tempLogfile)
-{
+void MAVLinkProtocol::_saveTelemetryLog(const QString &tempLogfile) {
     if (_checkTelemetrySavePath()) {
         const QString saveDirPath = SettingsManager::instance()->appSettings()->telemetrySavePath();
         const QDir saveDir(saveDirPath);
@@ -446,11 +419,10 @@ void MAVLinkProtocol::_saveTelemetryLog(const QString &tempLogfile)
         }
     }
 
-    (void) QFile::remove(tempLogfile);
+    (void)QFile::remove(tempLogfile);
 }
 
-bool MAVLinkProtocol::_checkTelemetrySavePath()
-{
+bool MAVLinkProtocol::_checkTelemetrySavePath() {
     const QString saveDirPath = SettingsManager::instance()->appSettings()->telemetrySavePath();
     if (saveDirPath.isEmpty()) {
         const QString error = tr("Unable to save telemetry log. Application save directory is not set.");
@@ -468,24 +440,21 @@ bool MAVLinkProtocol::_checkTelemetrySavePath()
     return true;
 }
 
-void MAVLinkProtocol::setSystemId(int id)
-{
+void MAVLinkProtocol::setSystemId(int id) {
     if (id != _systemId) {
         _systemId = id;
         emit systemIdChanged(_systemId);
     }
 }
 
-void MAVLinkProtocol::enableVersionCheck(bool enabled)
-{
+void MAVLinkProtocol::enableVersionCheck(bool enabled) {
     if (enabled != _enableVersionCheck) {
         _enableVersionCheck = enabled;
         emit versionCheckChanged(enabled);
     }
 }
 
-void MAVLinkProtocol::_vehicleCountChanged()
-{
+void MAVLinkProtocol::_vehicleCountChanged() {
     if (MultiVehicleManager::instance()->vehicles()->count() == 0) {
         _stopLogging();
     }

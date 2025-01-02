@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include <QtCore/QThread>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QThread>
 
 #include "LinkConfiguration.h"
 
@@ -19,41 +19,49 @@ class LinkManager;
 Q_DECLARE_LOGGING_CATEGORY(LinkInterfaceLog)
 
 /// The link interface defines the interface for all links used to communicate with the ground station application.
-class LinkInterface : public QThread
-{
+class LinkInterface : public QThread {
     Q_OBJECT
 
     friend class LinkManager;
 
-public:
+  public:
     virtual ~LinkInterface();
 
     Q_INVOKABLE virtual void disconnect() = 0; // FIXME: This gets called 3x when closing link
 
     virtual bool isConnected() const = 0;
+
     virtual bool isLogReplay() { return false; }
+
     virtual bool isSecureConnection() { return false; } ///< Returns true if the connection is secure (e.g. USB, wired ethernet)
 
     SharedLinkConfigurationPtr linkConfiguration() { return _config; }
+
     const SharedLinkConfigurationPtr linkConfiguration() const { return _config; }
+
     uint8_t mavlinkChannel() const;
     bool mavlinkChannelIsSet() const;
+
     bool decodedFirstMavlinkPacket(void) const { return _decodedFirstMavlinkPacket; }
+
     void setDecodedFirstMavlinkPacket(bool decodedFirstMavlinkPacket) { _decodedFirstMavlinkPacket = decodedFirstMavlinkPacket; }
+
     void writeBytesThreadSafe(const char *bytes, int length);
+
     void addVehicleReference() { ++_vehicleReferenceCount; }
+
     void removeVehicleReference();
     bool initMavlinkSigning();
     void setSigningSignatureFailure(bool failure);
 
-signals:
+  signals:
     void bytesReceived(LinkInterface *link, const QByteArray &data);
     void bytesSent(LinkInterface *link, const QByteArray &data);
     void connected();
     void disconnected();
     void communicationError(const QString &title, const QString &error);
 
-protected:
+  protected:
     /// Links are only created by LinkManager so constructor is not public
     LinkInterface(SharedLinkConfigurationPtr &config, QObject *parent = nullptr);
 
@@ -67,11 +75,11 @@ protected:
 
     SharedLinkConfigurationPtr _config;
 
-private slots:
+  private slots:
     /// Not thread safe if called directly, only writeBytesThreadSafe is thread safe
     virtual void _writeBytes(const QByteArray &bytes) = 0;
 
-private:
+  private:
     /// connect is private since all links should be created through LinkManager::createConnectedLink calls
     virtual bool _connect() = 0;
 

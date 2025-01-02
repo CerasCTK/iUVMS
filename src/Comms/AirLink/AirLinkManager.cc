@@ -8,9 +8,9 @@
  ****************************************************************************/
 
 #include "AirLinkManager.h"
-#include "SettingsManager.h"
 #include "AppSettings.h"
 #include "QGCLoggingCategory.h"
+#include "SettingsManager.h"
 
 #include <QtCore/qapplicationstatic.h>
 #include <QtCore/QJsonDocument>
@@ -22,36 +22,24 @@ QGC_LOGGING_CATEGORY(AirLinkManagerLog, "qgc.airlink.airlinkmanager");
 
 Q_APPLICATION_STATIC(AirLinkManager, _airLinkManager);
 
-AirLinkManager::AirLinkManager(QObject *parent)
-    : QObject(parent)
-    , _mngr(new QNetworkAccessManager(this))
-{
+AirLinkManager::AirLinkManager(QObject *parent) : QObject(parent), _mngr(new QNetworkAccessManager(this)) {
     // qCDebug(AirLinkManagerLog) << Q_FUNC_INFO << this;
 }
 
-AirLinkManager::~AirLinkManager()
-{
+AirLinkManager::~AirLinkManager() {
     // qCDebug(AirLinkManagerLog) << Q_FUNC_INFO << this;
 }
 
-AirLinkManager *AirLinkManager::instance()
-{
-    return _airLinkManager();
-}
+AirLinkManager *AirLinkManager::instance() { return _airLinkManager(); }
 
-bool AirLinkManager::isOnline(const QString &drone)
-{
-    return _vehiclesFromServer.contains(drone) ? _vehiclesFromServer[drone] : false;
-}
+bool AirLinkManager::isOnline(const QString &drone) { return _vehiclesFromServer.contains(drone) ? _vehiclesFromServer[drone] : false; }
 
-void AirLinkManager::updateCredentials(const QString &login, const QString &pass)
-{
+void AirLinkManager::updateCredentials(const QString &login, const QString &pass) {
     SettingsManager::instance()->appSettings()->loginAirLink()->setRawValue(login);
     SettingsManager::instance()->appSettings()->passAirLink()->setRawValue(pass);
 }
 
-void AirLinkManager::_connectToAirLinkServer(const QString &login, const QString &pass)
-{
+void AirLinkManager::_connectToAirLinkServer(const QString &login, const QString &pass) {
     const QUrl url("https://air-link.space/api/gs/getModems");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -63,12 +51,11 @@ void AirLinkManager::_connectToAirLinkServer(const QString &login, const QString
     const QByteArray data = doc.toJson();
 
     QNetworkReply *const reply = _mngr->post(request, data);
-    (void) QObject::connect(reply, &QNetworkReply::finished, this, &AirLinkManager::_processReplyAirlinkServer);
+    (void)QObject::connect(reply, &QNetworkReply::finished, this, &AirLinkManager::_processReplyAirlinkServer);
 }
 
-void AirLinkManager::_processReplyAirlinkServer()
-{
-    QNetworkReply* const reply = qobject_cast<QNetworkReply*>(sender());
+void AirLinkManager::_processReplyAirlinkServer() {
+    QNetworkReply *const reply = qobject_cast<QNetworkReply *>(sender());
     if (!reply) {
         return;
     }
@@ -88,8 +75,7 @@ void AirLinkManager::_processReplyAirlinkServer()
     }
 }
 
-void AirLinkManager::_parseAnswer(const QByteArray &ba)
-{
+void AirLinkManager::_parseAnswer(const QByteArray &ba) {
     _vehiclesFromServer.clear();
 
     for (const auto &arr : QJsonDocument::fromJson(ba)["modems"].toArray()) {

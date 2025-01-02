@@ -5,8 +5,8 @@
 #ifndef QSERIALPORTGLOBAL_H
 #define QSERIALPORTGLOBAL_H
 
-#include <QtCore/qstring.h>
-#include <QtCore/qglobal.h>
 #include "qtserialportexports.h"
+#include <QtCore/qglobal.h>
+#include <QtCore/qstring.h>
 
 #endif // QSERIALPORTGLOBAL_H

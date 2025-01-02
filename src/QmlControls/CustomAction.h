@@ -19,38 +19,25 @@ Q_DECLARE_LOGGING_CATEGORY(CustomActionLog)
 
 class Vehicle;
 
-class CustomAction: public QObject
-{
+class CustomAction : public QObject {
     Q_OBJECT
     QML_ELEMENT
     Q_MOC_INCLUDE("Vehicle.h")
     Q_PROPERTY(QString label READ label CONSTANT)
     Q_PROPERTY(QString description READ description CONSTANT)
 
-public:
+  public:
     explicit CustomAction(QObject *parent = nullptr);
-    CustomAction(
-        const QString &label,
-        const QString &description,
-        MAV_CMD mavCmd,
-        MAV_COMPONENT compId,
-        float param1,
-        float param2,
-        float param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        QObject *parent = nullptr
-    );
+    CustomAction(const QString &label, const QString &description, MAV_CMD mavCmd, MAV_COMPONENT compId, float param1, float param2, float param3, float param4, float param5, float param6, float param7, QObject *parent = nullptr);
     ~CustomAction();
 
     Q_INVOKABLE void sendTo(Vehicle *vehicle);
 
     const QString &label() const { return _label; }
+
     const QString &description() const { return _description; }
 
-private:
+  private:
     const QString _label;
     const QString _description;
     const MAV_CMD _mavCmd = MAV_CMD_ENUM_END;

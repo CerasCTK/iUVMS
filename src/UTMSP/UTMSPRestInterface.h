@@ -10,24 +10,21 @@
 #pragma once
 
 #include <QObject>
+#include <QPair>
+#include <QString>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
-#include <QString>
 #include <QUrl>
-#include <QPair>
 
 class UTMSPRestInterface : public QObject {
     Q_OBJECT
 
-public:
+  public:
     UTMSPRestInterface(QObject *parent = nullptr);
     ~UTMSPRestInterface();
 
-    enum class HostTarget {
-        AuthClient,
-        BlenderClient
-    };
+    enum class HostTarget { AuthClient, BlenderClient };
 
     void setBearerToken(const std::string &token);
     QPair<int, std::string> executeRequest();
@@ -35,11 +32,11 @@ public:
     void setHost(const HostTarget &hostTarget);
     void setBasicToken(const QString &basicToken);
 
-private:
-    QNetworkAccessManager *             _networkManager = nullptr;
-    QNetworkRequest                     _currentRequest;
-    QString                             _currentBody;
-    QNetworkAccessManager::Operation    _currentMethod;
-    QString                             _currentURL;
-    QString                             _basicToken;
+  private:
+    QNetworkAccessManager *_networkManager = nullptr;
+    QNetworkRequest _currentRequest;
+    QString _currentBody;
+    QNetworkAccessManager::Operation _currentMethod;
+    QString _currentURL;
+    QString _basicToken;
 };

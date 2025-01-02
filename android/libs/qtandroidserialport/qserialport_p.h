@@ -23,8 +23,8 @@
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 
-#include "qserialport.h"
 #include "AndroidSerial.h"
+#include "qserialport.h"
 
 constexpr int INVALID_DEVICE_ID = 0;
 constexpr int MIN_READ_TIMEOUT = 500;
@@ -46,18 +46,15 @@ Q_DECLARE_LOGGING_CATEGORY(AndroidSerialPortLog)
 
 QT_BEGIN_NAMESPACE
 
-class QSerialPortErrorInfo
-{
-public:
-    QSerialPortErrorInfo(QSerialPort::SerialPortError newErrorCode = QSerialPort::UnknownError,
-                                  const QString &newErrorString = QString());
+class QSerialPortErrorInfo {
+  public:
+    QSerialPortErrorInfo(QSerialPort::SerialPortError newErrorCode = QSerialPort::UnknownError, const QString &newErrorString = QString());
     QSerialPort::SerialPortError errorCode = QSerialPort::UnknownError;
     QString errorString;
 };
 
-class QSerialPortPrivate : public QIODevicePrivate
-{
-public:
+class QSerialPortPrivate : public QIODevicePrivate {
+  public:
     Q_DECLARE_PUBLIC(QSerialPort)
 
     QSerialPortPrivate();
@@ -84,35 +81,23 @@ public:
 
     void setError(const QSerialPortErrorInfo &errorInfo);
 
-    void setBindableError(QSerialPort::SerialPortError error)
-    { setError(error); }
-    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::SerialPortError, error,
-        &QSerialPortPrivate::setBindableError, QSerialPort::NoError)
+    void setBindableError(QSerialPort::SerialPortError error) { setError(error); }
+    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::SerialPortError, error, &QSerialPortPrivate::setBindableError, QSerialPort::NoError)
 
-    bool setBindableDataBits(QSerialPort::DataBits dataBits)
-    { return q_func()->setDataBits(dataBits); }
-    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::DataBits, dataBits,
-        &QSerialPortPrivate::setBindableDataBits, QSerialPort::Data8)
+    bool setBindableDataBits(QSerialPort::DataBits dataBits) { return q_func()->setDataBits(dataBits); }
+    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::DataBits, dataBits, &QSerialPortPrivate::setBindableDataBits, QSerialPort::Data8)
 
-    bool setBindableParity(QSerialPort::Parity parity)
-    { return q_func()->setParity(parity); }
-    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::Parity, parity,
-        &QSerialPortPrivate::setBindableParity, QSerialPort::NoParity)
+    bool setBindableParity(QSerialPort::Parity parity) { return q_func()->setParity(parity); }
+    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::Parity, parity, &QSerialPortPrivate::setBindableParity, QSerialPort::NoParity)
 
-    bool setBindableStopBits(QSerialPort::StopBits stopBits)
-    { return q_func()->setStopBits(stopBits); }
-    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::StopBits, stopBits,
-        &QSerialPortPrivate::setBindableStopBits, QSerialPort::OneStop)
+    bool setBindableStopBits(QSerialPort::StopBits stopBits) { return q_func()->setStopBits(stopBits); }
+    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::StopBits, stopBits, &QSerialPortPrivate::setBindableStopBits, QSerialPort::OneStop)
 
-    bool setBindableFlowControl(QSerialPort::FlowControl flowControl)
-    { return q_func()->setFlowControl(flowControl); }
-    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::FlowControl, flowControl,
-        &QSerialPortPrivate::setBindableFlowControl, QSerialPort::NoFlowControl)
+    bool setBindableFlowControl(QSerialPort::FlowControl flowControl) { return q_func()->setFlowControl(flowControl); }
+    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, QSerialPort::FlowControl, flowControl, &QSerialPortPrivate::setBindableFlowControl, QSerialPort::NoFlowControl)
 
-    bool setBindableBreakEnabled(bool isBreakEnabled)
-    { return q_func()->setBreakEnabled(isBreakEnabled); }
-    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, bool, isBreakEnabled,
-        &QSerialPortPrivate::setBindableBreakEnabled, false)
+    bool setBindableBreakEnabled(bool isBreakEnabled) { return q_func()->setBreakEnabled(isBreakEnabled); }
+    Q_OBJECT_COMPAT_PROPERTY_WITH_ARGS(QSerialPortPrivate, bool, isBreakEnabled, &QSerialPortPrivate::setBindableBreakEnabled, false)
 
     bool waitForReadyRead(int msec);
     bool waitForBytesWritten(int msec);
@@ -132,7 +117,7 @@ public:
     qint64 readBufferMaxSize = 0; // DEFAULT_READ_BUFFER_SIZE
     int descriptor = -1;
 
-private:
+  private:
     qint64 _writeToPort(const char *data, qint64 maxSize, int timeout = DEFAULT_WRITE_TIMEOUT, bool async = false);
     bool _stopAsyncRead();
     bool _setParameters(qint32 baudRate, QSerialPort::DataBits dataBits, QSerialPort::StopBits stopBits, QSerialPort::Parity parity);

@@ -8,11 +8,11 @@
  ****************************************************************************/
 
 #include "GStreamer.h"
-#include "GstVideoReceiver.h"
-#include "SettingsManager.h"
 #include "AppSettings.h"
-#include "VideoSettings.h"
+#include "GstVideoReceiver.h"
 #include "QGCLoggingCategory.h"
+#include "SettingsManager.h"
+#include "VideoSettings.h"
 #ifdef Q_OS_IOS
 #include "gst_ios_init.h"
 #endif
@@ -54,15 +54,7 @@ GST_PLUGIN_STATIC_DECLARE(qml6);
 GST_PLUGIN_STATIC_DECLARE(qgc);
 G_END_DECLS
 
-static void qt_gst_log(GstDebugCategory *category,
-                       GstDebugLevel level,
-                       const gchar *file,
-                       const gchar *function,
-                       gint line,
-                       GObject *object,
-                       GstDebugMessage *message,
-                       gpointer data)
-{
+static void qt_gst_log(GstDebugCategory *category, GstDebugLevel level, const gchar *file, const gchar *function, gint line, GObject *object, GstDebugMessage *message, gpointer data) {
     Q_UNUSED(data);
 
     if (level > gst_debug_category_get_threshold(category)) {
@@ -71,41 +63,31 @@ static void qt_gst_log(GstDebugCategory *category,
 
     QMessageLogger log(file, line, function);
 
-    char *object_info = gst_info_strdup_printf("%" GST_PTR_FORMAT, static_cast<void*>(object));
+    char *object_info = gst_info_strdup_printf("%" GST_PTR_FORMAT, static_cast<void *>(object));
 
     switch (level) {
-    default:
-    case GST_LEVEL_ERROR:
-        log.critical(GStreamerAPILog, "%s %s", object_info, gst_debug_message_get(message));
-        break;
-    case GST_LEVEL_WARNING:
-        log.warning(GStreamerAPILog, "%s %s", object_info, gst_debug_message_get(message));
-        break;
-    case GST_LEVEL_FIXME:
-    case GST_LEVEL_INFO:
-        log.info(GStreamerAPILog, "%s %s", object_info, gst_debug_message_get(message));
-        break;
-    case GST_LEVEL_DEBUG:
-    case GST_LEVEL_LOG:
-    case GST_LEVEL_TRACE:
-    case GST_LEVEL_MEMDUMP:
-        log.debug(GStreamerAPILog, "%s %s", object_info, gst_debug_message_get(message));
-        break;
+        default:
+        case GST_LEVEL_ERROR: log.critical(GStreamerAPILog, "%s %s", object_info, gst_debug_message_get(message)); break;
+        case GST_LEVEL_WARNING: log.warning(GStreamerAPILog, "%s %s", object_info, gst_debug_message_get(message)); break;
+        case GST_LEVEL_FIXME:
+        case GST_LEVEL_INFO: log.info(GStreamerAPILog, "%s %s", object_info, gst_debug_message_get(message)); break;
+        case GST_LEVEL_DEBUG:
+        case GST_LEVEL_LOG:
+        case GST_LEVEL_TRACE:
+        case GST_LEVEL_MEMDUMP: log.debug(GStreamerAPILog, "%s %s", object_info, gst_debug_message_get(message)); break;
     }
 
     g_free(object_info);
     object_info = nullptr;
 }
 
-static void _qgcputenv(const QString &key, const QString &root, const QString &path = "")
-{
+static void _qgcputenv(const QString &key, const QString &root, const QString &path = "") {
     const QByteArray keyArray = key.toLocal8Bit();
     const QByteArray valueArray = (root + path).toLocal8Bit();
-    (void) qputenv(keyArray, valueArray);
+    (void)qputenv(keyArray, valueArray);
 }
 
-static void _setGstEnvVars()
-{
+static void _setGstEnvVars() {
     const QString currentDir = QCoreApplication::applicationDirPath();
 
 #if defined(Q_OS_MAC)
@@ -130,8 +112,7 @@ static void _setGstEnvVars()
 #endif
 }
 
-static void _registerPlugins()
-{
+static void _registerPlugins() {
 #ifdef UVMS_GST_STATIC_BUILD
     GST_PLUGIN_STATIC_REGISTER(coreelements);
     GST_PLUGIN_STATIC_REGISTER(playback);
@@ -159,140 +140,127 @@ static void _registerPlugins()
 #endif
 }
 
-namespace GStreamer
-{
+namespace GStreamer {
 
-void initialize()
-{
-    (void) qRegisterMetaType<VideoReceiver::STATUS>("STATUS");
+    void initialize() {
+        (void)qRegisterMetaType<VideoReceiver::STATUS>("STATUS");
 
-    _setGstEnvVars();
+        _setGstEnvVars();
 
-    if (qEnvironmentVariableIsEmpty("GST_DEBUG")) {
-        int gstDebugLevel = 0;
-        QSettings settings;
-        if (settings.contains(AppSettings::gstDebugLevelName)) {
-            gstDebugLevel = settings.value(AppSettings::gstDebugLevelName).toInt();
+        if (qEnvironmentVariableIsEmpty("GST_DEBUG")) {
+            int gstDebugLevel = 0;
+            QSettings settings;
+            if (settings.contains(AppSettings::gstDebugLevelName)) {
+                gstDebugLevel = settings.value(AppSettings::gstDebugLevelName).toInt();
+            }
+            gst_debug_set_default_threshold(static_cast<GstDebugLevel>(gstDebugLevel));
+            gst_debug_remove_log_function(gst_debug_log_default);
+            gst_debug_add_log_function(qt_gst_log, nullptr, nullptr);
         }
-        gst_debug_set_default_threshold(static_cast<GstDebugLevel>(gstDebugLevel));
-        gst_debug_remove_log_function(gst_debug_log_default);
-        gst_debug_add_log_function(qt_gst_log, nullptr, nullptr);
-    }
 
 #ifdef Q_OS_IOS
-    gst_ios_pre_init();
+        gst_ios_pre_init();
 #endif
 
-    const QStringList args = QCoreApplication::arguments();
-    int argc = args.size();
-    QList<QByteArray> argList;
-    argList.reserve(argc);
+        const QStringList args = QCoreApplication::arguments();
+        int argc = args.size();
+        QList<QByteArray> argList;
+        argList.reserve(argc);
 
-    char **argv = new char*[argc];
-    for (int i = 0; i < argc; i++) {
-        (void) argList.append(args[i].toUtf8());
-        argv[i] = argList[i].data();
-    }
+        char **argv = new char *[argc];
+        for (int i = 0; i < argc; i++) {
+            (void)argList.append(args[i].toUtf8());
+            argv[i] = argList[i].data();
+        }
 
-    GError *error = nullptr;
-    if (!gst_init_check(&argc, &argv, &error)) {
-        qCCritical(GStreamerLog) << Q_FUNC_INFO << error->message;
-        g_error_free(error);
-    }
-    delete[] argv;
+        GError *error = nullptr;
+        if (!gst_init_check(&argc, &argv, &error)) {
+            qCCritical(GStreamerLog) << Q_FUNC_INFO << error->message;
+            g_error_free(error);
+        }
+        delete[] argv;
 
-    _registerPlugins();
+        _registerPlugins();
 
 #ifdef Q_OS_IOS
-    gst_ios_post_init();
+        gst_ios_post_init();
 #endif
 
-    GST_PLUGIN_STATIC_REGISTER(qml6);
-    GST_PLUGIN_STATIC_REGISTER(qgc);
+        GST_PLUGIN_STATIC_REGISTER(qml6);
+        GST_PLUGIN_STATIC_REGISTER(qgc);
 
-    blacklist(static_cast<GStreamer::VideoDecoderOptions>(SettingsManager::instance()->videoSettings()->forceVideoDecoder()->rawValue().toInt()));
-}
-
-void blacklist(VideoDecoderOptions option)
-{
-    GstRegistry *const registry = gst_registry_get();
-
-    if (!registry) {
-        qCCritical(GStreamerLog) << "Failed to get gstreamer registry.";
-        return;
+        blacklist(static_cast<GStreamer::VideoDecoderOptions>(SettingsManager::instance()->videoSettings()->forceVideoDecoder()->rawValue().toInt()));
     }
 
-    const auto changeRank = [registry](const char *featureName, uint16_t rank) {
-        GstPluginFeature *const feature = gst_registry_lookup_feature(registry, featureName);
-        if (!feature) {
-            qCDebug(GStreamerLog) << "Failed to change ranking of feature. Featuer does not exist:" << featureName;
+    void blacklist(VideoDecoderOptions option) {
+        GstRegistry *const registry = gst_registry_get();
+
+        if (!registry) {
+            qCCritical(GStreamerLog) << "Failed to get gstreamer registry.";
             return;
         }
 
-        qCDebug(GStreamerLog) << "Changing feature (" << featureName << ") to use rank:" << rank;
-        gst_plugin_feature_set_rank(feature, rank);
-        (void) gst_registry_add_feature(registry, feature);
-        gst_object_unref(feature);
-    };
+        const auto changeRank = [registry](const char *featureName, uint16_t rank) {
+            GstPluginFeature *const feature = gst_registry_lookup_feature(registry, featureName);
+            if (!feature) {
+                qCDebug(GStreamerLog) << "Failed to change ranking of feature. Featuer does not exist:" << featureName;
+                return;
+            }
 
-    changeRank("bcmdec", GST_RANK_NONE);
+            qCDebug(GStreamerLog) << "Changing feature (" << featureName << ") to use rank:" << rank;
+            gst_plugin_feature_set_rank(feature, rank);
+            (void)gst_registry_add_feature(registry, feature);
+            gst_object_unref(feature);
+        };
 
-    switch (option) {
-    case ForceVideoDecoderDefault:
-        break;
-    case ForceVideoDecoderSoftware:
-        for (const char *name : {"avdec_h264", "avdec_h265"}) {
-            changeRank(name, GST_RANK_PRIMARY + 1);
-        }
-        break;
-    case ForceVideoDecoderVAAPI:
-        for (const char *name : {"vaapimpeg2dec", "vaapimpeg4dec", "vaapih263dec", "vaapih264dec", "vaapih265dec", "vaapivc1dec"}) {
-            changeRank(name, GST_RANK_PRIMARY + 1);
-        }
-        break;
-    case ForceVideoDecoderNVIDIA:
-        for (const char *name : {"nvh265dec", "nvh265sldec", "nvh264dec", "nvh264sldec"}) {
-            changeRank(name, GST_RANK_PRIMARY + 1);
-        }
-        break;
-    case ForceVideoDecoderDirectX3D:
-        for (const char *name : {"d3d11vp9dec", "d3d11h265dec", "d3d11h264dec"}) {
-            changeRank(name, GST_RANK_PRIMARY + 1);
-        }
-        break;
-    case ForceVideoDecoderVideoToolbox:
-        changeRank("vtdec", GST_RANK_PRIMARY + 1);
-        break;
-    default:
-        qCWarning(GStreamerLog) << "Can't handle decode option:" << option;
-        break;
-    }
-}
+        changeRank("bcmdec", GST_RANK_NONE);
 
-void *createVideoSink(QObject *parent, QQuickItem *widget)
-{
-    Q_UNUSED(parent)
-
-    GstElement *const sink = gst_element_factory_make("qgcvideosinkbin", NULL);
-    if (sink) {
-        g_object_set(sink, "widget", widget, NULL);
-    } else {
-        qCCritical(GStreamerLog) << "gst_element_factory_make('qgcvideosinkbin') failed";
+        switch (option) {
+            case ForceVideoDecoderDefault: break;
+            case ForceVideoDecoderSoftware:
+                for (const char *name : { "avdec_h264", "avdec_h265" }) {
+                    changeRank(name, GST_RANK_PRIMARY + 1);
+                }
+                break;
+            case ForceVideoDecoderVAAPI:
+                for (const char *name : { "vaapimpeg2dec", "vaapimpeg4dec", "vaapih263dec", "vaapih264dec", "vaapih265dec", "vaapivc1dec" }) {
+                    changeRank(name, GST_RANK_PRIMARY + 1);
+                }
+                break;
+            case ForceVideoDecoderNVIDIA:
+                for (const char *name : { "nvh265dec", "nvh265sldec", "nvh264dec", "nvh264sldec" }) {
+                    changeRank(name, GST_RANK_PRIMARY + 1);
+                }
+                break;
+            case ForceVideoDecoderDirectX3D:
+                for (const char *name : { "d3d11vp9dec", "d3d11h265dec", "d3d11h264dec" }) {
+                    changeRank(name, GST_RANK_PRIMARY + 1);
+                }
+                break;
+            case ForceVideoDecoderVideoToolbox: changeRank("vtdec", GST_RANK_PRIMARY + 1); break;
+            default: qCWarning(GStreamerLog) << "Can't handle decode option:" << option; break;
+        }
     }
 
-    return sink;
-}
+    void *createVideoSink(QObject *parent, QQuickItem *widget) {
+        Q_UNUSED(parent)
 
-void releaseVideoSink(void *sink)
-{
-    if (sink) {
-        gst_object_unref(GST_ELEMENT(sink));
+        GstElement *const sink = gst_element_factory_make("qgcvideosinkbin", NULL);
+        if (sink) {
+            g_object_set(sink, "widget", widget, NULL);
+        } else {
+            qCCritical(GStreamerLog) << "gst_element_factory_make('qgcvideosinkbin') failed";
+        }
+
+        return sink;
     }
-}
 
-VideoReceiver *createVideoReceiver(QObject *parent)
-{
-    return new GstVideoReceiver(parent);
-}
+    void releaseVideoSink(void *sink) {
+        if (sink) {
+            gst_object_unref(GST_ELEMENT(sink));
+        }
+    }
+
+    VideoReceiver *createVideoReceiver(QObject *parent) { return new GstVideoReceiver(parent); }
 
 } // namespace GStreamer

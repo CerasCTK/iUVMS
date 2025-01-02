@@ -11,11 +11,10 @@
 
 #include "SettingsGroup.h"
 
-class ADSBVehicleManagerSettings : public SettingsGroup
-{
+class ADSBVehicleManagerSettings : public SettingsGroup {
     Q_OBJECT
-public:
-    ADSBVehicleManagerSettings(QObject* parent = nullptr);
+  public:
+    ADSBVehicleManagerSettings(QObject *parent = nullptr);
     DEFINE_SETTING_NAME_GROUP()
 
     DEFINE_SETTINGFACT(adsbServerConnectEnabled)

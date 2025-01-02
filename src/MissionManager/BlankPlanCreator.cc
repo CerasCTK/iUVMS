@@ -10,13 +10,6 @@
 #include "BlankPlanCreator.h"
 #include "PlanMasterController.h"
 
-BlankPlanCreator::BlankPlanCreator(PlanMasterController* planMasterController, QObject* parent)
-    : PlanCreator(planMasterController, tr("Empty Plan"), QStringLiteral("/qmlimages/PlanCreator/BlankPlanCreator.png"), parent)
-{
+BlankPlanCreator::BlankPlanCreator(PlanMasterController *planMasterController, QObject *parent) : PlanCreator(planMasterController, tr("Empty Plan"), QStringLiteral("/qmlimages/PlanCreator/BlankPlanCreator.png"), parent) {}
 
-}
-
-void BlankPlanCreator::createPlan(const QGeoCoordinate& /*mapCenterCoord*/)
-{
-    _planMasterController->removeAll();
-}
+void BlankPlanCreator::createPlan(const QGeoCoordinate & /*mapCenterCoord*/) { _planMasterController->removeAll(); }

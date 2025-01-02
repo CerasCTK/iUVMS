@@ -15,34 +15,41 @@
 
 Q_DECLARE_LOGGING_CATEGORY(GPSRTKFactGroupLog)
 
-class GPSRTKFactGroup : public FactGroup
-{
+class GPSRTKFactGroup : public FactGroup {
     Q_OBJECT
-    Q_PROPERTY(Fact *connected          READ connected          CONSTANT)
-    Q_PROPERTY(Fact *currentDuration    READ currentDuration    CONSTANT)
-    Q_PROPERTY(Fact *currentAccuracy    READ currentAccuracy    CONSTANT)
-    Q_PROPERTY(Fact *currentLatitude    READ currentLatitude    CONSTANT)
-    Q_PROPERTY(Fact *currentLongitude   READ currentLongitude   CONSTANT)
-    Q_PROPERTY(Fact *currentAltitude    READ currentAltitude    CONSTANT)
-    Q_PROPERTY(Fact *valid              READ valid              CONSTANT)
-    Q_PROPERTY(Fact *active             READ active             CONSTANT)
-    Q_PROPERTY(Fact *numSatellites      READ numSatellites      CONSTANT)
+    Q_PROPERTY(Fact *connected READ connected CONSTANT)
+    Q_PROPERTY(Fact *currentDuration READ currentDuration CONSTANT)
+    Q_PROPERTY(Fact *currentAccuracy READ currentAccuracy CONSTANT)
+    Q_PROPERTY(Fact *currentLatitude READ currentLatitude CONSTANT)
+    Q_PROPERTY(Fact *currentLongitude READ currentLongitude CONSTANT)
+    Q_PROPERTY(Fact *currentAltitude READ currentAltitude CONSTANT)
+    Q_PROPERTY(Fact *valid READ valid CONSTANT)
+    Q_PROPERTY(Fact *active READ active CONSTANT)
+    Q_PROPERTY(Fact *numSatellites READ numSatellites CONSTANT)
 
-public:
-    explicit GPSRTKFactGroup(QObject* parent = nullptr);
+  public:
+    explicit GPSRTKFactGroup(QObject *parent = nullptr);
     ~GPSRTKFactGroup();
 
     Fact *connected() const { return _connected; }
+
     Fact *currentDuration() const { return _currentDuration; }
+
     Fact *currentAccuracy() const { return _currentAccuracy; }
+
     Fact *currentLatitude() const { return _currentLatitude; }
+
     Fact *currentLongitude() const { return _currentLongitude; }
+
     Fact *currentAltitude() const { return _currentAltitude; }
+
     Fact *valid() const { return _valid; }
+
     Fact *active() const { return _active; }
+
     Fact *numSatellites() const { return _numSatellites; }
 
-private:
+  private:
     const QString _connectedFactName = QStringLiteral("connected");
     const QString _currentAccuracyFactName = QStringLiteral("currentAccuracy");
     const QString _currentDurationFactName = QStringLiteral("currentDuration");

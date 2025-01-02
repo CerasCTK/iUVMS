@@ -7,14 +7,13 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #ifdef __mobile__
 
 class MobileScreenMgr {
-    
-public:
+
+  public:
     /// Turns on/off screen sleep on mobile devices
     static void setKeepScreenOn(bool keepScreenOn);
 };

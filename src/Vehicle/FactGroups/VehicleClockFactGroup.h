@@ -14,32 +14,31 @@
 
 class Vehicle;
 
-class VehicleClockFactGroup : public FactGroup
-{
+class VehicleClockFactGroup : public FactGroup {
     Q_OBJECT
 
-public:
-    VehicleClockFactGroup(QObject* parent = nullptr);
+  public:
+    VehicleClockFactGroup(QObject *parent = nullptr);
 
-    Q_PROPERTY(Fact* currentTime READ currentTime CONSTANT)
-    Q_PROPERTY(Fact* currentUTCTime READ currentUTCTime CONSTANT)
-    Q_PROPERTY(Fact* currentDate READ currentDate CONSTANT)
+    Q_PROPERTY(Fact *currentTime READ currentTime CONSTANT)
+    Q_PROPERTY(Fact *currentUTCTime READ currentUTCTime CONSTANT)
+    Q_PROPERTY(Fact *currentDate READ currentDate CONSTANT)
 
-    Fact* currentTime () { return &_currentTimeFact; }
-    Fact* currentUTCTime () { return &_currentUTCTimeFact; }
-    Fact* currentDate () { return &_currentDateFact; }
+    Fact *currentTime() { return &_currentTimeFact; }
 
+    Fact *currentUTCTime() { return &_currentUTCTimeFact; }
 
+    Fact *currentDate() { return &_currentDateFact; }
 
-private slots:
+  private slots:
     void _updateAllValues() override;
 
-private:
+  private:
     const QString _currentTimeFactName = QStringLiteral("currentTime");
     const QString _currentUTCTimeFactName = QStringLiteral("currentUTCTime");
     const QString _currentDateFactName = QStringLiteral("currentDate");
 
-    Fact            _currentTimeFact;
-    Fact            _currentUTCTimeFact;
-    Fact            _currentDateFact;
+    Fact _currentTimeFact;
+    Fact _currentUTCTimeFact;
+    Fact _currentDateFact;
 };

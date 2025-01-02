@@ -7,22 +7,20 @@
  *
  ****************************************************************************/
 
-
 #include "ParameterManagerTest.h"
 #include "MultiVehicleManager.h"
-#include "Vehicle.h"
 #include "ParameterManager.h"
+#include "Vehicle.h"
 
-#include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
+#include <QtTest/QTest>
 
 /// Test failure modes which should still lead to param load success
-void ParameterManagerTest::_noFailureWorker(MockConfiguration::FailureMode_t failureMode)
-{
+void ParameterManagerTest::_noFailureWorker(MockConfiguration::FailureMode_t failureMode) {
     Q_ASSERT(!_mockLink);
     _mockLink = MockLink::startPX4MockLink(false, failureMode);
 
-    MultiVehicleManager* vehicleMgr = MultiVehicleManager::instance();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
     QVERIFY(vehicleMgr);
 
     // Wait for the Vehicle to get created
@@ -33,7 +31,7 @@ void ParameterManagerTest::_noFailureWorker(MockConfiguration::FailureMode_t fai
     QCOMPARE(arguments.count(), 1);
     QCOMPARE(arguments.at(0).toBool(), true);
 
-    Vehicle* vehicle = vehicleMgr->activeVehicle();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
     QVERIFY(vehicle);
 
     // We should get progress bar updates during load
@@ -56,24 +54,16 @@ void ParameterManagerTest::_noFailureWorker(MockConfiguration::FailureMode_t fai
     QCOMPARE(arguments.at(0).toFloat(), 0.0f);
 }
 
+void ParameterManagerTest::_noFailure(void) { _noFailureWorker(MockConfiguration::FailNone); }
 
-void ParameterManagerTest::_noFailure(void)
-{
-    _noFailureWorker(MockConfiguration::FailNone);
-}
-
-void ParameterManagerTest::_requestListMissingParamSuccess(void)
-{
-    _noFailureWorker(MockConfiguration::FailMissingParamOnInitialReqest);
-}
+void ParameterManagerTest::_requestListMissingParamSuccess(void) { _noFailureWorker(MockConfiguration::FailMissingParamOnInitialReqest); }
 
 // Test no response to param_request_list
-void ParameterManagerTest::_requestListNoResponse(void)
-{
+void ParameterManagerTest::_requestListNoResponse(void) {
     Q_ASSERT(!_mockLink);
     _mockLink = MockLink::startPX4MockLink(false, MockConfiguration::FailParamNoReponseToRequestList);
 
-    MultiVehicleManager* vehicleMgr = MultiVehicleManager::instance();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
     QVERIFY(vehicleMgr);
 
     // Wait for the Vehicle to get created
@@ -84,7 +74,7 @@ void ParameterManagerTest::_requestListNoResponse(void)
     QCOMPARE(arguments.count(), 1);
     QCOMPARE(arguments.at(0).toBool(), true);
 
-    Vehicle* vehicle = vehicleMgr->activeVehicle();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
     QVERIFY(vehicle);
 
     QSignalSpy spyParamsReady(vehicleMgr, SIGNAL(parameterReadyVehicleAvailableChanged(bool)));
@@ -97,12 +87,11 @@ void ParameterManagerTest::_requestListNoResponse(void)
 
 // MockLink will fail to send a param on initial request, it will also fail to send it on subsequent
 // param_read requests.
-void ParameterManagerTest::_requestListMissingParamFail(void)
-{
+void ParameterManagerTest::_requestListMissingParamFail(void) {
     Q_ASSERT(!_mockLink);
     _mockLink = MockLink::startPX4MockLink(false, MockConfiguration::FailMissingParamOnAllRequests);
 
-    MultiVehicleManager* vehicleMgr = MultiVehicleManager::instance();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
     QVERIFY(vehicleMgr);
 
     // Wait for the Vehicle to get created
@@ -113,7 +102,7 @@ void ParameterManagerTest::_requestListMissingParamFail(void)
     QCOMPARE(arguments.count(), 1);
     QCOMPARE(arguments.at(0).toBool(), true);
 
-    Vehicle* vehicle = vehicleMgr->activeVehicle();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
     QVERIFY(vehicle);
 
     QSignalSpy spyParamsReady(vehicleMgr, SIGNAL(parameterReadyVehicleAvailableChanged(bool)));
@@ -130,12 +119,11 @@ void ParameterManagerTest::_requestListMissingParamFail(void)
     QCOMPARE(vehicle->parameterManager()->missingParameters(), true);
 }
 
-void ParameterManagerTest::_FTPnoFailure()
-{
+void ParameterManagerTest::_FTPnoFailure() {
     Q_ASSERT(!_mockLink);
     _mockLink = MockLink::startAPMArduPlaneMockLink(false, MockConfiguration::FailParamNoReponseToRequestList);
     _mockLink->mockLinkFTP()->enableBinParamFile(true);
-    MultiVehicleManager* vehicleMgr = MultiVehicleManager::instance();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
     QVERIFY(vehicleMgr);
 
     // Wait for the Vehicle to get created
@@ -147,7 +135,7 @@ void ParameterManagerTest::_FTPnoFailure()
     QList<QVariant> arguments = spyVehicle.takeFirst();
     QCOMPARE(arguments.count(), 1);
     QCOMPARE(arguments.at(0).toBool(), true);
-    Vehicle* vehicle = vehicleMgr->activeVehicle();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
     QVERIFY(vehicle);
 
     spyParamsReady.wait(5000);

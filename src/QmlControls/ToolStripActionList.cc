@@ -9,33 +9,14 @@
 
 #include "ToolStripActionList.h"
 
-ToolStripActionList::ToolStripActionList(QObject* parent)
-    : QObject(parent)
-{
+ToolStripActionList::ToolStripActionList(QObject *parent) : QObject(parent) {}
 
-}
+QQmlListProperty<QObject> ToolStripActionList::model(void) { return QQmlListProperty<QObject>(this, this, &ToolStripActionList::append, &ToolStripActionList::count, &ToolStripActionList::at, &ToolStripActionList::clear); }
 
-QQmlListProperty<QObject> ToolStripActionList::model(void)
-{
-    return QQmlListProperty<QObject>(this, this,
-             &ToolStripActionList::append,
-             &ToolStripActionList::count,
-             &ToolStripActionList::at,
-             &ToolStripActionList::clear);
-}
+void ToolStripActionList::append(QQmlListProperty<QObject> *qmlListProperty, QObject *value) { reinterpret_cast<ToolStripActionList *>(qmlListProperty->data)->_objectList.append(value); }
 
-void ToolStripActionList::append(QQmlListProperty<QObject>* qmlListProperty, QObject* value) {
-    reinterpret_cast<ToolStripActionList*>(qmlListProperty->data)->_objectList.append(value);
-}
+void ToolStripActionList::clear(QQmlListProperty<QObject> *qmlListProperty) { reinterpret_cast<ToolStripActionList *>(qmlListProperty->data)->_objectList.clear(); }
 
-void ToolStripActionList::clear(QQmlListProperty<QObject>* qmlListProperty) {
-    reinterpret_cast<ToolStripActionList*>(qmlListProperty->data)->_objectList.clear();
-}
+QObject *ToolStripActionList::at(QQmlListProperty<QObject> *qmlListProperty, qsizetype index) { return reinterpret_cast<ToolStripActionList *>(qmlListProperty->data)->_objectList[index]; }
 
-QObject* ToolStripActionList::at(QQmlListProperty<QObject>* qmlListProperty, qsizetype index) {
-    return reinterpret_cast<ToolStripActionList*>(qmlListProperty->data)->_objectList[index];
-}
-
-qsizetype ToolStripActionList::count(QQmlListProperty<QObject>* qmlListProperty) {
-    return reinterpret_cast<ToolStripActionList*>(qmlListProperty->data)->_objectList.count();
-}
+qsizetype ToolStripActionList::count(QQmlListProperty<QObject> *qmlListProperty) { return reinterpret_cast<ToolStripActionList *>(qmlListProperty->data)->_objectList.count(); }

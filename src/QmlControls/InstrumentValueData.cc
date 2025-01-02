@@ -8,12 +8,12 @@
  ****************************************************************************/
 
 #include "InstrumentValueData.h"
+#include "FactGroup.h"
 #include "FactValueGrid.h"
+#include "MultiVehicleManager.h"
 #include "QGC.h"
 #include "QmlObjectListModel.h"
-#include "MultiVehicleManager.h"
 #include "Vehicle.h"
-#include "FactGroup.h"
 
 // Important: The indices of these strings must match the InstrumentValueData::RangeType enum
 const QStringList InstrumentValueData::_rangeTypeNames = {
@@ -23,23 +23,19 @@ const QStringList InstrumentValueData::_rangeTypeNames = {
     QT_TRANSLATE_NOOP("InstrumentValue", "Icon"),
 };
 
-InstrumentValueData::InstrumentValueData(FactValueGrid* factValueGrid, QObject* parent)
-    : QObject       (parent)
-    , _factValueGrid(factValueGrid)
-{
+InstrumentValueData::InstrumentValueData(FactValueGrid *factValueGrid, QObject *parent) : QObject(parent), _factValueGrid(factValueGrid) {
     connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged, this, &InstrumentValueData::_activeVehicleChanged);
     _activeVehicleChanged(MultiVehicleManager::instance()->activeVehicle());
 
-    connect(this, &InstrumentValueData::rangeTypeChanged,       this, &InstrumentValueData::_resetRangeInfo);
-    connect(this, &InstrumentValueData::rangeTypeChanged,       this, &InstrumentValueData::_updateRanges);
-    connect(this, &InstrumentValueData::rangeValuesChanged,     this, &InstrumentValueData::_updateRanges);
-    connect(this, &InstrumentValueData::rangeColorsChanged,     this, &InstrumentValueData::_updateRanges);
-    connect(this, &InstrumentValueData::rangeOpacitiesChanged,  this, &InstrumentValueData::_updateRanges);
-    connect(this, &InstrumentValueData::rangeIconsChanged,      this, &InstrumentValueData::_updateRanges);
+    connect(this, &InstrumentValueData::rangeTypeChanged, this, &InstrumentValueData::_resetRangeInfo);
+    connect(this, &InstrumentValueData::rangeTypeChanged, this, &InstrumentValueData::_updateRanges);
+    connect(this, &InstrumentValueData::rangeValuesChanged, this, &InstrumentValueData::_updateRanges);
+    connect(this, &InstrumentValueData::rangeColorsChanged, this, &InstrumentValueData::_updateRanges);
+    connect(this, &InstrumentValueData::rangeOpacitiesChanged, this, &InstrumentValueData::_updateRanges);
+    connect(this, &InstrumentValueData::rangeIconsChanged, this, &InstrumentValueData::_updateRanges);
 }
 
-void InstrumentValueData::_activeVehicleChanged(Vehicle* activeVehicle)
-{
+void InstrumentValueData::_activeVehicleChanged(Vehicle *activeVehicle) {
     if (_activeVehicle) {
         disconnect(_activeVehicle, &Vehicle::factGroupNamesChanged, this, &InstrumentValueData::_lookForMissingFact);
     }
@@ -58,8 +54,7 @@ void InstrumentValueData::_activeVehicleChanged(Vehicle* activeVehicle)
     }
 }
 
-void InstrumentValueData::_lookForMissingFact(void)
-{
+void InstrumentValueData::_lookForMissingFact(void) {
     // This is called when new fact groups show up on the vehicle. We need to see if we can fill in any
     // facts which may have been missing up to now.
     if (!_fact) {
@@ -67,31 +62,29 @@ void InstrumentValueData::_lookForMissingFact(void)
     }
 }
 
-void InstrumentValueData::clearFact(void)
-{
+void InstrumentValueData::clearFact(void) {
     _fact = nullptr;
     _factName.clear();
     _text.clear();
     _icon.clear();
     _showUnits = true;
 
-    emit factValueNamesChanged  ();
-    emit factChanged            (_fact);
-    emit factNameChanged        (_factName);
-    emit factGroupNameChanged   (_factGroupName);
-    emit textChanged            (_text);
-    emit iconChanged            (_icon);
-    emit showUnitsChanged       (_showUnits);
+    emit factValueNamesChanged();
+    emit factChanged(_fact);
+    emit factNameChanged(_factName);
+    emit factGroupNameChanged(_factGroupName);
+    emit textChanged(_text);
+    emit iconChanged(_icon);
+    emit showUnitsChanged(_showUnits);
 }
 
-void InstrumentValueData::_setFactWorker(void)
-{
+void InstrumentValueData::_setFactWorker(void) {
     if (_fact) {
         disconnect(_fact, &Fact::rawValueChanged, this, &InstrumentValueData::_updateRanges);
         _fact = nullptr;
     }
 
-    FactGroup* factGroup = nullptr;
+    FactGroup *factGroup = nullptr;
     if (_factGroupName == vehicleFactGroupName) {
         factGroup = _activeVehicle;
     } else {
@@ -113,79 +106,70 @@ void InstrumentValueData::_setFactWorker(void)
         connect(_fact, &Fact::rawValueChanged, this, &InstrumentValueData::_updateRanges);
     }
 
-    emit factValueNamesChanged  ();
-    emit factChanged            (_fact);
-    emit factNameChanged        (_factName);
-    emit factGroupNameChanged   (_factGroupName);
+    emit factValueNamesChanged();
+    emit factChanged(_fact);
+    emit factNameChanged(_factName);
+    emit factGroupNameChanged(_factGroupName);
 
     _updateRanges();
 }
-void InstrumentValueData::setFact(const QString& factGroupName, const QString& factName)
-{
-    _factGroupName  = factGroupName;
-    _factName       = factName;
+
+void InstrumentValueData::setFact(const QString &factGroupName, const QString &factName) {
+    _factGroupName = factGroupName;
+    _factName = factName;
 
     _setFactWorker();
 }
 
-void InstrumentValueData::setText(const QString& text)
-{
+void InstrumentValueData::setText(const QString &text) {
     if (text != _text) {
         _text = text;
         emit textChanged(text);
     }
 }
 
-void InstrumentValueData::setShowUnits(bool showUnits)
-{
+void InstrumentValueData::setShowUnits(bool showUnits) {
     if (showUnits != _showUnits) {
         _showUnits = showUnits;
         emit showUnitsChanged(showUnits);
     }
 }
 
-void InstrumentValueData::setIcon(const QString& icon)
-{
+void InstrumentValueData::setIcon(const QString &icon) {
     if (icon != _icon) {
         _icon = icon;
         emit iconChanged(_icon);
     }
 }
 
-void InstrumentValueData::setRangeType(RangeType rangeType)
-{
+void InstrumentValueData::setRangeType(RangeType rangeType) {
     if (rangeType != _rangeType) {
         _rangeType = rangeType;
         emit rangeTypeChanged(rangeType);
     }
 }
 
-void InstrumentValueData::setRangeValues(const QVariantList& rangeValues)
-{
+void InstrumentValueData::setRangeValues(const QVariantList &rangeValues) {
     _rangeValues = rangeValues;
     emit rangeValuesChanged(rangeValues);
 }
 
-void InstrumentValueData::setRangeColors (const QVariantList& rangeColors)
-{
+void InstrumentValueData::setRangeColors(const QVariantList &rangeColors) {
     _rangeColors = rangeColors;
     emit rangeColorsChanged(rangeColors);
 }
 
-void InstrumentValueData::setRangeIcons(const QVariantList& rangeIcons)
-{
+void InstrumentValueData::setRangeIcons(const QVariantList &rangeIcons) {
     _rangeIcons = rangeIcons;
     emit rangeIconsChanged(rangeIcons);
 }
 
-void InstrumentValueData::setRangeOpacities(const QVariantList& rangeOpacities)
-{
+void InstrumentValueData::setRangeOpacities(const QVariantList &rangeOpacities) {
     _rangeOpacities = rangeOpacities;
     emit rangeOpacitiesChanged(rangeOpacities);
 }
 
-void InstrumentValueData::_resetRangeInfo(void)
-{
+void InstrumentValueData::_resetRangeInfo(void) {
     _rangeValues.clear();
     _rangeColors.clear();
     _rangeOpacities.clear();
@@ -194,95 +178,70 @@ void InstrumentValueData::_resetRangeInfo(void)
     if (_rangeType != NoRangeInfo) {
         _rangeValues = { 0.0, 100.0 };
     }
-    for (int i=0; i<_rangeValues.count() + 1; i++) {
+    for (int i = 0; i < _rangeValues.count() + 1; i++) {
         switch (_rangeType) {
-        case NoRangeInfo:
-            break;
-        case ColorRange:
-            _rangeColors.append(QColor("green"));
-            break;
-        case OpacityRange:
-            _rangeOpacities.append(1.0);
-            break;
-        case IconSelectRange:
-            _rangeIcons.append(_factValueGrid->iconNames()[0]);
-            break;
+            case NoRangeInfo: break;
+            case ColorRange: _rangeColors.append(QColor("green")); break;
+            case OpacityRange: _rangeOpacities.append(1.0); break;
+            case IconSelectRange: _rangeIcons.append(_factValueGrid->iconNames()[0]); break;
         }
     }
 
-    emit rangeValuesChanged     (_rangeValues);
-    emit rangeColorsChanged     (_rangeColors);
-    emit rangeOpacitiesChanged  (_rangeOpacities);
-    emit rangeIconsChanged      (_rangeIcons);
+    emit rangeValuesChanged(_rangeValues);
+    emit rangeColorsChanged(_rangeColors);
+    emit rangeOpacitiesChanged(_rangeOpacities);
+    emit rangeIconsChanged(_rangeIcons);
 }
 
-void InstrumentValueData::addRangeValue(void)
-{
+void InstrumentValueData::addRangeValue(void) {
     _rangeValues.append(_rangeValues.last().toDouble() + 1);
 
     switch (_rangeType) {
-    case NoRangeInfo:
-        break;
-    case ColorRange:
-        _rangeColors.append(QColor("green"));
-        break;
-    case OpacityRange:
-        _rangeOpacities.append(1.0);
-        break;
-    case IconSelectRange:
-        _rangeIcons.append(_factValueGrid->iconNames()[0]);
-        break;
+        case NoRangeInfo: break;
+        case ColorRange: _rangeColors.append(QColor("green")); break;
+        case OpacityRange: _rangeOpacities.append(1.0); break;
+        case IconSelectRange: _rangeIcons.append(_factValueGrid->iconNames()[0]); break;
     }
 
-    emit rangeValuesChanged     (_rangeValues);
-    emit rangeColorsChanged     (_rangeColors);
-    emit rangeOpacitiesChanged  (_rangeOpacities);
-    emit rangeIconsChanged      (_rangeIcons);
+    emit rangeValuesChanged(_rangeValues);
+    emit rangeColorsChanged(_rangeColors);
+    emit rangeOpacitiesChanged(_rangeOpacities);
+    emit rangeIconsChanged(_rangeIcons);
 }
 
-void InstrumentValueData::removeRangeValue(int index)
-{
-    if (_rangeValues.count() < 2 || index <0 || index >= _rangeValues.count()) {
+void InstrumentValueData::removeRangeValue(int index) {
+    if (_rangeValues.count() < 2 || index < 0 || index >= _rangeValues.count()) {
         return;
     }
 
     _rangeValues.removeAt(index);
 
     switch (_rangeType) {
-    case NoRangeInfo:
-        break;
-    case ColorRange:
-        _rangeColors.removeAt(index + 1);
-        break;
-    case OpacityRange:
-        _rangeOpacities.removeAt(index + 1);
-        break;
-    case IconSelectRange:
-        _rangeIcons.removeAt(index + 1);
-        break;
+        case NoRangeInfo: break;
+        case ColorRange: _rangeColors.removeAt(index + 1); break;
+        case OpacityRange: _rangeOpacities.removeAt(index + 1); break;
+        case IconSelectRange: _rangeIcons.removeAt(index + 1); break;
     }
 
-    emit rangeValuesChanged     (_rangeValues);
-    emit rangeColorsChanged     (_rangeColors);
-    emit rangeOpacitiesChanged  (_rangeOpacities);
-    emit rangeIconsChanged      (_rangeIcons);
+    emit rangeValuesChanged(_rangeValues);
+    emit rangeColorsChanged(_rangeColors);
+    emit rangeOpacitiesChanged(_rangeOpacities);
+    emit rangeIconsChanged(_rangeIcons);
 }
 
-void InstrumentValueData::_updateRanges(void)
-{
+void InstrumentValueData::_updateRanges(void) {
     _updateColor();
     _updateIcon();
     _updateOpacity();
 }
 
-void InstrumentValueData::_updateColor(void)
-{
+void InstrumentValueData::_updateColor(void) {
     QColor newColor;
 
     int rangeIndex = -1;
 
     if (_rangeType == ColorRange && _fact) {
-        rangeIndex =_currentRangeIndex(_fact->rawValue().toDouble());
+        rangeIndex = _currentRangeIndex(_fact->rawValue().toDouble());
     }
     if (rangeIndex != -1) {
         newColor = _rangeColors[rangeIndex].value<QColor>();
@@ -294,14 +253,13 @@ void InstrumentValueData::_updateColor(void)
     }
 }
 
-void InstrumentValueData::_updateOpacity(void)
-{
+void InstrumentValueData::_updateOpacity(void) {
     double newOpacity = 1.0;
 
     int rangeIndex = -1;
 
     if (_rangeType == OpacityRange && _fact) {
-        rangeIndex =_currentRangeIndex(_fact->rawValue().toDouble());
+        rangeIndex = _currentRangeIndex(_fact->rawValue().toDouble());
     }
     if (rangeIndex != -1) {
         newOpacity = _rangeOpacities[rangeIndex].toDouble();
@@ -313,14 +271,13 @@ void InstrumentValueData::_updateOpacity(void)
     }
 }
 
-void InstrumentValueData::_updateIcon(void)
-{
+void InstrumentValueData::_updateIcon(void) {
     QString newIcon;
 
     int rangeIndex = -1;
 
     if (_rangeType == IconSelectRange && _fact) {
-        rangeIndex =_currentRangeIndex(_fact->rawValue().toDouble());
+        rangeIndex = _currentRangeIndex(_fact->rawValue().toDouble());
     }
     if (rangeIndex != -1) {
         newIcon = _rangeIcons[rangeIndex].toString();
@@ -332,12 +289,11 @@ void InstrumentValueData::_updateIcon(void)
     }
 }
 
-int InstrumentValueData::_currentRangeIndex(const QVariant& value)
-{
+int InstrumentValueData::_currentRangeIndex(const QVariant &value) {
     if (qIsNaN(value.toDouble())) {
         return 0;
     }
-    for (int i=0; i<_rangeValues.count(); i++) {
+    for (int i = 0; i < _rangeValues.count(); i++) {
         if (value.toDouble() <= _rangeValues[i].toDouble()) {
             return i;
         }
@@ -345,11 +301,10 @@ int InstrumentValueData::_currentRangeIndex(const QVariant& value)
     return _rangeValues.count();
 }
 
-QStringList InstrumentValueData::factGroupNames(void) const
-{
+QStringList InstrumentValueData::factGroupNames(void) const {
     QStringList groupNames = _activeVehicle->factGroupNames();
 
-    for (QString& name: groupNames) {
+    for (QString &name : groupNames) {
         name[0] = name[0].toUpper();
     }
     groupNames.prepend(vehicleFactGroupName);
@@ -357,11 +312,10 @@ QStringList InstrumentValueData::factGroupNames(void) const
     return groupNames;
 }
 
-QStringList InstrumentValueData::factValueNames(void) const
-{
+QStringList InstrumentValueData::factValueNames(void) const {
     QStringList valueNames;
 
-    FactGroup* factGroup = nullptr;
+    FactGroup *factGroup = nullptr;
     if (_factGroupName == vehicleFactGroupName) {
         factGroup = _activeVehicle;
     } else {
@@ -370,7 +324,7 @@ QStringList InstrumentValueData::factValueNames(void) const
 
     if (factGroup) {
         valueNames = factGroup->factNames();
-        for (QString& name: valueNames) {
+        for (QString &name : valueNames) {
             name[0] = name[0].toUpper();
         }
     }

@@ -10,16 +10,15 @@
 #include "Viewer3DUtils.h"
 
 // WGS-84 geodetic constants
-#define ins_a 					6378137.0         // WGS-84 Earth semimajor axis (m)
-#define ins_b 					6356752.314245     // Derived Earth semiminor axis (m)
-#define ins_f 					(ins_a - ins_b) / ins_a           // Ellipsoid Flatness
-#define ins_f_inv				1.0 / ins_f       // Inverse flattening
-#define ins_a_sq 				ins_a * ins_a
-#define ins_b_sq 				ins_b * ins_b
-#define ins_e_sq 				ins_f * (2 - ins_f)    // Square of Eccentricity
+#define ins_a 6378137.0               // WGS-84 Earth semimajor axis (m)
+#define ins_b 6356752.314245          // Derived Earth semiminor axis (m)
+#define ins_f (ins_a - ins_b) / ins_a // Ellipsoid Flatness
+#define ins_f_inv 1.0 / ins_f         // Inverse flattening
+#define ins_a_sq ins_a *ins_a
+#define ins_b_sq ins_b *ins_b
+#define ins_e_sq ins_f * (2 - ins_f) // Square of Eccentricity
 
-QVector3D mapGeodeticToEcef(QGeoCoordinate gps_point_)
-{
+QVector3D mapGeodeticToEcef(QGeoCoordinate gps_point_) {
     double lat_rad = gps_point_.latitude() * DEG_TO_RAD;
     double lon_rad = gps_point_.longitude() * DEG_TO_RAD;
     double cos_lat = cos(lat_rad);
@@ -34,8 +33,7 @@ QVector3D mapGeodeticToEcef(QGeoCoordinate gps_point_)
     return out_point;
 }
 
-QVector3D mapEcefToEnu(QVector3D ecef_point, QGeoCoordinate ref_gps)
-{
+QVector3D mapEcefToEnu(QVector3D ecef_point, QGeoCoordinate ref_gps) {
     // Convert to radians in notation consistent with the paper:
     double lambda = ref_gps.latitude() * DEG_TO_RAD;
     double phi = ref_gps.longitude() * DEG_TO_RAD;
@@ -47,8 +45,8 @@ QVector3D mapEcefToEnu(QVector3D ecef_point, QGeoCoordinate ref_gps)
 
     double N = ins_a / sqrt(1 - ins_e_sq * sin_lambda * sin_lambda);
 
-    double x0 = (N + ref_gps.altitude() ) * cos_lambda * cos_phi;
-    double y0 = (N + ref_gps.altitude() ) * cos_lambda * sin_phi;
+    double x0 = (N + ref_gps.altitude()) * cos_lambda * cos_phi;
+    double y0 = (N + ref_gps.altitude()) * cos_lambda * sin_phi;
     double z0 = (ref_gps.altitude() + (1 - ins_e_sq) * N) * sin_lambda;
 
     double xd, yd, zd;
@@ -64,14 +62,12 @@ QVector3D mapEcefToEnu(QVector3D ecef_point, QGeoCoordinate ref_gps)
     return QVector3D(xEast, yNorth, zUp);
 }
 
-QVector3D mapGpsToLocalPoint(QGeoCoordinate gps_point_, QGeoCoordinate ref_gps)
-{
+QVector3D mapGpsToLocalPoint(QGeoCoordinate gps_point_, QGeoCoordinate ref_gps) {
     QVector3D ecef = mapGeodeticToEcef(gps_point_);
     return mapEcefToEnu(ecef, ref_gps);
 }
 
-QVector3D mapEnuToEcef(const QVector3D &enu_point, QGeoCoordinate &ref_gps)
-{
+QVector3D mapEnuToEcef(const QVector3D &enu_point, QGeoCoordinate &ref_gps) {
     // Convert to radians in notation consistent with the paper:
     double lambda = ref_gps.latitude() * DEG_TO_RAD;
     double phi = ref_gps.longitude() * DEG_TO_RAD;
@@ -94,8 +90,7 @@ QVector3D mapEnuToEcef(const QVector3D &enu_point, QGeoCoordinate &ref_gps)
     return QVector3D(xd + x0, yd + y0, zd + z0);
 }
 
-QGeoCoordinate mapEcefToGeodetic(const QVector3D &enu_point)
-{
+QGeoCoordinate mapEcefToGeodetic(const QVector3D &enu_point) {
     double eps = ins_e_sq / (1.0 - ins_e_sq);
     double p = sqrt(enu_point.x() * enu_point.x() + enu_point.y() * enu_point.y());
     double q = atan2((enu_point.z() * ins_a), (p * ins_b));
@@ -115,8 +110,7 @@ QGeoCoordinate mapEcefToGeodetic(const QVector3D &enu_point)
     return output;
 }
 
-QGeoCoordinate mapLocalToGpsPoint(QVector3D local_point, QGeoCoordinate ref_gps)
-{
+QGeoCoordinate mapLocalToGpsPoint(QVector3D local_point, QGeoCoordinate ref_gps) {
     QVector3D ecef = mapEnuToEcef(local_point, ref_gps);
     QGeoCoordinate out_point = mapEcefToGeodetic(ecef);
 

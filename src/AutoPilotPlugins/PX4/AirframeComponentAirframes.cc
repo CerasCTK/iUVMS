@@ -7,16 +7,15 @@
  *
  ****************************************************************************/
 
-
 /// @file
 ///     @author Don Gagne <don@thegagnes.com>
 
 #include "AirframeComponentAirframes.h"
 #include <QtCore/QFile>
 
-QMap<QString, AirframeComponentAirframes::AirframeType_t*> AirframeComponentAirframes::rgAirframeTypes;
+QMap<QString, AirframeComponentAirframes::AirframeType_t *> AirframeComponentAirframes::rgAirframeTypes;
 
-QMap<QString, AirframeComponentAirframes::AirframeType_t*>& AirframeComponentAirframes::get() {
+QMap<QString, AirframeComponentAirframes::AirframeType_t *> &AirframeComponentAirframes::get() {
 
 #if 0
     // Set a single airframe to prevent the UI from going crazy
@@ -39,8 +38,7 @@ QMap<QString, AirframeComponentAirframes::AirframeType_t*>& AirframeComponentAir
     return rgAirframeTypes;
 }
 
-void AirframeComponentAirframes::insert(QString& group, QString& image, QString& name, int id)
-{
+void AirframeComponentAirframes::insert(QString &group, QString &image, QString &name, int id) {
     AirframeType_t *g;
     if (!rgAirframeTypes.contains(group)) {
         g = new AirframeType_t;
@@ -76,10 +74,10 @@ void AirframeComponentAirframes::clear() {
     // Run through all and delete them
     for (int tindex = 0; tindex < AirframeComponentAirframes::get().count(); tindex++) {
 
-        const AirframeComponentAirframes::AirframeType_t* pType = AirframeComponentAirframes::get().values().at(tindex);
+        const AirframeComponentAirframes::AirframeType_t *pType = AirframeComponentAirframes::get().values().at(tindex);
 
         for (int index = 0; index < pType->rgAirframeInfo.count(); index++) {
-            const AirframeComponentAirframes::AirframeInfo_t* pInfo = pType->rgAirframeInfo.at(index);
+            const AirframeComponentAirframes::AirframeInfo_t *pInfo = pType->rgAirframeInfo.at(index);
             delete pInfo;
         }
 

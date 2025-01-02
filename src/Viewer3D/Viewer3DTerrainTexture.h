@@ -18,13 +18,11 @@ class OsmParser;
 
 ///     @author Omid Esrafilian <esrafilian.omid@gmail.com>
 
-
-class Viewer3DTerrainTexture : public QQuick3DTextureData
-{
+class Viewer3DTerrainTexture : public QQuick3DTextureData {
     Q_OBJECT
     Q_MOC_INCLUDE("OsmParser.h")
 
-    Q_PROPERTY(OsmParser* osmParser READ osmParser WRITE setOsmParser NOTIFY osmParserChanged)
+    Q_PROPERTY(OsmParser *osmParser READ osmParser WRITE setOsmParser NOTIFY osmParserChanged)
     Q_PROPERTY(QGeoCoordinate roiMinCoordinate READ roiMinCoordinate WRITE setRoiMinCoordinate NOTIFY roiMinCoordinateChanged)
     Q_PROPERTY(QGeoCoordinate roiMaxCoordinate READ roiMaxCoordinate WRITE setRoiMaxCoordinate NOTIFY roiMaxCoordinateChanged)
     Q_PROPERTY(QSize tileCount READ tileCount NOTIFY tileCountChanged)
@@ -32,8 +30,7 @@ class Viewer3DTerrainTexture : public QQuick3DTextureData
     Q_PROPERTY(bool textureGeometryDone READ textureGeometryDone NOTIFY textureGeometryDoneChanged)
     Q_PROPERTY(float textureDownloadProgress READ textureDownloadProgress NOTIFY textureDownloadProgressChanged)
 
-
-public:
+  public:
     explicit Viewer3DTerrainTexture();
     ~Viewer3DTerrainTexture();
 
@@ -62,22 +59,25 @@ public:
     void setTextureDownloadProgress(float newTextureDownloadProgress);
     void setTextureGeometry(MapTileQuery::TileStatistics_t tileInfo);
 
-private:
-
-    MapTileQuery* _terrainTileLoader;
-    FlightMapSettings* _flightMapSettings;
+  private:
+    MapTileQuery *_terrainTileLoader;
+    FlightMapSettings *_flightMapSettings;
     QString _mapType;
     int _mapId;
 
     void updateTexture();
-    void setTextureLoaded(bool laoded){_textureLoaded = laoded; emit textureLoadedChanged();}
+
+    void setTextureLoaded(bool laoded) {
+        _textureLoaded = laoded;
+        emit textureLoadedChanged();
+    }
+
     void mapTypeChangedEvent(void);
 
     QGeoCoordinate _roiMinCoordinate;
     QGeoCoordinate _roiMaxCoordinate;
 
     bool _textureLoaded;
-
 
     OsmParser *_osmParser = nullptr;
 
@@ -87,7 +87,7 @@ private:
 
     float _textureDownloadProgress;
 
-signals:
+  signals:
     void roiMinCoordinateChanged();
     void roiMaxCoordinateChanged();
     void textureLoadedChanged();

@@ -8,30 +8,27 @@
  ****************************************************************************/
 
 #include "UnitTest.h"
-#include "MAVLinkProtocol.h"
-#include "MultiVehicleManager.h"
-#include "Vehicle.h"
 #include "AppSettings.h"
-#include "SettingsManager.h"
-#include "LinkManager.h"
-#include "QGC.h"
 #include "Fact.h"
+#include "LinkManager.h"
+#include "MAVLinkProtocol.h"
 #include "MissionItem.h"
+#include "MultiVehicleManager.h"
+#include "QGC.h"
 #include "QGCLoggingCategory.h"
+#include "SettingsManager.h"
+#include "Vehicle.h"
 
-#include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
+#include <QtTest/QTest>
 
 QGC_LOGGING_CATEGORY(UnitTestLog, "qgc.test.qgcunittest.unittest")
 
-UnitTest::UnitTest(QObject *parent)
-    : QObject(parent)
-{
+UnitTest::UnitTest(QObject *parent) : QObject(parent) {
     // qCDebug(UnitTestLog) << Q_FUNC_INFO << this;
 }
 
-UnitTest::~UnitTest()
-{
+UnitTest::~UnitTest() {
     if (_unitTestRun) {
         // Derived classes must call base class implementations
         Q_ASSERT(_initCalled);
@@ -41,26 +38,23 @@ UnitTest::~UnitTest()
     // qCDebug(UnitTestLog) << Q_FUNC_INFO << this;
 }
 
-void UnitTest::_addTest(UnitTest *test)
-{
-    QList<UnitTest*> &tests = _testList();
+void UnitTest::_addTest(UnitTest *test) {
+    QList<UnitTest *> &tests = _testList();
 
     Q_ASSERT(!tests.contains(test));
 
     tests.append(test);
 }
 
-QList<UnitTest*> &UnitTest::_testList()
-{
-    static QList<UnitTest*> tests;
+QList<UnitTest *> &UnitTest::_testList() {
+    static QList<UnitTest *> tests;
     return tests;
 }
 
-int UnitTest::run(QStringView singleTest)
-{
+int UnitTest::run(QStringView singleTest) {
     int ret = 0;
 
-    for (UnitTest *test: _testList()) {
+    for (UnitTest *test : _testList()) {
         if (singleTest.isEmpty() || singleTest == test->objectName()) {
             if (test->standalone() && singleTest.isEmpty()) {
                 continue;
@@ -74,8 +68,7 @@ int UnitTest::run(QStringView singleTest)
     return ret;
 }
 
-void UnitTest::init()
-{
+void UnitTest::init() {
     _initCalled = true;
 
     MultiVehicleManager::instance()->init();
@@ -89,8 +82,7 @@ void UnitTest::init()
     MAVLinkProtocol::deleteTempLogFiles();
 }
 
-void UnitTest::cleanup()
-{
+void UnitTest::cleanup() {
     _cleanupCalled = true;
 
     _disconnectMockLink();
@@ -102,28 +94,17 @@ void UnitTest::cleanup()
     QCoreApplication::processEvents();
 }
 
-void UnitTest::_connectMockLink(MAV_AUTOPILOT autopilot, MockConfiguration::FailureMode_t failureMode)
-{
+void UnitTest::_connectMockLink(MAV_AUTOPILOT autopilot, MockConfiguration::FailureMode_t failureMode) {
     Q_ASSERT(!_mockLink);
 
     QSignalSpy spyVehicle(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged);
 
     switch (autopilot) {
-    case MAV_AUTOPILOT_PX4:
-        _mockLink = MockLink::startPX4MockLink(false, failureMode);
-        break;
-    case MAV_AUTOPILOT_ARDUPILOTMEGA:
-        _mockLink = MockLink::startAPMArduCopterMockLink(false, failureMode);
-        break;
-    case MAV_AUTOPILOT_GENERIC:
-        _mockLink = MockLink::startGenericMockLink(false, failureMode);
-        break;
-    case MAV_AUTOPILOT_INVALID:
-        _mockLink = MockLink::startNoInitialConnectMockLink(false);
-        break;
-    default:
-        qCWarning(UnitTestLog) << "Type not supported";
-        break;
+        case MAV_AUTOPILOT_PX4: _mockLink = MockLink::startPX4MockLink(false, failureMode); break;
+        case MAV_AUTOPILOT_ARDUPILOTMEGA: _mockLink = MockLink::startAPMArduCopterMockLink(false, failureMode); break;
+        case MAV_AUTOPILOT_GENERIC: _mockLink = MockLink::startGenericMockLink(false, failureMode); break;
+        case MAV_AUTOPILOT_INVALID: _mockLink = MockLink::startNoInitialConnectMockLink(false); break;
+        default: qCWarning(UnitTestLog) << "Type not supported"; break;
     }
 
     // Wait for the Vehicle to get created
@@ -138,8 +119,7 @@ void UnitTest::_connectMockLink(MAV_AUTOPILOT autopilot, MockConfiguration::Fail
     }
 }
 
-void UnitTest::_disconnectMockLink()
-{
+void UnitTest::_disconnectMockLink() {
     if (_mockLink) {
         QSignalSpy spyVehicle(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged);
 
@@ -153,15 +133,13 @@ void UnitTest::_disconnectMockLink()
     }
 }
 
-void UnitTest::_linkDeleted(const LinkInterface *link)
-{
+void UnitTest::_linkDeleted(const LinkInterface *link) {
     if (link == _mockLink) {
         _mockLink = nullptr;
     }
 }
 
-bool UnitTest::fileCompare(const QString &file1, const QString &file2)
-{
+bool UnitTest::fileCompare(const QString &file1, const QString &file2) {
     QFile f1(file1);
     QFile f2(file2);
 
@@ -184,12 +162,12 @@ bool UnitTest::fileCompare(const QString &file1, const QString &file2)
     while (bytesRemaining) {
         uint8_t b1, b2;
 
-        qint64 bytesRead = f1.read(reinterpret_cast<char*>(&b1), 1);
+        qint64 bytesRead = f1.read(reinterpret_cast<char *>(&b1), 1);
         if (bytesRead != 1) {
             qCWarning(UnitTestLog) << "UnitTest::fileCompare file1 read failed:" << f1.errorString();
             return false;
         }
-        bytesRead = f2.read(reinterpret_cast<char*>(&b2), 1);
+        bytesRead = f2.read(reinterpret_cast<char *>(&b2), 1);
         if (bytesRead != 1) {
             qCWarning(UnitTestLog) << "UnitTest::fileCompare file2 read failed:" << f2.errorString();
             return false;
@@ -207,8 +185,7 @@ bool UnitTest::fileCompare(const QString &file1, const QString &file2)
     return true;
 }
 
-void UnitTest::changeFactValue(Fact *fact, double increment)
-{
+void UnitTest::changeFactValue(Fact *fact, double increment) {
     if (fact->typeIsBool()) {
         fact->setRawValue(!fact->rawValue().toBool());
     } else {
@@ -219,8 +196,7 @@ void UnitTest::changeFactValue(Fact *fact, double increment)
     }
 }
 
-void UnitTest::_missionItemsEqual(const MissionItem &actual, const MissionItem &expected)
-{
+void UnitTest::_missionItemsEqual(const MissionItem &actual, const MissionItem &expected) {
     QCOMPARE(static_cast<int>(actual.command()), static_cast<int>(expected.command()));
     QCOMPARE(static_cast<int>(actual.frame()), static_cast<int>(expected.frame()));
     QCOMPARE(actual.autoContinue(), expected.autoContinue());
@@ -234,12 +210,6 @@ void UnitTest::_missionItemsEqual(const MissionItem &actual, const MissionItem &
     QVERIFY(QGC::fuzzyCompare(actual.param7(), expected.param7()));
 }
 
-bool UnitTest::fuzzyCompareLatLon(const QGeoCoordinate &coord1, const QGeoCoordinate &coord2)
-{
-    return coord1.distanceTo(coord2) < 1.0;
-}
+bool UnitTest::fuzzyCompareLatLon(const QGeoCoordinate &coord1, const QGeoCoordinate &coord2) { return coord1.distanceTo(coord2) < 1.0; }
 
-QGeoCoordinate UnitTest::changeCoordinateValue(const QGeoCoordinate &coordinate)
-{
-    return coordinate.atDistanceAndAzimuth(1, 0);
-}
+QGeoCoordinate UnitTest::changeCoordinateValue(const QGeoCoordinate &coordinate) { return coordinate.atDistanceAndAzimuth(1, 0); }

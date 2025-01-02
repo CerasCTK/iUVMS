@@ -9,19 +9,18 @@
 
 #pragma once
 
-#include "VehicleGPSFactGroup.h"
 #include "QGCMAVLink.h"
+#include "VehicleGPSFactGroup.h"
 
-class VehicleGPS2FactGroup : public VehicleGPSFactGroup
-{
+class VehicleGPS2FactGroup : public VehicleGPSFactGroup {
     Q_OBJECT
 
-public:
-    VehicleGPS2FactGroup(QObject* parent = nullptr);
+  public:
+    VehicleGPS2FactGroup(QObject *parent = nullptr);
 
     // Overrides from VehicleGPSFactGroup
-    void handleMessage(Vehicle* vehicle, mavlink_message_t& message) override;
+    void handleMessage(Vehicle *vehicle, mavlink_message_t &message) override;
 
-private:
-    void _handleGps2Raw(mavlink_message_t& message);
+  private:
+    void _handleGps2Raw(mavlink_message_t &message);
 };

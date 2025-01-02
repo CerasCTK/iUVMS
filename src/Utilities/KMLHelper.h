@@ -9,24 +9,23 @@
 
 #pragma once
 
-#include <QtCore/QObject>
-#include <QtXml/QDomDocument>
 #include <QtCore/QList>
+#include <QtCore/QObject>
 #include <QtPositioning/QGeoCoordinate>
+#include <QtXml/QDomDocument>
 
 #include "ShapeFileHelper.h"
 
-class KMLHelper : public QObject
-{
+class KMLHelper : public QObject {
     Q_OBJECT
 
-public:
-    static ShapeFileHelper::ShapeType determineShapeType(const QString& kmlFile, QString& errorString);
-    static bool loadPolygonFromFile(const QString& kmlFile, QList<QGeoCoordinate>& vertices, QString& errorString);
-    static bool loadPolylineFromFile(const QString& kmlFile, QList<QGeoCoordinate>& coords, QString& errorString);
+  public:
+    static ShapeFileHelper::ShapeType determineShapeType(const QString &kmlFile, QString &errorString);
+    static bool loadPolygonFromFile(const QString &kmlFile, QList<QGeoCoordinate> &vertices, QString &errorString);
+    static bool loadPolylineFromFile(const QString &kmlFile, QList<QGeoCoordinate> &coords, QString &errorString);
 
-private:
-    static QDomDocument _loadFile(const QString& kmlFile, QString& errorString);
+  private:
+    static QDomDocument _loadFile(const QString &kmlFile, QString &errorString);
 
-    static constexpr const char* _errorPrefix = QT_TR_NOOP("KML file load failed. %1");
+    static constexpr const char *_errorPrefix = QT_TR_NOOP("KML file load failed. %1");
 };

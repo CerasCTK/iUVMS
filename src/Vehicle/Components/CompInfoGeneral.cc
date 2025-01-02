@@ -11,20 +11,15 @@
 #include "JsonHelper.h"
 #include "QGCLoggingCategory.h"
 
-#include <QtCore/QJsonDocument>
 #include <QtCore/QJsonArray>
+#include <QtCore/QJsonDocument>
 
 QGC_LOGGING_CATEGORY(CompInfoGeneralLog, "CompInfoGeneralLog")
 
-CompInfoGeneral::CompInfoGeneral(uint8_t compId, Vehicle* vehicle, QObject* parent)
-    : CompInfo(COMP_METADATA_TYPE_GENERAL, compId, vehicle, parent)
-{
+CompInfoGeneral::CompInfoGeneral(uint8_t compId, Vehicle *vehicle, QObject *parent) : CompInfo(COMP_METADATA_TYPE_GENERAL, compId, vehicle, parent) {}
 
-}
-
-void CompInfoGeneral::setUris(CompInfo &compInfo) const
-{
-    const auto& metadataTypeIter = _supportedTypes.constFind(compInfo.type);
+void CompInfoGeneral::setUris(CompInfo &compInfo) const {
+    const auto &metadataTypeIter = _supportedTypes.constFind(compInfo.type);
     if (metadataTypeIter == _supportedTypes.constEnd()) {
         compInfo._uris = {}; // reset
     } else {
@@ -32,14 +27,13 @@ void CompInfoGeneral::setUris(CompInfo &compInfo) const
     }
 }
 
-void CompInfoGeneral::setJson(const QString& metadataJsonFileName)
-{
+void CompInfoGeneral::setJson(const QString &metadataJsonFileName) {
     if (metadataJsonFileName.isEmpty()) {
         return;
     }
 
-    QString         errorString;
-    QJsonDocument   jsonDoc;
+    QString errorString;
+    QJsonDocument jsonDoc;
 
     if (!JsonHelper::isJsonFile(metadataJsonFileName, jsonDoc, errorString)) {
         qCWarning(CompInfoGeneralLog) << "Metadata json file open failed: compid:" << compId << errorString;
@@ -48,8 +42,8 @@ void CompInfoGeneral::setJson(const QString& metadataJsonFileName)
     QJsonObject jsonObj = jsonDoc.object();
 
     QList<JsonHelper::KeyValidateInfo> keyInfoList = {
-        { JsonHelper::jsonVersionKey,           QJsonValue::Double, true },
-        { _jsonMetadataTypesKey,   QJsonValue::Array,  true },
+        { JsonHelper::jsonVersionKey, QJsonValue::Double, true },
+        { _jsonMetadataTypesKey, QJsonValue::Array, true },
     };
     if (!JsonHelper::validateKeys(jsonObj, keyInfoList, errorString)) {
         qCWarning(CompInfoGeneralLog) << "Metadata json validation failed: compid:" << compId << errorString;
@@ -80,8 +74,7 @@ void CompInfoGeneral::setJson(const QString& metadataJsonFileName)
         if (uris.uriMetaData.isEmpty() || !uris.crcMetaDataValid) {
             // The CRC is optional for dynamically updated metadata, and once we want to support that this logic needs
             // to be updated.
-            qCDebug(CompInfoGeneralLog) << "Metadata missing fields: type:uri:crcValid" << type <<
-                    uris.uriMetaData << uris.crcMetaDataValid;
+            qCDebug(CompInfoGeneralLog) << "Metadata missing fields: type:uri:crcValid" << type << uris.uriMetaData << uris.crcMetaDataValid;
             continue;
         }
 

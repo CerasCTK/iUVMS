@@ -13,18 +13,16 @@
 
 #include <QtTest/QTest>
 
-void StatusTextHandlerTest::_testGetMessageText()
-{
+void StatusTextHandlerTest::_testGetMessageText() {
     mavlink_message_t message;
-    (void) mavlink_msg_statustext_pack(255, MAV_COMP_ID_USER1, &message, MAV_SEVERITY_INFO,"StatusTextHandlerTest", 0, 0);
+    (void)mavlink_msg_statustext_pack(255, MAV_COMP_ID_USER1, &message, MAV_SEVERITY_INFO, "StatusTextHandlerTest", 0, 0);
 
     const QString messageText = StatusTextHandler::getMessageText(message);
     QCOMPARE(messageText, "StatusTextHandlerTest");
 }
 
-void StatusTextHandlerTest::_testHandleTextMessage()
-{
-    StatusTextHandler* statusTextHandler = new StatusTextHandler(this);
+void StatusTextHandlerTest::_testHandleTextMessage() {
+    StatusTextHandler *statusTextHandler = new StatusTextHandler(this);
 
     statusTextHandler->handleHTMLEscapedTextMessage(MAV_COMP_ID_USER1, MAV_SEVERITY_INFO, "StatusTextHandlerTestInfo", "This is the StatusTextHandlerTestInfo Test");
     QString messages = statusTextHandler->formattedMessages();

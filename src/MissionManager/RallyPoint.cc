@@ -9,27 +9,19 @@
 
 #include "RallyPoint.h"
 
-QMap<QString, FactMetaData*> RallyPoint::_metaDataMap;
+QMap<QString, FactMetaData *> RallyPoint::_metaDataMap;
 
-RallyPoint::RallyPoint(const QGeoCoordinate& coordinate, QObject* parent)
-    : QObject(parent)
-    , _dirty(false)
-    , _longitudeFact(0, _longitudeFactName, FactMetaData::valueTypeDouble)
-    , _latitudeFact(0, _latitudeFactName, FactMetaData::valueTypeDouble)
-    , _altitudeFact(0, _altitudeFactName, FactMetaData::valueTypeDouble)
-{
+RallyPoint::RallyPoint(const QGeoCoordinate &coordinate, QObject *parent)
+    : QObject(parent), _dirty(false), _longitudeFact(0, _longitudeFactName, FactMetaData::valueTypeDouble), _latitudeFact(0, _latitudeFactName, FactMetaData::valueTypeDouble),
+      _altitudeFact(0, _altitudeFactName, FactMetaData::valueTypeDouble) {
     setCoordinate(coordinate);
 
     _factSetup();
 }
 
-RallyPoint::RallyPoint(const RallyPoint& other, QObject* parent)
-    : QObject(parent)
-    , _dirty(false)
-    , _longitudeFact(0, _longitudeFactName, FactMetaData::valueTypeDouble)
-    , _latitudeFact(0, _latitudeFactName, FactMetaData::valueTypeDouble)
-    , _altitudeFact(0, _altitudeFactName, FactMetaData::valueTypeDouble)
-{
+RallyPoint::RallyPoint(const RallyPoint &other, QObject *parent)
+    : QObject(parent), _dirty(false), _longitudeFact(0, _longitudeFactName, FactMetaData::valueTypeDouble), _latitudeFact(0, _latitudeFactName, FactMetaData::valueTypeDouble),
+      _altitudeFact(0, _altitudeFactName, FactMetaData::valueTypeDouble) {
     _longitudeFact.setRawValue(other._longitudeFact.rawValue());
     _latitudeFact.setRawValue(other._latitudeFact.rawValue());
     _altitudeFact.setRawValue(other._altitudeFact.rawValue());
@@ -37,8 +29,7 @@ RallyPoint::RallyPoint(const RallyPoint& other, QObject* parent)
     _factSetup();
 }
 
-const RallyPoint& RallyPoint::operator=(const RallyPoint& other)
-{
+const RallyPoint &RallyPoint::operator=(const RallyPoint &other) {
     _longitudeFact.setRawValue(other._longitudeFact.rawValue());
     _latitudeFact.setRawValue(other._latitudeFact.rawValue());
     _altitudeFact.setRawValue(other._altitudeFact.rawValue());
@@ -48,13 +39,9 @@ const RallyPoint& RallyPoint::operator=(const RallyPoint& other)
     return *this;
 }
 
-RallyPoint::~RallyPoint()
-{    
+RallyPoint::~RallyPoint() {}
 
-}
-
-void RallyPoint::_factSetup(void)
-{
+void RallyPoint::_factSetup(void) {
     _cacheFactMetadata();
 
     _longitudeFact.setMetaData(_metaDataMap[_longitudeFactName]);
@@ -76,8 +63,7 @@ void RallyPoint::_cacheFactMetadata() {
     }
 }
 
-void RallyPoint::setCoordinate(const QGeoCoordinate& coordinate)
-{
+void RallyPoint::setCoordinate(const QGeoCoordinate &coordinate) {
     if (coordinate != this->coordinate()) {
         _longitudeFact.setRawValue(coordinate.longitude());
         _latitudeFact.setRawValue(coordinate.latitude());
@@ -87,8 +73,7 @@ void RallyPoint::setCoordinate(const QGeoCoordinate& coordinate)
     }
 }
 
-void RallyPoint::setDirty(bool dirty)
-{
+void RallyPoint::setDirty(bool dirty) {
     if (dirty != _dirty) {
         _dirty = dirty;
         emit dirtyChanged(dirty);
@@ -98,18 +83,12 @@ void RallyPoint::setDirty(bool dirty)
 double RallyPoint::getDefaultFactAltitude() {
     _cacheFactMetadata();
     auto it = _metaDataMap.find(QString(_altitudeFactName));
-    if(it != _metaDataMap.end() && (*it)->defaultValueAvailable()) {
+    if (it != _metaDataMap.end() && (*it)->defaultValueAvailable()) {
         return (*it)->rawDefaultValue().toDouble();
     }
     return 0.0;
 }
 
-QGeoCoordinate RallyPoint::coordinate(void) const
-{
-    return QGeoCoordinate(_latitudeFact.rawValue().toDouble(), _longitudeFact.rawValue().toDouble(), _altitudeFact.rawValue().toDouble());
-}
+QGeoCoordinate RallyPoint::coordinate(void) const { return QGeoCoordinate(_latitudeFact.rawValue().toDouble(), _longitudeFact.rawValue().toDouble(), _altitudeFact.rawValue().toDouble()); }
 
-void RallyPoint::_sendCoordinateChanged(void)
-{
-    emit coordinateChanged(coordinate());
-}
+void RallyPoint::_sendCoordinateChanged(void) { emit coordinateChanged(coordinate()); }

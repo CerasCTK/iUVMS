@@ -7,15 +7,14 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QtSystemDetection>
 #ifdef Q_OS_ANDROID
-    #include "qserialportinfo.h"
+#include "qserialportinfo.h"
 #else
-    #include <QtSerialPort/QSerialPortInfo>
+#include <QtSerialPort/QSerialPortInfo>
 #endif
 
 class QGCSerialPortInfoTest;
@@ -24,21 +23,15 @@ Q_DECLARE_LOGGING_CATEGORY(QGCSerialPortInfoLog)
 
 /// QGC's version of Qt QSerialPortInfo. It provides additional information about board types
 /// that QGC cares about.
-class QGCSerialPortInfo : public QSerialPortInfo
-{
+class QGCSerialPortInfo : public QSerialPortInfo {
     friend class QGCSerialPortInfoTest;
-public:
+
+  public:
     QGCSerialPortInfo();
     explicit QGCSerialPortInfo(const QSerialPort &port);
     ~QGCSerialPortInfo();
 
-    enum BoardType_t {
-        BoardTypePixhawk = 0,
-        BoardTypeSiKRadio,
-        BoardTypeOpenPilot,
-        BoardTypeRTKGPS,
-        BoardTypeUnknown
-    };
+    enum BoardType_t { BoardTypePixhawk = 0, BoardTypeSiKRadio, BoardTypeOpenPilot, BoardTypeRTKGPS, BoardTypeUnknown };
 
     bool getBoardInfo(BoardType_t &boardType, QString &name) const;
 
@@ -55,7 +48,7 @@ public:
     /// Override of QSerialPortInfo::availablePorts
     static QList<QGCSerialPortInfo> availablePorts();
 
-private:
+  private:
     struct BoardClassString2BoardType_t {
         const QString classString;
         const BoardType_t boardType = BoardTypeUnknown;
@@ -74,6 +67,7 @@ private:
         BoardType_t boardType;
         QString name;
     };
+
     static QList<BoardInfo_t> _boardInfoList;
 
     struct BoardRegExpFallback_t {
@@ -81,6 +75,7 @@ private:
         BoardType_t boardType;
         bool androidOnly;
     };
+
     static QList<BoardRegExpFallback_t> _boardDescriptionFallbackList;
     static QList<BoardRegExpFallback_t> _boardManufacturerFallbackList;
 

@@ -2,11 +2,10 @@
 #include "GeoTagController.h"
 #include "GeoTagWorker.h"
 
-#include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
+#include <QtTest/QTest>
 
-void GeoTagControllerTest::_geoTagControllerTest()
-{
+void GeoTagControllerTest::_geoTagControllerTest() {
     const QDir tempDir = QDir(QDir::tempPath());
     const QString imageDirPath = QDir::tempPath() + "/QGC_GEOTAG_TEST";
     const QString subDirName = QString("QGC_GEOTAG_TEST");
@@ -36,7 +35,7 @@ void GeoTagControllerTest::_geoTagControllerTest()
         }
     }
 
-    GeoTagController* const controller = new GeoTagController(this);
+    GeoTagController *const controller = new GeoTagController(this);
 
     const QFileInfo log = QFileInfo(":/SampleULog.ulg");
     controller->setLogFile(log.filePath());
@@ -57,8 +56,7 @@ void GeoTagControllerTest::_geoTagControllerTest()
     QCOMPARE(controller->errorMessage(), "");
 }
 
-void GeoTagControllerTest::_geoTagWorkerTest()
-{
+void GeoTagControllerTest::_geoTagWorkerTest() {
     const QDir tempDir = QDir(QDir::tempPath());
     const QString imageDirPath = QDir::tempPath() + "/QGC_GEOTAG_TEST";
     const QString subDirName = QString("QGC_GEOTAG_TEST");
@@ -89,7 +87,7 @@ void GeoTagControllerTest::_geoTagWorkerTest()
     }
 
     const QFileInfo log = QFileInfo(":/SampleULog.ulg");
-    GeoTagWorker* const worker = new GeoTagWorker(this);
+    GeoTagWorker *const worker = new GeoTagWorker(this);
     worker->setLogFile(log.filePath());
     worker->setImageDirectory(imageDirPath + "/");
     worker->setSaveDirectory(worker->imageDirectory() + "/TAGGED");

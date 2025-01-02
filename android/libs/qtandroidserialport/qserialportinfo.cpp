@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "qserialportinfo.h"
-#include "qserialportinfo_p.h"
 #include "qserialport.h"
 #include "qserialport_p.h"
+#include "qserialportinfo_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -14,8 +14,7 @@ QT_BEGIN_NAMESPACE
 // binary compatible. The QScopedPointer had a non-default deleter, but
 // the deleter just provides a static function to use for deletion so we don't
 // include it in this template definition (the deleter-class was deleted).
-static_assert(sizeof(std::unique_ptr<QSerialPortInfoPrivate>)
-              == sizeof(QScopedPointer<QSerialPortInfoPrivate>));
+static_assert(sizeof(std::unique_ptr<QSerialPortInfoPrivate>) == sizeof(QScopedPointer<QSerialPortInfoPrivate>));
 
 /*!
     \class QSerialPortInfo
@@ -49,25 +48,17 @@ static_assert(sizeof(std::unique_ptr<QSerialPortInfoPrivate>)
 
     \sa isNull()
 */
-QSerialPortInfo::QSerialPortInfo()
-{
-}
+QSerialPortInfo::QSerialPortInfo() {}
 
 /*!
     Constructs a copy of \a other.
 */
-QSerialPortInfo::QSerialPortInfo(const QSerialPortInfo &other)
-    : d_ptr(other.d_ptr ? new QSerialPortInfoPrivate(*other.d_ptr) : nullptr)
-{
-}
+QSerialPortInfo::QSerialPortInfo(const QSerialPortInfo &other) : d_ptr(other.d_ptr ? new QSerialPortInfoPrivate(*other.d_ptr) : nullptr) {}
 
 /*!
     Constructs a QSerialPortInfo object from serial \a port.
 */
-QSerialPortInfo::QSerialPortInfo(const QSerialPort &port)
-    : QSerialPortInfo(port.portName())
-{
-}
+QSerialPortInfo::QSerialPortInfo(const QSerialPort &port) : QSerialPortInfo(port.portName()) {}
 
 /*!
     Constructs a QSerialPortInfo object from serial port \a name.
@@ -76,8 +67,7 @@ QSerialPortInfo::QSerialPortInfo(const QSerialPort &port)
     according to the port name \a name, and constructs the serial port info
     instance for that port.
 */
-QSerialPortInfo::QSerialPortInfo(const QString &name)
-{
+QSerialPortInfo::QSerialPortInfo(const QString &name) {
     const auto infos = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo &info : infos) {
         if (name == info.portName()) {
@@ -87,33 +77,24 @@ QSerialPortInfo::QSerialPortInfo(const QString &name)
     }
 }
 
-QSerialPortInfo::QSerialPortInfo(const QSerialPortInfoPrivate &dd)
-    : d_ptr(new QSerialPortInfoPrivate(dd))
-{
-}
+QSerialPortInfo::QSerialPortInfo(const QSerialPortInfoPrivate &dd) : d_ptr(new QSerialPortInfoPrivate(dd)) {}
 
 /*!
     Destroys the QSerialPortInfo object. References to the values in the
     object become invalid.
 */
-QSerialPortInfo::~QSerialPortInfo()
-{
-}
+QSerialPortInfo::~QSerialPortInfo() {}
 
 /*!
     Swaps QSerialPortInfo \a other with this QSerialPortInfo. This operation is
     very fast and never fails.
 */
-void QSerialPortInfo::swap(QSerialPortInfo &other)
-{
-    d_ptr.swap(other.d_ptr);
-}
+void QSerialPortInfo::swap(QSerialPortInfo &other) { d_ptr.swap(other.d_ptr); }
 
 /*!
     Sets the QSerialPortInfo object to be equal to \a other.
 */
-QSerialPortInfo& QSerialPortInfo::operator=(const QSerialPortInfo &other)
-{
+QSerialPortInfo &QSerialPortInfo::operator=(const QSerialPortInfo &other) {
     QSerialPortInfo(other).swap(*this);
     return *this;
 }
@@ -123,8 +104,7 @@ QSerialPortInfo& QSerialPortInfo::operator=(const QSerialPortInfo &other)
 
     \sa systemLocation()
 */
-QString QSerialPortInfo::portName() const
-{
+QString QSerialPortInfo::portName() const {
     Q_D(const QSerialPortInfo);
     return !d ? QString() : d->portName;
 }
@@ -134,8 +114,7 @@ QString QSerialPortInfo::portName() const
 
     \sa portName()
 */
-QString QSerialPortInfo::systemLocation() const
-{
+QString QSerialPortInfo::systemLocation() const {
     Q_D(const QSerialPortInfo);
     return !d ? QString() : d->device;
 }
@@ -146,8 +125,7 @@ QString QSerialPortInfo::systemLocation() const
 
     \sa manufacturer(), serialNumber()
 */
-QString QSerialPortInfo::description() const
-{
+QString QSerialPortInfo::description() const {
     Q_D(const QSerialPortInfo);
     return !d ? QString() : d->description;
 }
@@ -158,8 +136,7 @@ QString QSerialPortInfo::description() const
 
     \sa description(), serialNumber()
 */
-QString QSerialPortInfo::manufacturer() const
-{
+QString QSerialPortInfo::manufacturer() const {
     Q_D(const QSerialPortInfo);
     return !d ? QString() : d->manufacturer;
 }
@@ -174,8 +151,7 @@ QString QSerialPortInfo::manufacturer() const
 
     \sa description(), manufacturer()
 */
-QString QSerialPortInfo::serialNumber() const
-{
+QString QSerialPortInfo::serialNumber() const {
     Q_D(const QSerialPortInfo);
     return !d ? QString() : d->serialNumber;
 }
@@ -186,8 +162,7 @@ QString QSerialPortInfo::serialNumber() const
 
     \sa hasVendorIdentifier(), productIdentifier(), hasProductIdentifier()
 */
-quint16 QSerialPortInfo::vendorIdentifier() const
-{
+quint16 QSerialPortInfo::vendorIdentifier() const {
     Q_D(const QSerialPortInfo);
     return !d ? 0 : d->vendorIdentifier;
 }
@@ -198,8 +173,7 @@ quint16 QSerialPortInfo::vendorIdentifier() const
 
     \sa hasProductIdentifier(), vendorIdentifier(), hasVendorIdentifier()
 */
-quint16 QSerialPortInfo::productIdentifier() const
-{
+quint16 QSerialPortInfo::productIdentifier() const {
     Q_D(const QSerialPortInfo);
     return !d ? 0 : d->productIdentifier;
 }
@@ -210,8 +184,7 @@ quint16 QSerialPortInfo::productIdentifier() const
 
     \sa vendorIdentifier(), productIdentifier(), hasProductIdentifier()
 */
-bool QSerialPortInfo::hasVendorIdentifier() const
-{
+bool QSerialPortInfo::hasVendorIdentifier() const {
     Q_D(const QSerialPortInfo);
     return !d ? false : d->hasVendorIdentifier;
 }
@@ -222,8 +195,7 @@ bool QSerialPortInfo::hasVendorIdentifier() const
 
     \sa productIdentifier(), vendorIdentifier(), hasVendorIdentifier()
 */
-bool QSerialPortInfo::hasProductIdentifier() const
-{
+bool QSerialPortInfo::hasProductIdentifier() const {
     Q_D(const QSerialPortInfo);
     return !d ? false : d->hasProductIdentifier;
 }
@@ -241,10 +213,7 @@ bool QSerialPortInfo::hasProductIdentifier() const
     Returns a list of available standard baud rates supported
     by the target platform.
 */
-QList<qint32> QSerialPortInfo::standardBaudRates()
-{
-    return QSerialPortPrivate::standardBaudRates();
-}
+QList<qint32> QSerialPortInfo::standardBaudRates() { return QSerialPortPrivate::standardBaudRates(); }
 
 /*!
     \fn QList<QSerialPortInfo> QSerialPortInfo::availablePorts()

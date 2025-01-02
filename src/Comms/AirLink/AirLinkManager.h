@@ -18,15 +18,14 @@ class QNetworkAccessManager;
 
 Q_DECLARE_LOGGING_CATEGORY(AirLinkManagerLog)
 
-class AirLinkManager : public QObject
-{
+class AirLinkManager : public QObject {
     Q_OBJECT
     // QML_ELEMENT
     // QML_SINGLETON
 
     Q_PROPERTY(QStringList droneList READ droneList NOTIFY droneListChanged)
 
-public:
+  public:
     explicit AirLinkManager(QObject *parent = nullptr);
     ~AirLinkManager();
 
@@ -35,18 +34,19 @@ public:
     static AirLinkManager *instance();
 
     Q_INVOKABLE void updateDroneList(const QString &login, const QString &pass) { _connectToAirLinkServer(login, pass); }
+
     Q_INVOKABLE bool isOnline(const QString &drone);
     Q_INVOKABLE void updateCredentials(const QString &login, const QString &pass);
 
     QStringList droneList() const { return _vehiclesFromServer.keys(); }
 
-signals:
+  signals:
     void droneListChanged();
 
-private slots:
+  private slots:
     void _processReplyAirlinkServer();
 
-private:
+  private:
     void _connectToAirLinkServer(const QString &login, const QString &pass);
     void _parseAnswer(const QByteArray &ba);
 

@@ -9,40 +9,39 @@
 
 #pragma once
 
-#include <QtPositioning/QGeoCoordinate>
 #include <QtCore/QObject>
 #include <QtCore/QVariantList>
+#include <QtPositioning/QGeoCoordinate>
 
 class Vehicle;
 
-class TrajectoryPoints : public QObject
-{
+class TrajectoryPoints : public QObject {
     Q_OBJECT
 
-public:
-    TrajectoryPoints(Vehicle* vehicle, QObject* parent = nullptr);
+  public:
+    TrajectoryPoints(Vehicle *vehicle, QObject *parent = nullptr);
 
     Q_INVOKABLE QVariantList list(void) const { return _points; }
 
-    void start  (void);
-    void stop   (void);
+    void start(void);
+    void stop(void);
 
-public slots:
-    void clear  (void);
+  public slots:
+    void clear(void);
 
-signals:
-    void pointAdded     (QGeoCoordinate coordinate);
+  signals:
+    void pointAdded(QGeoCoordinate coordinate);
     void updateLastPoint(QGeoCoordinate coordinate);
-    void pointsCleared  (void);
+    void pointsCleared(void);
 
-private slots:
+  private slots:
     void _vehicleCoordinateChanged(QGeoCoordinate coordinate);
 
-private:
-    Vehicle*        _vehicle;
-    QVariantList    _points;
-    QGeoCoordinate  _lastPoint;
-    double          _lastAzimuth;
+  private:
+    Vehicle *_vehicle;
+    QVariantList _points;
+    QGeoCoordinate _lastPoint;
+    double _lastAzimuth;
 
     static constexpr double _distanceTolerance = 2.0;
     static constexpr double _azimuthTolerance = 1.5;

@@ -10,12 +10,11 @@
 
 #include "SettingsGroup.h"
 
-class FirmwareUpgradeSettings : public SettingsGroup
-{
+class FirmwareUpgradeSettings : public SettingsGroup {
     Q_OBJECT
 
-public:
-    FirmwareUpgradeSettings(QObject* parent = nullptr);
+  public:
+    FirmwareUpgradeSettings(QObject *parent = nullptr);
 
     DEFINE_SETTING_NAME_GROUP()
 

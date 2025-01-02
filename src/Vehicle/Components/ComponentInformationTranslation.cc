@@ -7,30 +7,23 @@
  *
  ****************************************************************************/
 
-
 #include "ComponentInformationTranslation.h"
-#include "QGCCachedFileDownload.h"
 #include "JsonHelper.h"
-#include "QGCLZMA.h"
+#include "QGCCachedFileDownload.h"
 #include "QGCLoggingCategory.h"
+#include "QGCLZMA.h"
 
-#include <QtCore/QStandardPaths>
 #include <QtCore/QDir>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
+#include <QtCore/QStandardPaths>
 #include <QtCore/QXmlStreamReader>
 
 QGC_LOGGING_CATEGORY(ComponentInformationTranslationLog, "ComponentInformationTranslationLog")
 
-ComponentInformationTranslation::ComponentInformationTranslation(QObject* parent,
-                                                                 QGCCachedFileDownload* cachedFileDownload)
-    : QObject(parent), _cachedFileDownload(cachedFileDownload)
-{
-}
+ComponentInformationTranslation::ComponentInformationTranslation(QObject *parent, QGCCachedFileDownload *cachedFileDownload) : QObject(parent), _cachedFileDownload(cachedFileDownload) {}
 
-bool ComponentInformationTranslation::downloadAndTranslate(const QString& summaryJsonFile,
-                                                           const QString& toTranslateJsonFile, int maxCacheAgeSec)
-{
+bool ComponentInformationTranslation::downloadAndTranslate(const QString &summaryJsonFile, const QString &toTranslateJsonFile, int maxCacheAgeSec) {
     // Parse summary: find url for current locale
     _toTranslateJsonFile = toTranslateJsonFile;
     QString locale = QLocale::system().name();
@@ -49,10 +42,9 @@ bool ComponentInformationTranslation::downloadAndTranslate(const QString& summar
     return true;
 }
 
-QString ComponentInformationTranslation::getUrlFromSummaryJson(const QString &summaryJsonFile, const QString &locale)
-{
-    QString         errorString;
-    QJsonDocument   jsonDoc;
+QString ComponentInformationTranslation::getUrlFromSummaryJson(const QString &summaryJsonFile, const QString &locale) {
+    QString errorString;
+    QJsonDocument jsonDoc;
 
     if (!JsonHelper::isJsonFile(summaryJsonFile, jsonDoc, errorString)) {
         qCWarning(ComponentInformationTranslationLog) << "Metadata translation summary json file open failed:" << errorString;
@@ -73,8 +65,7 @@ QString ComponentInformationTranslation::getUrlFromSummaryJson(const QString &su
     return url;
 }
 
-void ComponentInformationTranslation::onDownloadCompleted(QString remoteFile, QString localFile, QString errorMsg)
-{
+void ComponentInformationTranslation::onDownloadCompleted(QString remoteFile, QString localFile, QString errorMsg) {
     disconnect(_cachedFileDownload, &QGCCachedFileDownload::downloadComplete, this, &ComponentInformationTranslation::onDownloadCompleted);
 
     QString tsFileName = localFile;
@@ -108,13 +99,12 @@ void ComponentInformationTranslation::onDownloadCompleted(QString remoteFile, QS
     emit downloadComplete(translatedJsonFilename, errorMsg);
 }
 
-QString ComponentInformationTranslation::translateJsonUsingTS(const QString &toTranslateJsonFile, const QString &tsFile)
-{
+QString ComponentInformationTranslation::translateJsonUsingTS(const QString &toTranslateJsonFile, const QString &tsFile) {
     qCInfo(ComponentInformationTranslationLog) << "Translating" << toTranslateJsonFile << "using" << tsFile;
 
     // Open JSON and get the 'translation' object
-    QString         errorString;
-    QJsonDocument   jsonDoc;
+    QString errorString;
+    QJsonDocument jsonDoc;
 
     if (!JsonHelper::isJsonFile(toTranslateJsonFile, jsonDoc, errorString)) {
         qCWarning(ComponentInformationTranslationLog) << "Metadata json file to translate open failed:" << errorString;
@@ -127,7 +117,6 @@ QString ComponentInformationTranslation::translateJsonUsingTS(const QString &toT
         qCWarning(ComponentInformationTranslationLog) << "json file does not contain 'translation' object";
         return "";
     }
-
 
     // Open and parse TS file into a hash table
     QHash<QString, QString> translations;
@@ -205,7 +194,7 @@ QString ComponentInformationTranslation::translateJsonUsingTS(const QString &toT
     QString translatedFileName = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).absoluteFilePath("qgc_translated_metadata.json");
 
     QFile translatedFile(translatedFileName);
-    if (!translatedFile.open(QFile::WriteOnly|QFile::Truncate)) {
+    if (!translatedFile.open(QFile::WriteOnly | QFile::Truncate)) {
         errorString = tr("File open failed: file:error %1 %2").arg(translatedFile.fileName()).arg(translatedFile.errorString());
         return "";
     }
@@ -216,9 +205,7 @@ QString ComponentInformationTranslation::translateJsonUsingTS(const QString &toT
     return translatedFileName;
 }
 
-QJsonObject ComponentInformationTranslation::translate(const QJsonObject& translationObj,
-                                                       const QHash<QString, QString>& translations, QJsonObject doc)
-{
+QJsonObject ComponentInformationTranslation::translate(const QJsonObject &translationObj, const QHash<QString, QString> &translations, QJsonObject doc) {
     QJsonObject defs = translationObj["$defs"].toObject();
     if (translationObj.contains("items")) {
         doc = translateItems("", defs, translationObj["items"].toObject(), translations, doc);
@@ -229,11 +216,7 @@ QJsonObject ComponentInformationTranslation::translate(const QJsonObject& transl
     return doc;
 }
 
-QJsonObject ComponentInformationTranslation::translateItems(const QString& prefix, const QJsonObject& defs,
-                                                            const QJsonObject& translationObj,
-                                                            const QHash<QString, QString>& translations,
-                                                            QJsonObject jsonData)
-{
+QJsonObject ComponentInformationTranslation::translateItems(const QString &prefix, const QJsonObject &defs, const QJsonObject &translationObj, const QHash<QString, QString> &translations, QJsonObject jsonData) {
     for (auto translationItemIter = translationObj.begin(); translationItemIter != translationObj.end(); ++translationItemIter) {
         QStringList translationKeys;
         if (translationItemIter.key() == "*") {
@@ -241,7 +224,7 @@ QJsonObject ComponentInformationTranslation::translateItems(const QString& prefi
         } else {
             translationKeys.append(translationItemIter.key());
         }
-        for (const auto& jsonItem : translationKeys) {
+        for (const auto &jsonItem : translationKeys) {
             QString nextPrefix = prefix + '/' + jsonItem;
             QJsonObject nextTranslationObj = translationItemIter.value().toObject();
             if (jsonData.contains(jsonItem)) {
@@ -252,23 +235,18 @@ QJsonObject ComponentInformationTranslation::translateItems(const QString& prefi
     return jsonData;
 }
 
-QString ComponentInformationTranslation::getRefName(const QString& ref)
-{
+QString ComponentInformationTranslation::getRefName(const QString &ref) {
     // expected format: '#/$defs/<name>'
     return ref.mid(8);
 }
 
-QJsonValue ComponentInformationTranslation::translateTranslationItems(const QString& prefix, const QJsonObject& defs,
-                                                                      const QJsonObject& translationObj,
-                                                                      const QHash<QString, QString>& translations,
-                                                                      QJsonValue jsonData)
-{
+QJsonValue ComponentInformationTranslation::translateTranslationItems(const QString &prefix, const QJsonObject &defs, const QJsonObject &translationObj, const QHash<QString, QString> &translations, QJsonValue jsonData) {
     if (translationObj.contains("list")) {
         QJsonObject translationList = translationObj["list"].toObject();
         QString key = translationList["key"].toString();
         int idx = 0;
         QJsonArray array = jsonData.toArray();
-        for (const auto& listEntry : array) {
+        for (const auto &listEntry : array) {
             QString value;
             if (!key.isEmpty() && listEntry.toObject().contains(key)) {
                 value = listEntry.toObject()[key].toString();
@@ -281,7 +259,7 @@ QJsonValue ComponentInformationTranslation::translateTranslationItems(const QStr
         jsonData = array;
     }
     if (translationObj.contains("translate")) {
-        for (const auto& translateName : translationObj["translate"].toArray()) {
+        for (const auto &translateName : translationObj["translate"].toArray()) {
             QString translateNameStr = translateName.toString();
             if (jsonData.toObject().contains(translateNameStr)) {
                 if (jsonData[translateNameStr].isString()) {
@@ -294,7 +272,7 @@ QJsonValue ComponentInformationTranslation::translateTranslationItems(const QStr
                     }
                 } else if (jsonData[translateNameStr].isArray()) { // List of strings
                     QJsonArray jsonArray = jsonData[translateNameStr].toArray();
-                    for (int i=0; i < jsonArray.count(); ++i) {
+                    for (int i = 0; i < jsonArray.count(); ++i) {
                         auto lookupIter = translations.find(prefix + '/' + translateNameStr + '/' + QString::number(i));
                         if (lookupIter != translations.end()) {
                             jsonArray.replace(i, lookupIter.value());
@@ -309,7 +287,7 @@ QJsonValue ComponentInformationTranslation::translateTranslationItems(const QStr
     }
 
     if (translationObj.contains("translate-global")) {
-        for (const auto& translateName : translationObj["translate-global"].toArray()) {
+        for (const auto &translateName : translationObj["translate-global"].toArray()) {
             QString translateNameStr = translateName.toString();
             if (jsonData.toObject().contains(translateNameStr)) {
                 if (jsonData[translateNameStr].isString()) {
@@ -321,7 +299,7 @@ QJsonValue ComponentInformationTranslation::translateTranslationItems(const QStr
                     }
                 } else if (jsonData[translateNameStr].isArray()) { // List of strings
                     QJsonArray jsonArray = jsonData[translateNameStr].toArray();
-                    for (int i=0; i < jsonArray.count(); ++i) {
+                    for (int i = 0; i < jsonArray.count(); ++i) {
                         auto lookupIter = translations.find("$globals/" + translateNameStr + '/' + jsonArray[i].toString());
                         if (lookupIter != translations.end()) {
                             jsonArray.replace(i, lookupIter.value());

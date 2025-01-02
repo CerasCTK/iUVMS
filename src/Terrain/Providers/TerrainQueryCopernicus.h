@@ -18,11 +18,10 @@ Q_DECLARE_LOGGING_CATEGORY(TerrainQueryCopernicusLog)
 
 class QGeoCoordinate;
 
-class TerrainQueryCopernicus : public TerrainOnlineQuery
-{
+class TerrainQueryCopernicus : public TerrainOnlineQuery {
     Q_OBJECT
 
-public:
+  public:
     explicit TerrainQueryCopernicus(QObject *parent = nullptr);
     ~TerrainQueryCopernicus();
 
@@ -30,10 +29,10 @@ public:
     void requestPathHeights(const QGeoCoordinate &fromCoord, const QGeoCoordinate &toCoord) final;
     void requestCarpetHeights(const QGeoCoordinate &swCoord, const QGeoCoordinate &neCoord, bool statsOnly) final;
 
-private slots:
+  private slots:
     void _requestFinished() final;
 
-private:
+  private:
     void _sendQuery(const QString &path, const QUrlQuery &urlQuery);
     void _parseCoordinateData(const QJsonValue &coordinateJson);
     void _parsePathData(const QJsonValue &pathJson);

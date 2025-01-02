@@ -21,32 +21,32 @@ Q_DECLARE_LOGGING_CATEGORY(MAVLinkConsoleControllerLog)
 class QGCPalette;
 class Vehicle;
 
-class MAVLinkConsoleController : public QStringListModel
-{
+class MAVLinkConsoleController : public QStringListModel {
     Q_OBJECT
     QML_ELEMENT
     Q_MOC_INCLUDE("Vehicle.h")
     Q_PROPERTY(QString text READ _getText CONSTANT)
 
-    class CommandHistory
-    {
-    public:
+    class CommandHistory {
+      public:
         void append(const QString &command);
         QString up(const QString &current);
         QString down(const QString &current);
 
-    private:
+      private:
         QList<QString> _history;
         int _index = 0;
         static constexpr int kMaxHistoryLength = 100;
     };
 
-public:
+  public:
     explicit MAVLinkConsoleController(QObject *parent = nullptr);
     ~MAVLinkConsoleController();
 
     Q_INVOKABLE void sendCommand(const QString &command);
+
     Q_INVOKABLE QString historyUp(const QString &current) { return _history.up(current); }
+
     Q_INVOKABLE QString historyDown(const QString &current) { return _history.down(current); }
 
     /// Get clipboard data and if it has N lines, execute first N-1 commands
@@ -54,11 +54,11 @@ public:
     ///     @return last line of the clipboard data
     Q_INVOKABLE QString handleClipboard(const QString &command_pre);
 
-private slots:
+  private slots:
     void _setActiveVehicle(Vehicle *vehicle);
     void _receiveData(uint8_t device, uint8_t flags, uint16_t timeout, uint32_t baudrate, const QByteArray &data);
 
-private:
+  private:
     bool _processANSItext(QByteArray &line);
     void _sendSerialData(const QByteArray &data, bool close = false);
     void _writeLine(int line, const QByteArray &text);
@@ -74,5 +74,5 @@ private:
     CommandHistory _history;
     Vehicle *_vehicle = nullptr;
 
-    static constexpr int kMaxNumLines = 500;    ///< history size (affects CPU load)
+    static constexpr int kMaxNumLines = 500; ///< history size (affects CPU load)
 };

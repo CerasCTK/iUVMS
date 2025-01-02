@@ -11,11 +11,10 @@
 
 #include "SettingsGroup.h"
 
-class FlyViewSettings : public SettingsGroup
-{
+class FlyViewSettings : public SettingsGroup {
     Q_OBJECT
-public:
-    FlyViewSettings(QObject* parent = nullptr);
+  public:
+    FlyViewSettings(QObject *parent = nullptr);
 
     DEFINE_SETTING_NAME_GROUP()
 

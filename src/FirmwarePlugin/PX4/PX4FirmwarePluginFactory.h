@@ -14,16 +14,15 @@
 
 class PX4FirmwarePlugin;
 
-class PX4FirmwarePluginFactory : public FirmwarePluginFactory
-{
+class PX4FirmwarePluginFactory : public FirmwarePluginFactory {
     Q_OBJECT
 
-public:
+  public:
     PX4FirmwarePluginFactory(void);
 
-    QList<QGCMAVLink::FirmwareClass_t>  supportedFirmwareClasses(void) const final;
-    FirmwarePlugin*                     firmwarePluginForAutopilot  (MAV_AUTOPILOT autopilotType, MAV_TYPE vehicleType) final;
+    QList<QGCMAVLink::FirmwareClass_t> supportedFirmwareClasses(void) const final;
+    FirmwarePlugin *firmwarePluginForAutopilot(MAV_AUTOPILOT autopilotType, MAV_TYPE vehicleType) final;
 
-private:
-    PX4FirmwarePlugin*  _pluginInstance;
+  private:
+    PX4FirmwarePlugin *_pluginInstance;
 };

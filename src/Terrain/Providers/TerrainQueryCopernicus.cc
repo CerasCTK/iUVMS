@@ -8,10 +8,10 @@
  ****************************************************************************/
 
 #include "TerrainQueryCopernicus.h"
-#include "TerrainTileCopernicus.h"
 #include "ElevationMapProvider.h"
 #include "QGCFileDownload.h"
 #include "QGCLoggingCategory.h"
+#include "TerrainTileCopernicus.h"
 
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
@@ -26,25 +26,21 @@
 
 QGC_LOGGING_CATEGORY(TerrainQueryCopernicusLog, "qgc.terrain.terrainquerycopernicus")
 
-TerrainQueryCopernicus::TerrainQueryCopernicus(QObject *parent)
-    : TerrainOnlineQuery(parent)
-{
+TerrainQueryCopernicus::TerrainQueryCopernicus(QObject *parent) : TerrainOnlineQuery(parent) {
     // qCDebug(TerrainQueryCopernicusLog) << Q_FUNC_INFO << this;
 }
 
-TerrainQueryCopernicus::~TerrainQueryCopernicus()
-{
+TerrainQueryCopernicus::~TerrainQueryCopernicus() {
     // qCDebug(TerrainQueryCopernicusLog) << Q_FUNC_INFO << this;
 }
 
-void TerrainQueryCopernicus::requestCoordinateHeights(const QList<QGeoCoordinate> &coordinates)
-{
+void TerrainQueryCopernicus::requestCoordinateHeights(const QList<QGeoCoordinate> &coordinates) {
     if (coordinates.isEmpty()) {
         return;
     }
 
     QString points;
-    for (const QGeoCoordinate &coord: coordinates) {
+    for (const QGeoCoordinate &coord : coordinates) {
         const QString point = QString::number(coord.latitude(), 'f', 10) + "," + QString::number(coord.longitude(), 'f', 10);
         points += (point + ",");
     }
@@ -57,13 +53,10 @@ void TerrainQueryCopernicus::requestCoordinateHeights(const QList<QGeoCoordinate
     _sendQuery(QString(), query);
 }
 
-void TerrainQueryCopernicus::requestPathHeights(const QGeoCoordinate &fromCoord, const QGeoCoordinate &toCoord)
-{
+void TerrainQueryCopernicus::requestPathHeights(const QGeoCoordinate &fromCoord, const QGeoCoordinate &toCoord) {
     QString points;
-    points += QString::number(fromCoord.latitude(), 'f', 10) + ","
-            + QString::number(fromCoord.longitude(), 'f', 10) + ",";
-    points += QString::number(toCoord.latitude(), 'f', 10) + ","
-            + QString::number(toCoord.longitude(), 'f', 10);
+    points += QString::number(fromCoord.latitude(), 'f', 10) + "," + QString::number(fromCoord.longitude(), 'f', 10) + ",";
+    points += QString::number(toCoord.latitude(), 'f', 10) + "," + QString::number(toCoord.longitude(), 'f', 10);
 
     QUrlQuery query;
     query.addQueryItem(QStringLiteral("points"), points);
@@ -72,13 +65,10 @@ void TerrainQueryCopernicus::requestPathHeights(const QGeoCoordinate &fromCoord,
     _sendQuery(QStringLiteral("/path"), query);
 }
 
-void TerrainQueryCopernicus::requestCarpetHeights(const QGeoCoordinate &swCoord, const QGeoCoordinate &neCoord, bool statsOnly)
-{
+void TerrainQueryCopernicus::requestCarpetHeights(const QGeoCoordinate &swCoord, const QGeoCoordinate &neCoord, bool statsOnly) {
     QString points;
-    points += QString::number(swCoord.latitude(), 'f', 10) + ","
-            + QString::number(swCoord.longitude(), 'f', 10) + ",";
-    points += QString::number(neCoord.latitude(), 'f', 10) + ","
-            + QString::number(neCoord.longitude(), 'f', 10);
+    points += QString::number(swCoord.latitude(), 'f', 10) + "," + QString::number(swCoord.longitude(), 'f', 10) + ",";
+    points += QString::number(neCoord.latitude(), 'f', 10) + "," + QString::number(neCoord.longitude(), 'f', 10);
 
     QUrlQuery query;
     query.addQueryItem(QStringLiteral("points"), points);
@@ -89,8 +79,7 @@ void TerrainQueryCopernicus::requestCarpetHeights(const QGeoCoordinate &swCoord,
     _sendQuery(QStringLiteral("/carpet"), query);
 }
 
-void TerrainQueryCopernicus::_sendQuery(const QString &path, const QUrlQuery &urlQuery)
-{
+void TerrainQueryCopernicus::_sendQuery(const QString &path, const QUrlQuery &urlQuery) {
     QUrl url(QString(CopernicusElevationProvider::kProviderURL) + QStringLiteral("/api/v1") + path);
     url.setQuery(urlQuery);
     qCDebug(TerrainQueryCopernicusLog) << Q_FUNC_INFO << url;
@@ -100,7 +89,7 @@ void TerrainQueryCopernicus::_sendQuery(const QString &path, const QUrlQuery &ur
     sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
     request.setSslConfiguration(sslConf);
 
-    QNetworkReply* const networkReply = _networkManager->get(request);
+    QNetworkReply *const networkReply = _networkManager->get(request);
     if (!networkReply) {
         qCWarning(TerrainQueryCopernicusLog) << "QNetworkManager::Get did not return QNetworkReply";
         _requestFailed();
@@ -109,14 +98,13 @@ void TerrainQueryCopernicus::_sendQuery(const QString &path, const QUrlQuery &ur
 
     QGCFileDownload::setIgnoreSSLErrorsIfNeeded(*networkReply);
 
-    (void) connect(networkReply, &QNetworkReply::finished, this, &TerrainQueryCopernicus::_requestFinished);
-    (void) connect(networkReply, &QNetworkReply::sslErrors, this, &TerrainQueryCopernicus::_sslErrors);
-    (void) connect(networkReply, &QNetworkReply::errorOccurred, this, &TerrainQueryCopernicus::_requestError);
+    (void)connect(networkReply, &QNetworkReply::finished, this, &TerrainQueryCopernicus::_requestFinished);
+    (void)connect(networkReply, &QNetworkReply::sslErrors, this, &TerrainQueryCopernicus::_sslErrors);
+    (void)connect(networkReply, &QNetworkReply::errorOccurred, this, &TerrainQueryCopernicus::_requestError);
 }
 
-void TerrainQueryCopernicus::_requestFinished()
-{
-    QNetworkReply* const reply = qobject_cast<QNetworkReply*>(QObject::sender());
+void TerrainQueryCopernicus::_requestFinished() {
+    QNetworkReply *const reply = qobject_cast<QNetworkReply *>(QObject::sender());
     if (!reply) {
         qCWarning(TerrainQueryCopernicusLog) << Q_FUNC_INFO << "null reply";
         return;
@@ -140,34 +128,25 @@ void TerrainQueryCopernicus::_requestFinished()
 
     qCDebug(TerrainQueryCopernicusLog) << Q_FUNC_INFO << "success";
     switch (_queryMode) {
-    case TerrainQuery::QueryModeCoordinates:
-        _parseCoordinateData(jsonData);
-        break;
-    case TerrainQuery::QueryModePath:
-        _parsePathData(jsonData);
-        break;
-    case TerrainQuery::QueryModeCarpet:
-        _parseCarpetData(jsonData);
-        break;
-    default:
-        break;
+        case TerrainQuery::QueryModeCoordinates: _parseCoordinateData(jsonData); break;
+        case TerrainQuery::QueryModePath: _parsePathData(jsonData); break;
+        case TerrainQuery::QueryModeCarpet: _parseCarpetData(jsonData); break;
+        default: break;
     }
 }
 
-void TerrainQueryCopernicus::_parseCoordinateData(const QJsonValue &coordinateJson)
-{
+void TerrainQueryCopernicus::_parseCoordinateData(const QJsonValue &coordinateJson) {
     const QJsonArray dataArray = coordinateJson.toArray();
 
     QList<double> heights;
-    for (const QJsonValue &dataValue: dataArray) {
-        (void) heights.append(dataValue.toDouble());
+    for (const QJsonValue &dataValue : dataArray) {
+        (void)heights.append(dataValue.toDouble());
     }
 
     emit coordinateHeightsReceived(true, heights);
 }
 
-void TerrainQueryCopernicus::_parsePathData(const QJsonValue &pathJson)
-{
+void TerrainQueryCopernicus::_parsePathData(const QJsonValue &pathJson) {
     const QJsonObject jsonObject = pathJson.toArray()[0].toObject();
     const QJsonArray stepArray = jsonObject["step"].toArray();
     const QJsonArray profileArray = jsonObject["profile"].toArray();
@@ -176,15 +155,14 @@ void TerrainQueryCopernicus::_parsePathData(const QJsonValue &pathJson)
     const double lonStep = stepArray[1].toDouble();
 
     QList<double> heights;
-    for (const QJsonValue &profileValue: profileArray) {
-        (void) heights.append(profileValue.toDouble());
+    for (const QJsonValue &profileValue : profileArray) {
+        (void)heights.append(profileValue.toDouble());
     }
 
     emit pathHeightsReceived(true, latStep, lonStep, heights);
 }
 
-void TerrainQueryCopernicus::_parseCarpetData(const QJsonValue &carpetJson)
-{
+void TerrainQueryCopernicus::_parseCarpetData(const QJsonValue &carpetJson) {
     const QJsonObject jsonObject = carpetJson.toArray()[0].toObject();
 
     const QJsonObject statsObject = jsonObject["stats"].toObject();
@@ -197,11 +175,11 @@ void TerrainQueryCopernicus::_parseCarpetData(const QJsonValue &carpetJson)
 
         for (qsizetype i = 0; i < carpetArray.count(); i++) {
             const QJsonArray rowArray = carpetArray[i].toArray();
-            (void) carpet.append(QList<double>());
+            (void)carpet.append(QList<double>());
 
             for (qsizetype j = 0; j < rowArray.count(); j++) {
                 const double height = rowArray[j].toDouble();
-                (void) carpet.last().append(height);
+                (void)carpet.last().append(height);
             }
         }
     }

@@ -7,27 +7,23 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
-#include <QtCore/QObject>
-#include <QtCore/QMap>
-#include <QtCore/QXmlStreamReader>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QMap>
+#include <QtCore/QObject>
+#include <QtCore/QXmlStreamReader>
 
-#include "MAVLinkLib.h"
 #include "FactMetaData.h"
+#include "MAVLinkLib.h"
 
 Q_DECLARE_LOGGING_CATEGORY(APMParameterMetaDataLog)
 Q_DECLARE_LOGGING_CATEGORY(APMParameterMetaDataVerboseLog)
 
-class APMFactMetaDataRaw : public QObject
-{
+class APMFactMetaDataRaw : public QObject {
     Q_OBJECT
-public:
-    APMFactMetaDataRaw(QObject *parent = nullptr)
-        : QObject(parent), rebootRequired(false)
-    { }
+  public:
+    APMFactMetaDataRaw(QObject *parent = nullptr) : QObject(parent), rebootRequired(false) {}
 
     QString name;
     QString category;
@@ -38,52 +34,40 @@ public:
     QString max;
     QString incrementSize;
     QString units;
-    bool    rebootRequired;
-    bool    readOnly;
-    QList<QPair<QString, QString> > values;
-    QList<QPair<QString, QString> > bitmask;
+    bool rebootRequired;
+    bool readOnly;
+    QList<QPair<QString, QString>> values;
+    QList<QPair<QString, QString>> bitmask;
 };
-
 
 /// Collection of Parameter Facts for PX4 AutoPilot
 
-typedef QMap<QString, APMFactMetaDataRaw*> ParameterNametoFactMetaDataMap;
+typedef QMap<QString, APMFactMetaDataRaw *> ParameterNametoFactMetaDataMap;
 
-class APMParameterMetaData : public QObject
-{
+class APMParameterMetaData : public QObject {
     Q_OBJECT
-    
-public:
+
+  public:
     APMParameterMetaData(void);
 
-    FactMetaData* getMetaDataForFact(const QString& name, MAV_TYPE vehicleType, FactMetaData::ValueType_t type);
-    void loadParameterFactMetaDataFile(const QString& metaDataFile);
+    FactMetaData *getMetaDataForFact(const QString &name, MAV_TYPE vehicleType, FactMetaData::ValueType_t type);
+    void loadParameterFactMetaDataFile(const QString &metaDataFile);
 
-    static void getParameterMetaDataVersionInfo(const QString& metaDataFile, int& majorVersion, int& minorVersion);
+    static void getParameterMetaDataVersionInfo(const QString &metaDataFile, int &majorVersion, int &minorVersion);
 
-private:
-    enum {
-        XmlStateNone,
-        XmlstateParamFileFound,
-        XmlStateFoundVehicles,
-        XmlStateFoundLibraries,
-        XmlStateFoundParameters,
-        XmlStateFoundVersion,
-        XmlStateFoundGroup,
-        XmlStateFoundParameter,
-        XmlStateDone
-    };    
+  private:
+    enum { XmlStateNone, XmlstateParamFileFound, XmlStateFoundVehicles, XmlStateFoundLibraries, XmlStateFoundParameters, XmlStateFoundVersion, XmlStateFoundGroup, XmlStateFoundParameter, XmlStateDone };
 
-    QVariant _stringToTypedVariant(const QString& string, FactMetaData::ValueType_t type, bool* convertOk);
-    bool skipXMLBlock(QXmlStreamReader& xml, const QString& blockName);
-    bool parseParameterAttributes(QXmlStreamReader& xml, APMFactMetaDataRaw *rawMetaData);
-    void correctGroupMemberships(ParameterNametoFactMetaDataMap& parameterToFactMetaDataMap, QMap<QString,QStringList>& groupMembers);
+    QVariant _stringToTypedVariant(const QString &string, FactMetaData::ValueType_t type, bool *convertOk);
+    bool skipXMLBlock(QXmlStreamReader &xml, const QString &blockName);
+    bool parseParameterAttributes(QXmlStreamReader &xml, APMFactMetaDataRaw *rawMetaData);
+    void correctGroupMemberships(ParameterNametoFactMetaDataMap &parameterToFactMetaDataMap, QMap<QString, QStringList> &groupMembers);
     QString mavTypeToString(MAV_TYPE vehicleTypeEnum);
-    QString _groupFromParameterName(const QString& name);
+    QString _groupFromParameterName(const QString &name);
 
-    bool                                            _parameterMetaDataLoaded        = false;    ///< true: parameter meta data already loaded
+    bool _parameterMetaDataLoaded = false; ///< true: parameter meta data already loaded
     // FIXME: metadata is vehicle type specific now
-    QMap<QString, ParameterNametoFactMetaDataMap>   _vehicleTypeToParametersMap;                ///< Maps from a vehicle type to paramametertoFactMeta map>
+    QMap<QString, ParameterNametoFactMetaDataMap> _vehicleTypeToParametersMap; ///< Maps from a vehicle type to paramametertoFactMeta map>
 
-    static constexpr const char* kInvalidConverstion = "Internal Error: No support for string parameters";
+    static constexpr const char *kInvalidConverstion = "Internal Error: No support for string parameters";
 };

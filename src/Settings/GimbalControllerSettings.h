@@ -10,12 +10,11 @@
 
 #include "SettingsGroup.h"
 
-class GimbalControllerSettings : public SettingsGroup
-{
+class GimbalControllerSettings : public SettingsGroup {
     Q_OBJECT
 
-public:
-    GimbalControllerSettings(QObject* parent = nullptr);
+  public:
+    GimbalControllerSettings(QObject *parent = nullptr);
     DEFINE_SETTING_NAME_GROUP()
 
     DEFINE_SETTINGFACT(EnableOnScreenControl)

@@ -16,38 +16,38 @@
 
 /// This class is used to encapsulate the QGeoCoordinate associated with a Rally Point into a QObject such
 /// that it can be used in a QmlObjectListMode for Qml.
-class RallyPoint : public QObject
-{
+class RallyPoint : public QObject {
     Q_OBJECT
-    
-public:
-    RallyPoint(const QGeoCoordinate& coordinate, QObject* parent = nullptr);
-    RallyPoint(const RallyPoint& other, QObject* parent = nullptr);
+
+  public:
+    RallyPoint(const QGeoCoordinate &coordinate, QObject *parent = nullptr);
+    RallyPoint(const RallyPoint &other, QObject *parent = nullptr);
 
     ~RallyPoint();
 
-    const RallyPoint& operator=(const RallyPoint& other);
-    
-    Q_PROPERTY(QGeoCoordinate   coordinate      READ coordinate     WRITE setCoordinate     NOTIFY coordinateChanged)
-    Q_PROPERTY(bool             dirty           READ dirty          WRITE setDirty          NOTIFY dirtyChanged)
-    Q_PROPERTY(QVariantList     textFieldFacts  MEMBER _textFieldFacts                      CONSTANT)
+    const RallyPoint &operator=(const RallyPoint &other);
+
+    Q_PROPERTY(QGeoCoordinate coordinate READ coordinate WRITE setCoordinate NOTIFY coordinateChanged)
+    Q_PROPERTY(bool dirty READ dirty WRITE setDirty NOTIFY dirtyChanged)
+    Q_PROPERTY(QVariantList textFieldFacts MEMBER _textFieldFacts CONSTANT)
 
     QGeoCoordinate coordinate(void) const;
-    void setCoordinate(const QGeoCoordinate& coordinate);
+    void setCoordinate(const QGeoCoordinate &coordinate);
 
     bool dirty(void) const { return _dirty; }
+
     void setDirty(bool dirty);
 
     static double getDefaultFactAltitude();
 
-signals:
-    void coordinateChanged      (const QGeoCoordinate& coordinate);
-    void dirtyChanged           (bool dirty);
+  signals:
+    void coordinateChanged(const QGeoCoordinate &coordinate);
+    void dirtyChanged(bool dirty);
 
-private slots:
+  private slots:
     void _sendCoordinateChanged(void);
 
-private:
+  private:
     void _factSetup(void);
     static void _cacheFactMetadata();
 
@@ -58,9 +58,9 @@ private:
 
     QVariantList _textFieldFacts;
 
-    static QMap<QString, FactMetaData*> _metaDataMap;
+    static QMap<QString, FactMetaData *> _metaDataMap;
 
-    static constexpr const char* _longitudeFactName =    "Longitude";
-    static constexpr const char* _latitudeFactName =     "Latitude";
-    static constexpr const char* _altitudeFactName =     "RelativeAltitude";
+    static constexpr const char *_longitudeFactName = "Longitude";
+    static constexpr const char *_latitudeFactName = "Latitude";
+    static constexpr const char *_altitudeFactName = "RelativeAltitude";
 };

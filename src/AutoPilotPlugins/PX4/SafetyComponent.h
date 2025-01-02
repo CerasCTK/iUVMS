@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include "VehicleComponent.h"
@@ -17,28 +16,29 @@
 ///             to channels.
 ///     @author Don Gagne <don@thegagnes.com>
 
-class SafetyComponent : public VehicleComponent
-{
+class SafetyComponent : public VehicleComponent {
     Q_OBJECT
-    
-public:
-    SafetyComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent = nullptr);
-    
+
+  public:
+    SafetyComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent = nullptr);
+
     // Virtuals from VehicleComponent
     QStringList setupCompleteChangedTriggerList(void) const override;
-    
-    // Virtuals from VehicleComponent
-    QString name                (void) const override;
-    QString description         (void) const override;
-    QString iconResource        (void) const override;
-    bool requiresSetup          (void) const override;
-    bool setupComplete          (void) const override;
-    QUrl setupSource            (void) const override;
-    QUrl summaryQmlSource       (void) const override;
-    bool allowSetupWhileArmed   (void) const override { return true; }
-    bool allowSetupWhileFlying  (void) const override { return true; }
 
-private:
-    const QString   _name;
-    QVariantList    _summaryItems;
+    // Virtuals from VehicleComponent
+    QString name(void) const override;
+    QString description(void) const override;
+    QString iconResource(void) const override;
+    bool requiresSetup(void) const override;
+    bool setupComplete(void) const override;
+    QUrl setupSource(void) const override;
+    QUrl summaryQmlSource(void) const override;
+
+    bool allowSetupWhileArmed(void) const override { return true; }
+
+    bool allowSetupWhileFlying(void) const override { return true; }
+
+  private:
+    const QString _name;
+    QVariantList _summaryItems;
 };

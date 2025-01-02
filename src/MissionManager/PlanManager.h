@@ -9,9 +9,9 @@
 
 #pragma once
 
+#include <QtCore/QLoggingCategory>
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
-#include <QtCore/QLoggingCategory>
 
 #include "MissionItem.h"
 #include "QGCMAVLink.h"
@@ -22,16 +22,16 @@ Q_DECLARE_LOGGING_CATEGORY(PlanManagerLog)
 
 /// The PlanManager class is the base class for the Mission, GeoFence and Rally Point managers. All of which use the
 /// new mavlink v2 mission protocol.
-class PlanManager : public QObject
-{
+class PlanManager : public QObject {
     Q_OBJECT
 
-public:
-    PlanManager(Vehicle* vehicle, MAV_MISSION_TYPE planType);
+  public:
+    PlanManager(Vehicle *vehicle, MAV_MISSION_TYPE planType);
     ~PlanManager();
 
     bool inProgress(void) const;
-    const QList<MissionItem*>& missionItems(void) { return _missionItems; }
+
+    const QList<MissionItem *> &missionItems(void) { return _missionItems; }
 
     /// Current mission item as reported by MISSION_CURRENT
     int currentIndex(void) const { return _currentMissionIndex; }
@@ -47,7 +47,7 @@ public:
     /// IMPORTANT NOTE: PlanManager will take control of the MissionItem objects with the missionItems list. It will free them when done.
     ///     @param missionItems Items to send to vehicle
     ///     Signals sendComplete when done
-    void writeMissionItems(const QList<MissionItem*>& missionItems);
+    void writeMissionItems(const QList<MissionItem *> &missionItems);
 
     /// Removes all mission items from vehicle
     ///     Signals removeAllComplete when done
@@ -56,14 +56,14 @@ public:
     /// Error codes returned in error signal
     typedef enum {
         InternalError,
-        AckTimeoutError,        ///< Timed out waiting for response from vehicle
-        ProtocolError,          ///< Incorrect protocol sequence from vehicle
-        RequestRangeError,      ///< Vehicle requested item out of range
-        ItemMismatchError,      ///< Vehicle returned item with seq # different than requested
-        VehicleAckError,        ///< Vehicle returned error in ack
-        MissingRequestsError,   ///< Vehicle did not request all items during write sequence
-        MaxRetryExceeded,       ///< Retry failed
-        MissionTypeMismatch,    ///< MAV_MISSION_TYPE does not match _planType
+        AckTimeoutError,      ///< Timed out waiting for response from vehicle
+        ProtocolError,        ///< Incorrect protocol sequence from vehicle
+        RequestRangeError,    ///< Vehicle requested item out of range
+        ItemMismatchError,    ///< Vehicle returned item with seq # different than requested
+        VehicleAckError,      ///< Vehicle returned error in ack
+        MissingRequestsError, ///< Vehicle did not request all items during write sequence
+        MaxRetryExceeded,     ///< Retry failed
+        MissionTypeMismatch,  ///< MAV_MISSION_TYPE does not match _planType
     } ErrorCode_t;
 
     // These values are public so the unit test can set appropriate signal wait times
@@ -73,23 +73,23 @@ public:
     static const int _retryTimeoutMilliseconds = 250;
     static const int _maxRetryCount = 5;
 
-signals:
-    void newMissionItemsAvailable   (bool removeAllRequested);
-    void inProgressChanged          (bool inProgress);
-    void error                      (int errorCode, const QString& errorMsg);
-    void currentIndexChanged        (int currentIndex);
-    void lastCurrentIndexChanged    (int lastCurrentIndex);
-    void progressPctChanged         (double progressPercentPct);
-    void removeAllComplete          (bool error);
-    void sendComplete               (bool error);
-    void resumeMissionReady         (void);
-    void resumeMissionUploadFail    (void);
+  signals:
+    void newMissionItemsAvailable(bool removeAllRequested);
+    void inProgressChanged(bool inProgress);
+    void error(int errorCode, const QString &errorMsg);
+    void currentIndexChanged(int currentIndex);
+    void lastCurrentIndexChanged(int lastCurrentIndex);
+    void progressPctChanged(double progressPercentPct);
+    void removeAllComplete(bool error);
+    void sendComplete(bool error);
+    void resumeMissionReady(void);
+    void resumeMissionUploadFail(void);
 
-private slots:
-    void _mavlinkMessageReceived(const mavlink_message_t& message);
+  private slots:
+    void _mavlinkMessageReceived(const mavlink_message_t &message);
     void _ackTimeout(void);
 
-protected:
+  protected:
     typedef enum {
         AckNone,            ///< State machine is idle
         AckMissionCount,    ///< MISSION_COUNT message expected
@@ -99,23 +99,18 @@ protected:
         AckGuidedItem,      ///< MISSION_ACK expected in response to ArduPilot guided mode single item send
     } AckType_t;
 
-    typedef enum {
-        TransactionNone,
-        TransactionRead,
-        TransactionWrite,
-        TransactionRemoveAll
-    } TransactionType_t;
+    typedef enum { TransactionNone, TransactionRead, TransactionWrite, TransactionRemoveAll } TransactionType_t;
 
     void _startAckTimeout(AckType_t ack);
     bool _checkForExpectedAck(AckType_t receivedAck);
     void _readTransactionComplete(void);
-    void _handleMissionCount(const mavlink_message_t& message);
-    void _handleMissionItem(const mavlink_message_t& message);
-    void _handleMissionRequest(const mavlink_message_t& message);
-    void _handleMissionAck(const mavlink_message_t& message);
+    void _handleMissionCount(const mavlink_message_t &message);
+    void _handleMissionItem(const mavlink_message_t &message);
+    void _handleMissionRequest(const mavlink_message_t &message);
+    void _handleMissionAck(const mavlink_message_t &message);
     void _requestNextMissionItem(void);
     void _clearMissionItems(void);
-    void _sendError(ErrorCode_t errorCode, const QString& errorMsg);
+    void _sendError(ErrorCode_t errorCode, const QString &errorMsg);
     QString _ackTypeToString(AckType_t ackType);
     QString _missionResultToString(MAV_MISSION_RESULT result);
     void _finishTransaction(bool success, bool apmGuidedItemWrite = false);
@@ -130,26 +125,26 @@ protected:
     void _disconnectFromMavlink(void);
     QString _planTypeString(void);
 
-protected:
-    Vehicle*            _vehicle =              nullptr;
-    MAV_MISSION_TYPE    _planType;
+  protected:
+    Vehicle *_vehicle = nullptr;
+    MAV_MISSION_TYPE _planType;
 
-    QTimer*             _ackTimeoutTimer =      nullptr;
-    AckType_t           _expectedAck;
-    int                 _retryCount;
+    QTimer *_ackTimeoutTimer = nullptr;
+    AckType_t _expectedAck;
+    int _retryCount;
 
-    TransactionType_t   _transactionInProgress;
-    bool                _resumeMission;
-    QList<int>          _itemIndicesToWrite;    ///< List of mission items which still need to be written to vehicle
-    QList<int>          _itemIndicesToRead;     ///< List of mission items which still need to be requested from vehicle
-    int                 _lastMissionRequest;    ///< Index of item last requested by MISSION_REQUEST
-    int                 _missionItemCountToRead;///< Count of all mission items to read
+    TransactionType_t _transactionInProgress;
+    bool _resumeMission;
+    QList<int> _itemIndicesToWrite; ///< List of mission items which still need to be written to vehicle
+    QList<int> _itemIndicesToRead;  ///< List of mission items which still need to be requested from vehicle
+    int _lastMissionRequest;        ///< Index of item last requested by MISSION_REQUEST
+    int _missionItemCountToRead;    ///< Count of all mission items to read
 
-    QList<MissionItem*> _missionItems;          ///< Set of mission items on vehicle
-    QList<MissionItem*> _writeMissionItems;     ///< Set of mission items currently being written to vehicle
-    int                 _currentMissionIndex;
-    int                 _lastCurrentIndex;
+    QList<MissionItem *> _missionItems;      ///< Set of mission items on vehicle
+    QList<MissionItem *> _writeMissionItems; ///< Set of mission items currently being written to vehicle
+    int _currentMissionIndex;
+    int _lastCurrentIndex;
 
-private:
+  private:
     void _setTransactionInProgress(TransactionType_t type);
 };

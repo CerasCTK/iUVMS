@@ -9,18 +9,16 @@
 
 #pragma once
 
-#include <iostream>
 #include <condition_variable>
 #include <deque>
 #include <functional>
+#include <iostream>
 #include <mutex>
 #include <thread>
 
-class Dispatcher
-{
-public:
-    Dispatcher() : _running(true)
-    {
+class Dispatcher {
+  public:
+    Dispatcher() : _running(true) {
         _workerThread = std::thread([this]() {
             while (_running) {
                 std::function<void()> task;
@@ -39,9 +37,8 @@ public:
         });
     }
 
-    ~Dispatcher()
-    {
-        std::cout<<" DESTRUCTOR is the problem "<<std::endl;
+    ~Dispatcher() {
+        std::cout << " DESTRUCTOR is the problem " << std::endl;
         {
             std::unique_lock<std::mutex> lock(_queueMutex);
             _running = false;
@@ -50,8 +47,7 @@ public:
         _workerThread.join();
     }
 
-    void add_task(std::function<void()> task)
-    {
+    void add_task(std::function<void()> task) {
         {
             std::unique_lock<std::mutex> lock(_queueMutex);
             _tasks.push_back(std::move(task));
@@ -59,10 +55,10 @@ public:
         _conditionVariable.notify_one();
     }
 
-private:
-    std::deque<std::function<void()>>   _tasks;
-    std::mutex                          _queueMutex;
-    std::condition_variable             _conditionVariable;
-    std::thread                         _workerThread;
-    bool                                _running;
+  private:
+    std::deque<std::function<void()>> _tasks;
+    std::mutex _queueMutex;
+    std::condition_variable _conditionVariable;
+    std::thread _workerThread;
+    bool _running;
 };

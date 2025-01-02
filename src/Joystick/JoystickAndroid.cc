@@ -8,8 +8,8 @@
  ****************************************************************************/
 
 #include "JoystickAndroid.h"
-#include "JoystickManager.h"
 #include "AndroidInterface.h"
+#include "JoystickManager.h"
 #include "QGCLoggingCategory.h"
 
 #include <QtCore/QJniEnvironment>
@@ -24,10 +24,7 @@ int JoystickAndroid::AXIS_HAT_X = 0;
 int JoystickAndroid::AXIS_HAT_Y = 0;
 QMutex JoystickAndroid::_mutex;
 
-JoystickAndroid::JoystickAndroid(const QString &name, int axisCount, int buttonCount, int id, QObject *parent)
-    : Joystick(name, axisCount, buttonCount, 0, parent)
-    , deviceId(id)
-{
+JoystickAndroid::JoystickAndroid(const QString &name, int axisCount, int buttonCount, int id, QObject *parent) : Joystick(name, axisCount, buttonCount, 0, parent), deviceId(id) {
     btnCode.resize(_buttonCount);
     axisCode.resize(_axisCount);
     btnValue.resize(_buttonCount);
@@ -69,15 +66,13 @@ JoystickAndroid::JoystickAndroid(const QString &name, int axisCount, int buttonC
     QtAndroidPrivate::registerKeyEventListener(this);
 }
 
-JoystickAndroid::~JoystickAndroid()
-{
+JoystickAndroid::~JoystickAndroid() {
     QtAndroidPrivate::unregisterGenericMotionEventListener(this);
     QtAndroidPrivate::unregisterKeyEventListener(this);
 }
 
-QMap<QString, Joystick*> JoystickAndroid::discover()
-{
-    static QMap<QString, Joystick*> ret;
+QMap<QString, Joystick *> JoystickAndroid::discover() {
+    static QMap<QString, Joystick *> ret;
 
     QMutexLocker lock(&_mutex);
 
@@ -142,8 +137,7 @@ QMap<QString, Joystick*> JoystickAndroid::discover()
     return ret;
 }
 
-bool JoystickAndroid::handleKeyEvent(jobject event)
-{
+bool JoystickAndroid::handleKeyEvent(jobject event) {
     QMutexLocker lock(&_mutex);
 
     QJniObject ev(event);
@@ -172,8 +166,7 @@ bool JoystickAndroid::handleKeyEvent(jobject event)
     return false;
 }
 
-bool JoystickAndroid::handleGenericMotionEvent(jobject event)
-{
+bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
     QMutexLocker lock(&_mutex);
 
     QJniObject ev(event);
@@ -190,8 +183,7 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event)
     return true;
 }
 
-int  JoystickAndroid::_getAndroidHatAxis(int axisHatCode)
-{
+int JoystickAndroid::_getAndroidHatAxis(int axisHatCode) {
     for (int i = 0; i < _axisCount; i++) {
         if (axisCode[i] == axisHatCode) {
             return _getAxis(i);
@@ -201,34 +193,27 @@ int  JoystickAndroid::_getAndroidHatAxis(int axisHatCode)
     return 0;
 }
 
-bool JoystickAndroid::_getHat(int hat, int i)
-{
+bool JoystickAndroid::_getHat(int hat, int i) {
     // Android supports only one hat button
     if (hat != 0) {
         return false;
     }
 
     switch (i) {
-    case 0:
-        return (_getAndroidHatAxis(AXIS_HAT_Y) < 0);
-    case 1:
-        return (_getAndroidHatAxis(AXIS_HAT_Y) > 0);
-    case 2:
-        return (_getAndroidHatAxis(AXIS_HAT_X) < 0);
-    case 3:
-        return (_getAndroidHatAxis(AXIS_HAT_X) > 0);
-    default:
-        return false;
+        case 0: return (_getAndroidHatAxis(AXIS_HAT_Y) < 0);
+        case 1: return (_getAndroidHatAxis(AXIS_HAT_Y) > 0);
+        case 2: return (_getAndroidHatAxis(AXIS_HAT_X) < 0);
+        case 3: return (_getAndroidHatAxis(AXIS_HAT_X) > 0);
+        default: return false;
     }
 }
 
-bool JoystickAndroid::init()
-{
+bool JoystickAndroid::init() {
     static QList<int> ret(_androidBtnListCount);
 
     _androidBtnList = ret;
 
-    (void) AndroidInterface::cleanJavaException();
+    (void)AndroidInterface::cleanJavaException();
 
     int i;
     for (i = 1; i <= 16; i++) {
@@ -261,31 +246,28 @@ bool JoystickAndroid::init()
     return true;
 }
 
-static void jniUpdateAvailableJoysticks(JNIEnv *envA, jobject thizA)
-{
-    Q_UNUSED(envA); Q_UNUSED(thizA);
+static void jniUpdateAvailableJoysticks(JNIEnv *envA, jobject thizA) {
+    Q_UNUSED(envA);
+    Q_UNUSED(thizA);
 
     qCDebug(JoystickAndroidLog) << "jniUpdateAvailableJoysticks triggered";
 
-    emit JoystickManager::instance()->updateAvailableJoysticksSignal();
+    emit JoystickManager::instance() -> updateAvailableJoysticksSignal();
 }
 
-void JoystickAndroid::setNativeMethods()
-{
+void JoystickAndroid::setNativeMethods() {
     qCDebug(JoystickAndroidLog) << "Registering Native Functions";
 
-    static const JNINativeMethod javaMethods[] {
-        {"nativeUpdateAvailableJoysticks", "()V", reinterpret_cast<void*>(jniUpdateAvailableJoysticks)}
-    };
+    static const JNINativeMethod javaMethods[]{ { "nativeUpdateAvailableJoysticks", "()V", reinterpret_cast<void *>(jniUpdateAvailableJoysticks) } };
 
     static constexpr const char *kJniClassName = "org/mavlink/qgroundcontrol/QGCUsbSerialManager";
 
-    (void) AndroidInterface::cleanJavaException();
+    (void)AndroidInterface::cleanJavaException();
 
     QJniEnvironment jniEnv;
     jclass objectClass = jniEnv->FindClass(kJniClassName);
     if (!objectClass) {
-        (void) AndroidInterface::cleanJavaException();
+        (void)AndroidInterface::cleanJavaException();
         qCWarning(JoystickAndroidLog) << "Couldn't find class:" << kJniClassName;
         return;
     }
@@ -297,5 +279,5 @@ void JoystickAndroid::setNativeMethods()
         qCDebug(JoystickAndroidLog) << "Native Functions Registered";
     }
 
-    (void) AndroidInterface::cleanJavaException();
+    (void)AndroidInterface::cleanJavaException();
 }

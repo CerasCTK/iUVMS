@@ -12,9 +12,8 @@
 
 #include <QtTest/QTest>
 
-void QGCCameraManagerTest::_testCameraList()
-{
-    const QList<CameraMetaData*> cameraList = QGCCameraManager::_parseCameraMetaData(QStringLiteral(":/json/CameraMetaData.json"));
+void QGCCameraManagerTest::_testCameraList() {
+    const QList<CameraMetaData *> cameraList = QGCCameraManager::_parseCameraMetaData(QStringLiteral(":/json/CameraMetaData.json"));
 
     QVERIFY(!cameraList.isEmpty());
 

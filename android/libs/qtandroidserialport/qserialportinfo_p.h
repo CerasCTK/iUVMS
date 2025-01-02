@@ -17,14 +17,13 @@
 // We mean it.
 //
 
-#include <QtCore/qstring.h>
 #include <QtCore/private/qglobal_p.h>
+#include <QtCore/qstring.h>
 
 QT_BEGIN_NAMESPACE
 
-class Q_AUTOTEST_EXPORT QSerialPortInfoPrivate
-{
-public:
+class Q_AUTOTEST_EXPORT QSerialPortInfoPrivate {
+  public:
     static QString portNameToSystemLocation(const QString &source);
     static QString portNameFromSystemLocation(const QString &source);
 

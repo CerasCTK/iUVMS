@@ -19,21 +19,20 @@ class QCamera;
 class QImageCapture;
 class QQuickItem;
 
-class UVCReceiver : public QtMultimediaReceiver
-{
+class UVCReceiver : public QtMultimediaReceiver {
     Q_OBJECT
 
-public:
+  public:
     explicit UVCReceiver(QObject *parent = nullptr);
     ~UVCReceiver();
 
     bool enabled();
     QCameraDevice findCameraDevice(const QString &cameraId);
 
-public slots:
+  public slots:
     Q_INVOKABLE void adjustAspectRatio();
 
-private:
+  private:
     void _checkPermission();
 
     QCamera *_camera = nullptr;

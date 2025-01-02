@@ -29,39 +29,38 @@
 
 #pragma once
 
-#include <gst/gst.h>
 #include <gst/gl/gl.h>
+#include <gst/gst.h>
 
 #include "gstqt6gl.h"
+#include <QtGui/QOpenGLFunctions>
 #include <QtQuick/QQuickItem>
+#include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QSGTexture>
 #include <QtQuick/QSGTextureProvider>
-#include <QtQuick/QSGSimpleTextureNode>
-#include <QtGui/QOpenGLFunctions>
 
-class GstQSG6OpenGLNode : public QSGTextureProvider, public QSGSimpleTextureNode, protected QOpenGLFunctions
-{
-  Q_OBJECT
+class GstQSG6OpenGLNode : public QSGTextureProvider, public QSGSimpleTextureNode, protected QOpenGLFunctions {
+    Q_OBJECT
 
-public:
-  GstQSG6OpenGLNode(QQuickItem *item);
-  ~GstQSG6OpenGLNode();
+  public:
+    GstQSG6OpenGLNode(QQuickItem *item);
+    ~GstQSG6OpenGLNode();
 
-  QSGTexture *texture() const override;
+    QSGTexture *texture() const override;
 
-  void setCaps(GstCaps *caps);
-  void setBuffer(GstBuffer *buffer);
-  GstBuffer *getBuffer();
+    void setCaps(GstCaps *caps);
+    void setBuffer(GstBuffer *buffer);
+    GstBuffer *getBuffer();
 
-  void updateQSGTexture();
+    void updateQSGTexture();
 
-private:
-  QQuickWindow *window_;
-  GstBuffer * buffer_;
-  gboolean buffer_was_bound;
-  GstBuffer * sync_buffer_;
-  GstMemory * mem_;
-  QSGTexture *dummy_tex_;
-  GstVideoInfo v_info;
-  GstVideoFrame v_frame;
+  private:
+    QQuickWindow *window_;
+    GstBuffer *buffer_;
+    gboolean buffer_was_bound;
+    GstBuffer *sync_buffer_;
+    GstMemory *mem_;
+    QSGTexture *dummy_tex_;
+    GstVideoInfo v_info;
+    GstVideoFrame v_frame;
 };

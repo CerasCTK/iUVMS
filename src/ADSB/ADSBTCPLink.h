@@ -22,11 +22,10 @@ class QTimer;
 
 /// The ADSBTCPLink class handles the TCP connection to an ADS-B server
 /// and processes incoming ADS-B data.
-class ADSBTCPLink : public QObject
-{
+class ADSBTCPLink : public QObject {
     Q_OBJECT
 
-public:
+  public:
     /// Constructs an ADSBTCPLink object.
     ///     @param hostAddress The address of the host to connect to.
     ///     @param port The port to connect to on the host.
@@ -39,7 +38,7 @@ public:
     /// Attempts connection to a host.
     bool init();
 
-signals:
+  signals:
     /// Emitted when an ADS-B vehicle update is received.
     ///     @param vehicleInfo The updated vehicle information.
     void adsbVehicleUpdate(const ADSB::VehicleInfo_t &vehicleInfo);
@@ -48,14 +47,14 @@ signals:
     ///     @param errorMsg The error message.
     void errorOccurred(const QString &errorMsg, bool stopped = false);
 
-private slots:
+  private slots:
     /// Reads bytes from the TCP socket.
     void _readBytes();
 
     /// Processes buffered lines of ADS-B data.
     void _processLines();
 
-private:
+  private:
     /// Parses a line of ADS-B data.
     ///     @param line The line to parse.
     void _parseLine(const QString &line);
@@ -78,10 +77,10 @@ private:
     QHostAddress _hostAddress;
     quint16 _port = 30003;
 
-    QTcpSocket *_socket = nullptr;     ///< Pointer to the TCP socket used for connection
-    QTimer *_processTimer = nullptr;   ///< Timer for periodic processing of ADS-B data
-    QStringList _lineBuffer;           ///< Buffer for storing incoming lines of ADS-B data
+    QTcpSocket *_socket = nullptr;   ///< Pointer to the TCP socket used for connection
+    QTimer *_processTimer = nullptr; ///< Timer for periodic processing of ADS-B data
+    QStringList _lineBuffer;         ///< Buffer for storing incoming lines of ADS-B data
 
-    static constexpr int _processInterval = 50;     ///< Interval for processing lines
-    static constexpr int _maxLinesToProcess = 100;  ///< Maximum number of lines to process per timer timeout
+    static constexpr int _processInterval = 50;    ///< Interval for processing lines
+    static constexpr int _maxLinesToProcess = 100; ///< Maximum number of lines to process per timer timeout
 };

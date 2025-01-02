@@ -23,20 +23,19 @@ class QThread;
 class Vehicle;
 class LogDownloadTest;
 
-class LogDownloadController : public QObject
-{
+class LogDownloadController : public QObject {
     Q_OBJECT
     QML_ELEMENT
     // QML_SINGLETON
     Q_MOC_INCLUDE("Vehicle.h")
     Q_MOC_INCLUDE("QmlObjectListModel.h")
-    Q_PROPERTY(QmlObjectListModel *model          READ _getModel            CONSTANT)
-    Q_PROPERTY(bool               requestingList  READ _getRequestingList   NOTIFY requestingListChanged)
-    Q_PROPERTY(bool               downloadingLogs READ _getDownloadingLogs  NOTIFY downloadingLogsChanged)
+    Q_PROPERTY(QmlObjectListModel *model READ _getModel CONSTANT)
+    Q_PROPERTY(bool requestingList READ _getRequestingList NOTIFY requestingListChanged)
+    Q_PROPERTY(bool downloadingLogs READ _getDownloadingLogs NOTIFY downloadingLogsChanged)
 
     friend class LogDownloadTest;
 
-public:
+  public:
     explicit LogDownloadController(QObject *parent = nullptr);
     ~LogDownloadController();
 
@@ -47,20 +46,22 @@ public:
     Q_INVOKABLE void eraseAll();
     Q_INVOKABLE void cancel();
 
-signals:
+  signals:
     void requestingListChanged();
     void downloadingLogsChanged();
     void selectionChanged();
 
-private slots:
+  private slots:
     void _setActiveVehicle(Vehicle *vehicle);
     void _logEntry(uint32_t time_utc, uint32_t size, uint16_t id, uint16_t num_logs, uint16_t last_log_num);
     void _logData(uint32_t ofs, uint16_t id, uint8_t count, const uint8_t *data);
     void _processDownload();
 
-private:
+  private:
     QmlObjectListModel *_getModel() const { return _logEntriesModel; }
+
     bool _getRequestingList() const { return _requestingLogEntries; }
+
     bool _getDownloadingLogs() const { return _downloadingLogs; }
 
     bool _chunkComplete() const;

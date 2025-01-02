@@ -9,10 +9,10 @@
 
 #pragma once
 
-#include <QtLocation/private/qgeomaptype_p.h>
 #include <QtCore/QByteArray>
-#include <QtCore/QString>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QString>
+#include <QtLocation/private/qgeomaptype_p.h>
 
 #include "QGCTileSet.h"
 
@@ -38,11 +38,9 @@ Q_DECLARE_LOGGING_CATEGORY(MapProviderLog)
 static constexpr const quint32 AVERAGE_TILE_SIZE = 13652;
 
 // TODO: Inherit from QGeoMapType
-class MapProvider
-{
-public:
-    MapProvider(const QString &mapName, const QString &referrer, const QString &imageFormat, quint32 averageSize = AVERAGE_TILE_SIZE,
-                QGeoMapType::MapStyle mapStyle = QGeoMapType::CustomMap);
+class MapProvider {
+  public:
+    MapProvider(const QString &mapName, const QString &referrer, const QString &imageFormat, quint32 averageSize = AVERAGE_TILE_SIZE, QGeoMapType::MapStyle mapStyle = QGeoMapType::CustomMap);
     virtual ~MapProvider();
 
     QUrl getTileURL(int x, int y, int zoom) const;
@@ -53,22 +51,25 @@ public:
     quint32 getAverageSize() const { return _averageSize; }
 
     QGeoMapType::MapStyle getMapStyle() const { return _mapStyle; }
-    const QString& getMapName() const { return _mapName; }
+
+    const QString &getMapName() const { return _mapName; }
+
     int getMapId() const { return _mapId; }
-    const QString& getReferrer() const { return _referrer; }
+
+    const QString &getReferrer() const { return _referrer; }
+
     virtual QByteArray getToken() const { return QByteArray(); }
 
     virtual int long2tileX(double lon, int z) const;
     virtual int lat2tileY(double lat, int z) const;
 
     virtual bool isElevationProvider() const { return false; }
+
     virtual bool isBingProvider() const { return false; }
 
-    virtual QGCTileSet getTileCount(int zoom, double topleftLon,
-                                    double topleftLat, double bottomRightLon,
-                                    double bottomRightLat) const;
+    virtual QGCTileSet getTileCount(int zoom, double topleftLon, double topleftLat, double bottomRightLon, double bottomRightLat) const;
 
-protected:
+  protected:
     QString _tileXYToQuadKey(int tileX, int tileY, int levelOfDetail) const;
     int _getServerNum(int x, int y, int max) const;
 
@@ -82,6 +83,6 @@ protected:
     const QString _language;
     const int _mapId;
 
-private:
+  private:
     static int _mapIdIndex;
 };

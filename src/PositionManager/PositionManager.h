@@ -21,17 +21,16 @@ class QGeoPositionInfoSource;
 class QNmeaPositionInfoSource;
 class QGCCompass;
 
-class QGCPositionManager : public QObject
-{
+class QGCPositionManager : public QObject {
     Q_OBJECT
     QML_ELEMENT
     QML_UNCREATABLE("")
 
-    Q_PROPERTY(QGeoCoordinate gcsPosition                   READ gcsPosition                    NOTIFY gcsPositionChanged)
-    Q_PROPERTY(qreal          gcsHeading                    READ gcsHeading                     NOTIFY gcsHeadingChanged)
-    Q_PROPERTY(qreal          gcsPositionHorizontalAccuracy READ gcsPositionHorizontalAccuracy  NOTIFY gcsPositionHorizontalAccuracyChanged)
+    Q_PROPERTY(QGeoCoordinate gcsPosition READ gcsPosition NOTIFY gcsPositionChanged)
+    Q_PROPERTY(qreal gcsHeading READ gcsHeading NOTIFY gcsHeadingChanged)
+    Q_PROPERTY(qreal gcsPositionHorizontalAccuracy READ gcsPositionHorizontalAccuracy NOTIFY gcsPositionHorizontalAccuracyChanged)
 
-public:
+  public:
     QGCPositionManager(QObject *parent = nullptr);
     ~QGCPositionManager();
 
@@ -41,31 +40,30 @@ public:
     static void registerQmlTypes();
 
     void init();
+
     QGeoCoordinate gcsPosition() const { return _gcsPosition; }
+
     qreal gcsHeading() const { return _gcsHeading; }
+
     qreal gcsPositionHorizontalAccuracy() const { return _gcsPositionHorizontalAccuracy; }
+
     QGeoPositionInfo geoPositionInfo() const { return _geoPositionInfo; }
+
     int updateInterval() const { return _updateInterval; }
 
     void setNmeaSourceDevice(QIODevice *device);
 
-signals:
+  signals:
     void gcsPositionChanged(QGeoCoordinate gcsPosition);
     void gcsHeadingChanged(qreal gcsHeading);
     void positionInfoUpdated(QGeoPositionInfo update);
     void gcsPositionHorizontalAccuracyChanged(qreal gcsPositionHorizontalAccuracy);
 
-private slots:
+  private slots:
     void _positionUpdated(const QGeoPositionInfo &update);
 
-private:
-    enum QGCPositionSource {
-        Simulated,
-        InternalGPS,
-        Log,
-        NmeaGPS,
-        ExternalGPS
-    };
+  private:
+    enum QGCPositionSource { Simulated, InternalGPS, Log, NmeaGPS, ExternalGPS };
 
     void _setPositionSource(QGCPositionSource source);
     void _setupPositionSources();

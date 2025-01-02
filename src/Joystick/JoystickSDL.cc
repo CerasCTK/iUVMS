@@ -19,10 +19,7 @@
 QGC_LOGGING_CATEGORY(JoystickSDLLog, "qgc.joystick.joysticksdl")
 
 JoystickSDL::JoystickSDL(const QString &name, int axisCount, int buttonCount, int hatCount, int index, bool isGameController, QObject *parent)
-    : Joystick(name, axisCount, buttonCount, hatCount, parent)
-    , _isGameController(isGameController)
-    , _index(index)
-{
+    : Joystick(name, axisCount, buttonCount, hatCount, parent), _isGameController(isGameController), _index(index) {
     // qCDebug(JoystickSDLLog) << Q_FUNC_INFO << this;
 
     if (_isGameController) {
@@ -30,16 +27,14 @@ JoystickSDL::JoystickSDL(const QString &name, int axisCount, int buttonCount, in
     }
 }
 
-JoystickSDL::~JoystickSDL()
-{
+JoystickSDL::~JoystickSDL() {
     // qCDebug(JoystickSDLLog) << Q_FUNC_INFO << this;
 }
 
-bool JoystickSDL::init()
-{
+bool JoystickSDL::init() {
     SDL_SetMainReady();
     if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK) < 0) {
-        (void) SDL_JoystickEventState(SDL_DISABLE);
+        (void)SDL_JoystickEventState(SDL_DISABLE);
         qCWarning(JoystickSDLLog) << "Failed to initialize SDL:" << SDL_GetError();
         return false;
     }
@@ -48,11 +43,10 @@ bool JoystickSDL::init()
     return true;
 }
 
-QMap<QString, Joystick*> JoystickSDL::discover()
-{
-    static QMap<QString, Joystick*> ret;
+QMap<QString, Joystick *> JoystickSDL::discover() {
+    static QMap<QString, Joystick *> ret;
 
-    QMap<QString, Joystick*> newRet;
+    QMap<QString, Joystick *> newRet;
 
     qCDebug(JoystickSDLLog) << "Discovering joysticks";
 
@@ -60,14 +54,14 @@ QMap<QString, Joystick*> JoystickSDL::discover()
         QString name = SDL_JoystickNameForIndex(i);
         if (ret.contains(name)) {
             newRet[name] = ret[name];
-            JoystickSDL *const joystick = static_cast<JoystickSDL*>(newRet[name]);
+            JoystickSDL *const joystick = static_cast<JoystickSDL *>(newRet[name]);
             if (joystick->index() != i) {
                 joystick->setIndex(i); // This joystick index has been remapped by SDL
             }
 
             // Anything left in ret after we exit the loop has been removed (unplugged) and needs to be cleaned up.
             // We will handle that in JoystickManager in case the removed joystick was in use.
-            (void) ret.remove(name);
+            (void)ret.remove(name);
 
             qCDebug(JoystickSDLLog) << "Skipping duplicate" << name;
             continue;
@@ -112,8 +106,7 @@ QMap<QString, Joystick*> JoystickSDL::discover()
     return ret;
 }
 
-bool JoystickSDL::_open()
-{
+bool JoystickSDL::_open() {
     if (_isGameController) {
         _sdlController = SDL_GameControllerOpen(_index);
         _sdlJoystick = SDL_GameControllerGetJoystick(_sdlController);
@@ -131,8 +124,7 @@ bool JoystickSDL::_open()
     return true;
 }
 
-void JoystickSDL::_close()
-{
+void JoystickSDL::_close() {
     if (!_sdlJoystick) {
         qCWarning(JoystickSDLLog) << "Attempt to close null joystick!";
         return;
@@ -150,8 +142,7 @@ void JoystickSDL::_close()
     _sdlController = nullptr;
 }
 
-bool JoystickSDL::_update()
-{
+bool JoystickSDL::_update() {
     if (_isGameController) {
         SDL_GameControllerUpdate();
     } else {
@@ -161,8 +152,7 @@ bool JoystickSDL::_update()
     return true;
 }
 
-bool JoystickSDL::_getButton(int i)
-{
+bool JoystickSDL::_getButton(int i) {
     int button = -1;
 
     if (_isGameController) {
@@ -174,8 +164,7 @@ bool JoystickSDL::_getButton(int i)
     return (button == 1);
 }
 
-int JoystickSDL::_getAxis(int i)
-{
+int JoystickSDL::_getAxis(int i) {
     int axis = -1;
 
     if (_isGameController) {
@@ -187,9 +176,8 @@ int JoystickSDL::_getAxis(int i)
     return axis;
 }
 
-bool JoystickSDL::_getHat(int hat, int i)
-{
-    static constexpr uint8_t hatButtons[] = {SDL_HAT_UP, SDL_HAT_DOWN, SDL_HAT_LEFT, SDL_HAT_RIGHT};
+bool JoystickSDL::_getHat(int hat, int i) {
+    static constexpr uint8_t hatButtons[] = { SDL_HAT_UP, SDL_HAT_DOWN, SDL_HAT_LEFT, SDL_HAT_RIGHT };
 
     if (i >= std::size(hatButtons)) {
         return false;
@@ -198,8 +186,7 @@ bool JoystickSDL::_getHat(int hat, int i)
     return ((SDL_JoystickGetHat(_sdlJoystick, hat) & hatButtons[i]) != 0);
 }
 
-void JoystickSDL::_loadGameControllerMappings()
-{
+void JoystickSDL::_loadGameControllerMappings() {
     QFile file(QStringLiteral(":/db/mapping/joystick/gamecontrollerdb.txt"));
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qCWarning(JoystickSDLLog) << "Couldn't load GameController mapping database.";

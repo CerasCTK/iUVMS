@@ -7,18 +7,16 @@
  *
  ****************************************************************************/
 
-
 #include "ComponentInformationTranslationTest.h"
 #include "ComponentInformationTranslation.h"
 #include "QGCCachedFileDownload.h"
 
 #include <QtTest/QTest>
 
-void ComponentInformationTranslationTest::_basic_test()
-{
+void ComponentInformationTranslationTest::_basic_test() {
     QString translationJson = ":/unittest/TranslationTest.json";
     QString translationTs = ":/unittest/TranslationTest_de_DE.ts";
-    ComponentInformationTranslation* translation = new ComponentInformationTranslation(this, new QGCCachedFileDownload("", this));
+    ComponentInformationTranslation *translation = new ComponentInformationTranslation(this, new QGCCachedFileDownload("", this));
     QString tempFilename = translation->translateJsonUsingTS(translationJson, translationTs);
 
     QVERIFY(!tempFilename.isEmpty());
@@ -40,11 +38,9 @@ void ComponentInformationTranslationTest::_basic_test()
     QVERIFY(expectedJson == translatedJson);
 }
 
-void ComponentInformationTranslationTest::readJson(const QByteArray& bytes, QJsonDocument& jsonDoc)
-{
+void ComponentInformationTranslationTest::readJson(const QByteArray &bytes, QJsonDocument &jsonDoc) {
     QJsonParseError parseError;
     jsonDoc = QJsonDocument::fromJson(bytes, &parseError);
     QTEST_ASSERT(parseError.error == QJsonParseError::NoError);
     QVERIFY(!jsonDoc.isEmpty());
 }
-

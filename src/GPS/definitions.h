@@ -48,14 +48,14 @@
 
 #pragma once
 
-#include <QtCore/QtGlobal>
 #include <QtCore/QDateTime>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QtGlobal>
 #include <QtCore/QThread>
 
-#include "sensor_gps.h"
-#include "sensor_gnss_relative.h"
 #include "satellite_info.h"
+#include "sensor_gnss_relative.h"
+#include "sensor_gps.h"
 
 Q_DECLARE_LOGGING_CATEGORY(GPSDriversLog)
 
@@ -72,8 +72,7 @@ Q_DECLARE_LOGGING_CATEGORY(GPSDriversLog)
 
 #ifdef _WIN32
 #if (_MSC_VER < 1900)
-struct timespec
-{
+struct timespec {
     time_t tv_sec;
     long tv_nsec;
 };
@@ -82,13 +81,8 @@ struct timespec
 #endif
 #endif
 
-static inline void gps_usleep(unsigned long usecs)
-{
-    QThread::usleep(usecs);
-}
+static inline void gps_usleep(unsigned long usecs) { QThread::usleep(usecs); }
 
 typedef uint64_t gps_abstime;
-static inline gps_abstime gps_absolute_time()
-{
-    return (QDateTime::currentMSecsSinceEpoch() * 1000);
-}
+
+static inline gps_abstime gps_absolute_time() { return (QDateTime::currentMSecsSinceEpoch() * 1000); }

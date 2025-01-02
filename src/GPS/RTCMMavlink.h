@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include <QtCore/QElapsedTimer>
@@ -18,18 +17,17 @@ typedef struct __mavlink_gps_rtcm_data_t mavlink_gps_rtcm_data_t;
 
 Q_DECLARE_LOGGING_CATEGORY(RTCMMavlinkLog)
 
-class RTCMMavlink : public QObject
-{
+class RTCMMavlink : public QObject {
     Q_OBJECT
 
-public:
+  public:
     RTCMMavlink(QObject *parent = nullptr);
     ~RTCMMavlink();
 
-public slots:
+  public slots:
     void RTCMDataUpdate(QByteArrayView data);
 
-private:
+  private:
     void _calculateBandwith(qsizetype bytes);
     static void _sendMessageToVehicle(const mavlink_gps_rtcm_data_t &data);
 

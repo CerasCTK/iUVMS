@@ -13,9 +13,7 @@
 
 QGC_LOGGING_CATEGORY(ActuatorsConfigLog, "ActuatorsConfigLog")
 
-
-void Parameter::parse(const QJsonValue& jsonValue)
-{
+void Parameter::parse(const QJsonValue &jsonValue) {
     label = jsonValue["label"].toString();
     name = jsonValue["name"].toString();
     indexOffset = jsonValue["index-offset"].toInt(0);
@@ -30,18 +28,14 @@ void Parameter::parse(const QJsonValue& jsonValue)
     advanced = jsonValue["advanced"].toBool(false);
 }
 
-FactBitset::FactBitset(QObject* parent, Fact* integerFact, int offset)
-    : Fact("", new FactMetaData(FactMetaData::valueTypeBool, "", parent), parent),
-      _integerFact(integerFact), _offset(offset)
-{
+FactBitset::FactBitset(QObject *parent, Fact *integerFact, int offset) : Fact("", new FactMetaData(FactMetaData::valueTypeBool, "", parent), parent), _integerFact(integerFact), _offset(offset) {
     forceSetRawValue(false); // need to force set an initial bool value so the type is correct
     onIntegerFactChanged();
     connect(this, &Fact::rawValueChanged, this, &FactBitset::onThisFactChanged);
     connect(_integerFact, &Fact::rawValueChanged, this, &FactBitset::onIntegerFactChanged);
 }
 
-void FactBitset::onIntegerFactChanged()
-{
+void FactBitset::onIntegerFactChanged() {
     if (_ignoreChange) {
         return;
     }
@@ -51,8 +45,7 @@ void FactBitset::onIntegerFactChanged()
     _ignoreChange = false;
 }
 
-void FactBitset::onThisFactChanged()
-{
+void FactBitset::onThisFactChanged() {
     if (_ignoreChange) {
         return;
     }
@@ -67,18 +60,13 @@ void FactBitset::onThisFactChanged()
     _ignoreChange = false;
 }
 
-
-FactFloatAsBool::FactFloatAsBool(QObject* parent, Fact* floatFact)
-    : Fact("", new FactMetaData(FactMetaData::valueTypeBool, "", parent), parent),
-      _floatFact(floatFact)
-{
+FactFloatAsBool::FactFloatAsBool(QObject *parent, Fact *floatFact) : Fact("", new FactMetaData(FactMetaData::valueTypeBool, "", parent), parent), _floatFact(floatFact) {
     onFloatFactChanged();
     connect(this, &Fact::rawValueChanged, this, &FactFloatAsBool::onThisFactChanged);
     connect(_floatFact, &Fact::rawValueChanged, this, &FactFloatAsBool::onFloatFactChanged);
 }
 
-void FactFloatAsBool::onFloatFactChanged()
-{
+void FactFloatAsBool::onFloatFactChanged() {
     if (_ignoreChange) {
         return;
     }
@@ -88,8 +76,7 @@ void FactFloatAsBool::onFloatFactChanged()
     _ignoreChange = false;
 }
 
-void FactFloatAsBool::onThisFactChanged()
-{
+void FactFloatAsBool::onThisFactChanged() {
     if (_ignoreChange) {
         return;
     }
@@ -104,8 +91,7 @@ void FactFloatAsBool::onThisFactChanged()
     _ignoreChange = false;
 }
 
-Condition::Condition(const QString &condition, ParameterManager* parameterManager)
-{
+Condition::Condition(const QString &condition, ParameterManager *parameterManager) {
     QRegularExpression re("^([0-9A-Za-z_-]+)([\\!=<>]+)(-?\\d+)$");
     QRegularExpressionMatch match = re.match(condition);
     if (condition == "true") {
@@ -135,9 +121,8 @@ Condition::Condition(const QString &condition, ParameterManager* parameterManage
         qCDebug(ActuatorsConfigLog) << "Condition: Param:" << _parameter << "op:" << operation << "value:" << _value;
 
         if (parameterManager->parameterExists(ParameterManager::defaultComponentId, _parameter)) {
-            Fact* param = parameterManager->getParameter(ParameterManager::defaultComponentId, _parameter);
-            if (param->type() == FactMetaData::ValueType_t::valueTypeBool ||
-                    param->type() == FactMetaData::ValueType_t::valueTypeInt32) {
+            Fact *param = parameterManager->getParameter(ParameterManager::defaultComponentId, _parameter);
+            if (param->type() == FactMetaData::ValueType_t::valueTypeBool || param->type() == FactMetaData::ValueType_t::valueTypeInt32) {
                 _fact = param;
             } else {
                 qCDebug(ActuatorsConfigLog) << "Condition: Unsupported param type:" << (int)param->type();
@@ -146,11 +131,9 @@ Condition::Condition(const QString &condition, ParameterManager* parameterManage
             qCDebug(ActuatorsConfigLog) << "Condition: Param does not exist:" << _parameter;
         }
     }
-
 }
 
-bool Condition::evaluate() const
-{
+bool Condition::evaluate() const {
     if (_operation == Operation::AlwaysFalse) {
         return false;
     }
@@ -177,8 +160,7 @@ bool Condition::evaluate() const
     return false;
 }
 
-ActuatorGeometry::Type ActuatorGeometry::typeFromStr(const QString &type)
-{
+ActuatorGeometry::Type ActuatorGeometry::typeFromStr(const QString &type) {
     if (type == "motor") {
         return ActuatorGeometry::Type::Motor;
     } else if (type == "servo") {
@@ -186,4 +168,3 @@ ActuatorGeometry::Type ActuatorGeometry::typeFromStr(const QString &type)
     }
     return ActuatorGeometry::Type::Other;
 }
-

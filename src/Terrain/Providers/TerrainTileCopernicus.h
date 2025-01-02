@@ -17,11 +17,10 @@
 Q_DECLARE_LOGGING_CATEGORY(TerrainTileCopernicusLog)
 
 /// Implements an interface for https://terrain-ce.suite.auterion.com/api/v1/
-class TerrainTileCopernicus : public TerrainTile
-{
+class TerrainTileCopernicus : public TerrainTile {
     friend class TerrainTileTest;
 
-public:
+  public:
     /// Constructor from serialized elevation data (either from file or web)
     ///    @param byteArray
     explicit TerrainTileCopernicus(const QByteArray &byteArray);
@@ -34,7 +33,7 @@ public:
     static constexpr double kTleValueSpacingDegrees = (1.0 / 3600); ///< 1 Arc-Second spacing of elevation values
     static constexpr double kTileValueSpacingMeters = 30.0;
 
-private:
+  private:
     static constexpr const char *_jsonStatusKey = "status";
     static constexpr const char *_jsonDataKey = "data";
     static constexpr const char *_jsonBoundsKey = "bounds";

@@ -9,12 +9,9 @@
 
 #include "VehicleClockFactGroup.h"
 
-VehicleClockFactGroup::VehicleClockFactGroup(QObject* parent)
-    : FactGroup(1000, ":/json/Vehicle/ClockFact.json", parent)
-    , _currentTimeFact  (0, _currentTimeFactName,    FactMetaData::valueTypeString)
-    , _currentUTCTimeFact  (0, _currentUTCTimeFactName,    FactMetaData::valueTypeString)
-    , _currentDateFact  (0, _currentDateFactName,    FactMetaData::valueTypeString)
-{
+VehicleClockFactGroup::VehicleClockFactGroup(QObject *parent)
+    : FactGroup(1000, ":/json/Vehicle/ClockFact.json", parent), _currentTimeFact(0, _currentTimeFactName, FactMetaData::valueTypeString), _currentUTCTimeFact(0, _currentUTCTimeFactName, FactMetaData::valueTypeString),
+      _currentDateFact(0, _currentDateFactName, FactMetaData::valueTypeString) {
     _addFact(&_currentTimeFact, _currentTimeFactName);
     _addFact(&_currentUTCTimeFact, _currentUTCTimeFactName);
     _addFact(&_currentDateFact, _currentDateFactName);
@@ -25,8 +22,7 @@ VehicleClockFactGroup::VehicleClockFactGroup(QObject* parent)
     _currentDateFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
 }
 
-void VehicleClockFactGroup::_updateAllValues()
-{
+void VehicleClockFactGroup::_updateAllValues() {
     _currentTimeFact.setRawValue(QTime::currentTime().toString());
     _currentUTCTimeFact.setRawValue(QDateTime::currentDateTimeUtc().time().toString());
     _currentDateFact.setRawValue(QDateTime::currentDateTime().toString(QLocale::system().dateFormat(QLocale::ShortFormat)));

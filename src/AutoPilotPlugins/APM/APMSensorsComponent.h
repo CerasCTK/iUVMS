@@ -7,24 +7,22 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include "VehicleComponent.h"
 
-class APMSensorsComponent : public VehicleComponent
-{
+class APMSensorsComponent : public VehicleComponent {
     Q_OBJECT
-    
-public:
-    APMSensorsComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent = nullptr);
+
+  public:
+    APMSensorsComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent = nullptr);
 
     bool compassSetupNeeded(void) const;
     bool accelSetupNeeded(void) const;
 
     // Virtuals from VehicleComponent
     QStringList setupCompleteChangedTriggerList(void) const final;
-    
+
     // Virtuals from VehicleComponent
     QString name(void) const final;
     QString description(void) const final;
@@ -33,8 +31,8 @@ public:
     bool setupComplete(void) const final;
     QUrl setupSource(void) const final;
     QUrl summaryQmlSource(void) const final;
-    
-private:
-    const QString   _name;
-    QVariantList    _summaryItems;
+
+  private:
+    const QString _name;
+    QVariantList _summaryItems;
 };

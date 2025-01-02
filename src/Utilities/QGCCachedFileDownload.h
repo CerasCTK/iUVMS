@@ -15,11 +15,10 @@
 class QGCFileDownload;
 class QNetworkDiskCache;
 
-class QGCCachedFileDownload : public QObject
-{
+class QGCCachedFileDownload : public QObject {
     Q_OBJECT
 
-public:
+  public:
     QGCCachedFileDownload(const QString &cacheDirectory, QObject *parent = nullptr);
 
     /// Download the specified remote file.
@@ -28,15 +27,15 @@ public:
     /// @return true: Asynchronous download has started, false: Download initialization failed
     bool download(const QString &url, int maxCacheAgeSec);
 
-signals:
+  signals:
     void downloadProgress(qint64 curr, qint64 total);
     void downloadComplete(const QString &remoteFile, const QString &localFile, const QString &errorMsg);
 
-private slots:
+  private slots:
     void _onDownloadCompleted(const QString &remoteFile, const QString &localFile, const QString &errorMsg);
 
-private:
-    QGCFileDownload* _fileDownload = nullptr;
-    QNetworkDiskCache* _diskCache = nullptr;
+  private:
+    QGCFileDownload *_fileDownload = nullptr;
+    QNetworkDiskCache *_diskCache = nullptr;
     bool _downloadFromNetwork = false;
 };

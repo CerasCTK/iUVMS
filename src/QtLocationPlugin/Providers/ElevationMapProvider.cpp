@@ -18,20 +18,17 @@
 #include <QtCore/QDir>
 #include <QtCore/QTemporaryFile>
 
-int CopernicusElevationProvider::long2tileX(double lon, int z) const
-{
+int CopernicusElevationProvider::long2tileX(double lon, int z) const {
     Q_UNUSED(z)
     return static_cast<int>(floor((lon + 180.0) / TerrainTileCopernicus::kTileSizeDegrees));
 }
 
-int CopernicusElevationProvider::lat2tileY(double lat, int z) const
-{
+int CopernicusElevationProvider::lat2tileY(double lat, int z) const {
     Q_UNUSED(z)
     return static_cast<int>(floor((lat + 90.0) / TerrainTileCopernicus::kTileSizeDegrees));
 }
 
-QString CopernicusElevationProvider::_getURL(int x, int y, int zoom) const
-{
+QString CopernicusElevationProvider::_getURL(int x, int y, int zoom) const {
     Q_UNUSED(zoom)
     const double lat1 = (static_cast<double>(y) * TerrainTileCopernicus::kTileSizeDegrees) - 90.0;
     const double lon1 = (static_cast<double>(x) * TerrainTileCopernicus::kTileSizeDegrees) - 180.0;
@@ -41,27 +38,18 @@ QString CopernicusElevationProvider::_getURL(int x, int y, int zoom) const
     return url;
 }
 
-QGCTileSet CopernicusElevationProvider::getTileCount(int zoom, double topleftLon,
-                                                     double topleftLat, double bottomRightLon,
-                                                     double bottomRightLat) const
-{
+QGCTileSet CopernicusElevationProvider::getTileCount(int zoom, double topleftLon, double topleftLat, double bottomRightLon, double bottomRightLat) const {
     QGCTileSet set;
     set.tileX0 = long2tileX(topleftLon, zoom);
     set.tileY0 = lat2tileY(bottomRightLat, zoom);
     set.tileX1 = long2tileX(bottomRightLon, zoom);
     set.tileY1 = lat2tileY(topleftLat, zoom);
 
-    set.tileCount = (static_cast<quint64>(set.tileX1) -
-                     static_cast<quint64>(set.tileX0) + 1) *
-                    (static_cast<quint64>(set.tileY1) -
-                     static_cast<quint64>(set.tileY0) + 1);
+    set.tileCount = (static_cast<quint64>(set.tileX1) - static_cast<quint64>(set.tileX0) + 1) * (static_cast<quint64>(set.tileY1) - static_cast<quint64>(set.tileY0) + 1);
 
     set.tileSize = getAverageSize() * set.tileCount;
 
     return set;
 }
 
-QByteArray CopernicusElevationProvider::serialize(const QByteArray &image) const
-{
-    return TerrainTileCopernicus::serializeFromData(image);
-}
+QByteArray CopernicusElevationProvider::serialize(const QByteArray &image) const { return TerrainTileCopernicus::serializeFromData(image); }

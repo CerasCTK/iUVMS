@@ -10,27 +10,13 @@
 #include "QGCFencePolygon.h"
 #include "JsonHelper.h"
 
-QGCFencePolygon::QGCFencePolygon(bool inclusion, QObject* parent)
-    : QGCMapPolygon (parent)
-    , _inclusion    (inclusion)
-{
-    _init();
-}
+QGCFencePolygon::QGCFencePolygon(bool inclusion, QObject *parent) : QGCMapPolygon(parent), _inclusion(inclusion) { _init(); }
 
-QGCFencePolygon::QGCFencePolygon(const QGCFencePolygon& other, QObject* parent)
-    : QGCMapPolygon (other, parent)
-    , _inclusion    (other._inclusion)
-{
-    _init();
-}
+QGCFencePolygon::QGCFencePolygon(const QGCFencePolygon &other, QObject *parent) : QGCMapPolygon(other, parent), _inclusion(other._inclusion) { _init(); }
 
-void QGCFencePolygon::_init(void)
-{
-    connect(this, &QGCFencePolygon::inclusionChanged, this, &QGCFencePolygon::_setDirty);
-}
+void QGCFencePolygon::_init(void) { connect(this, &QGCFencePolygon::inclusionChanged, this, &QGCFencePolygon::_setDirty); }
 
-const QGCFencePolygon& QGCFencePolygon::operator=(const QGCFencePolygon& other)
-{
+const QGCFencePolygon &QGCFencePolygon::operator=(const QGCFencePolygon &other) {
     QGCMapPolygon::operator=(other);
 
     setInclusion(other._inclusion);
@@ -38,25 +24,20 @@ const QGCFencePolygon& QGCFencePolygon::operator=(const QGCFencePolygon& other)
     return *this;
 }
 
-void QGCFencePolygon::_setDirty(void)
-{
-    setDirty(true);
-}
+void QGCFencePolygon::_setDirty(void) { setDirty(true); }
 
-void QGCFencePolygon::saveToJson(QJsonObject& json)
-{
+void QGCFencePolygon::saveToJson(QJsonObject &json) {
     json[JsonHelper::jsonVersionKey] = _jsonCurrentVersion;
     json[_jsonInclusionKey] = _inclusion;
     QGCMapPolygon::saveToJson(json);
 }
 
-bool QGCFencePolygon::loadFromJson(const QJsonObject& json, bool required, QString& errorString)
-{
+bool QGCFencePolygon::loadFromJson(const QJsonObject &json, bool required, QString &errorString) {
     errorString.clear();
 
     QList<JsonHelper::KeyValidateInfo> keyInfoList = {
-        { JsonHelper::jsonVersionKey,   QJsonValue::Double, true },
-        { _jsonInclusionKey,            QJsonValue::Bool,   true },
+        { JsonHelper::jsonVersionKey, QJsonValue::Double, true },
+        { _jsonInclusionKey, QJsonValue::Bool, true },
     };
     if (!JsonHelper::validateKeys(json, keyInfoList, errorString)) {
         return false;
@@ -76,8 +57,7 @@ bool QGCFencePolygon::loadFromJson(const QJsonObject& json, bool required, QStri
     return true;
 }
 
-void QGCFencePolygon::setInclusion(bool inclusion)
-{
+void QGCFencePolygon::setInclusion(bool inclusion) {
     if (inclusion != _inclusion) {
         _inclusion = inclusion;
         emit inclusionChanged(inclusion);

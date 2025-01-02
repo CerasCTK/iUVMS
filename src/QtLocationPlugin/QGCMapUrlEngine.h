@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 /**
  *  @file
  *  @author Gus Grubba <gus@auterion.com>
@@ -17,16 +16,15 @@
 
 #include "QGCTileSet.h"
 
-#include <QtCore/QObject>
 #include <QtCore/QByteArrayView>
+#include <QtCore/QObject>
 #include <QtCore/QStringView>
 
 class MapProvider;
 class ElevationProvider;
 
-class UrlFactory
-{
-public:
+class UrlFactory {
+  public:
     static QString getImageFormat(QStringView type, QByteArrayView image);
     static QString getImageFormat(int qtMapId, QByteArrayView image);
 
@@ -40,11 +38,10 @@ public:
     static int long2tileX(QStringView mapType, double lon, int z);
     static int lat2tileY(QStringView mapType, double lat, int z);
 
-    static QGCTileSet getTileCount(int zoom, double topleftLon, double topleftLat,
-                            double bottomRightLon, double bottomRightLat,
-                            QStringView mapType);
+    static QGCTileSet getTileCount(int zoom, double topleftLon, double topleftLat, double bottomRightLon, double bottomRightLat, QStringView mapType);
 
-    static const QList<std::shared_ptr<const MapProvider>>& getProviders() { return _providers; }
+    static const QList<std::shared_ptr<const MapProvider>> &getProviders() { return _providers; }
+
     static QStringList getElevationProviderTypes();
     static QStringList getProviderTypes();
     static int getQtMapIdFromProviderType(QStringView type);
@@ -57,7 +54,7 @@ public:
     static QString tileHashToType(QStringView tileHash);
     static QString getTileHash(QStringView type, int x, int y, int z);
 
-private:
+  private:
     static const QList<std::shared_ptr<const MapProvider>> _providers;
 };
 

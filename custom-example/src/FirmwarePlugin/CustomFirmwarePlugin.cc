@@ -16,10 +16,9 @@
 #include "Vehicle.h"
 
 //-----------------------------------------------------------------------------
-CustomFirmwarePlugin::CustomFirmwarePlugin()
-{
+CustomFirmwarePlugin::CustomFirmwarePlugin() {
     for (int i = 0; i < _flightModeInfoList.count(); i++) {
-        FlightModeInfo_t& info = _flightModeInfoList[i];
+        FlightModeInfo_t &info = _flightModeInfoList[i];
         //-- Narrow the flight mode options to only these
         if (*info.name != _holdFlightMode && *info.name != _rtlFlightMode && *info.name != _missionFlightMode) {
             // No other flight modes can be set
@@ -29,13 +28,9 @@ CustomFirmwarePlugin::CustomFirmwarePlugin()
 }
 
 //-----------------------------------------------------------------------------
-AutoPilotPlugin* CustomFirmwarePlugin::autopilotPlugin(Vehicle* vehicle)
-{
-    return new CustomAutoPilotPlugin(vehicle, vehicle);
-}
+AutoPilotPlugin *CustomFirmwarePlugin::autopilotPlugin(Vehicle *vehicle) { return new CustomAutoPilotPlugin(vehicle, vehicle); }
 
-const QVariantList& CustomFirmwarePlugin::toolIndicators(const Vehicle* vehicle)
-{
+const QVariantList &CustomFirmwarePlugin::toolIndicators(const Vehicle *vehicle) {
     if (_toolIndicatorList.size() == 0) {
         // First call the base class to get the standard QGC list. This way we are guaranteed to always get
         // any new toolbar indicators which are added upstream in our custom build.
@@ -48,8 +43,7 @@ const QVariantList& CustomFirmwarePlugin::toolIndicators(const Vehicle* vehicle)
 
 // Tells QGC that your vehicle has a gimbal on it. This will in turn cause thing like gimbal commands to point
 // the camera straight down for surveys to be automatically added to Plans.
-bool CustomFirmwarePlugin::hasGimbal(Vehicle* /*vehicle*/, bool& rollSupported, bool& pitchSupported, bool& yawSupported)
-{
+bool CustomFirmwarePlugin::hasGimbal(Vehicle * /*vehicle*/, bool &rollSupported, bool &pitchSupported, bool &yawSupported) {
     rollSupported = false;
     pitchSupported = true;
     yawSupported = true;

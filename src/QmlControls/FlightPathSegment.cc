@@ -13,15 +13,8 @@
 
 QGC_LOGGING_CATEGORY(FlightPathSegmentLog, "FlightPathSegmentLog")
 
-FlightPathSegment::FlightPathSegment(SegmentType segmentType, const QGeoCoordinate& coord1, double amslCoord1Alt, const QGeoCoordinate& coord2, double amslCoord2Alt, bool queryTerrainData, QObject* parent)
-    : QObject           (parent)
-    , _coord1           (coord1)
-    , _coord2           (coord2)
-    , _coord1AMSLAlt     (amslCoord1Alt)
-    , _coord2AMSLAlt     (amslCoord2Alt)
-    , _queryTerrainData (queryTerrainData)
-    , _segmentType      (segmentType)
-{
+FlightPathSegment::FlightPathSegment(SegmentType segmentType, const QGeoCoordinate &coord1, double amslCoord1Alt, const QGeoCoordinate &coord2, double amslCoord2Alt, bool queryTerrainData, QObject *parent)
+    : QObject(parent), _coord1(coord1), _coord2(coord2), _coord1AMSLAlt(amslCoord1Alt), _coord2AMSLAlt(amslCoord2Alt), _queryTerrainData(queryTerrainData), _segmentType(segmentType) {
     _delayedTerrainPathQueryTimer.setSingleShot(true);
     _delayedTerrainPathQueryTimer.setInterval(200);
     _delayedTerrainPathQueryTimer.callOnTimeout(this, &FlightPathSegment::_sendTerrainPathQuery);
@@ -32,8 +25,7 @@ FlightPathSegment::FlightPathSegment(SegmentType segmentType, const QGeoCoordina
     _sendTerrainPathQuery();
 }
 
-void FlightPathSegment::setCoordinate1(const QGeoCoordinate &coordinate)
-{
+void FlightPathSegment::setCoordinate1(const QGeoCoordinate &coordinate) {
     if (_coord1 != coordinate) {
         _coord1 = coordinate;
         emit coordinate1Changed(_coord1);
@@ -42,8 +34,7 @@ void FlightPathSegment::setCoordinate1(const QGeoCoordinate &coordinate)
     }
 }
 
-void FlightPathSegment::setCoordinate2(const QGeoCoordinate &coordinate)
-{
+void FlightPathSegment::setCoordinate2(const QGeoCoordinate &coordinate) {
     if (_coord2 != coordinate) {
         _coord2 = coordinate;
         emit coordinate2Changed(_coord2);
@@ -52,8 +43,7 @@ void FlightPathSegment::setCoordinate2(const QGeoCoordinate &coordinate)
     }
 }
 
-void FlightPathSegment::setCoord1AMSLAlt(double alt)
-{
+void FlightPathSegment::setCoord1AMSLAlt(double alt) {
     if (!QGC::fuzzyCompare(alt, _coord1AMSLAlt)) {
         _coord1AMSLAlt = alt;
         emit coord1AMSLAltChanged();
@@ -61,8 +51,7 @@ void FlightPathSegment::setCoord1AMSLAlt(double alt)
     }
 }
 
-void FlightPathSegment::setCoord2AMSLAlt(double alt)
-{
+void FlightPathSegment::setCoord2AMSLAlt(double alt) {
     if (!QGC::fuzzyCompare(alt, _coord2AMSLAlt)) {
         _coord2AMSLAlt = alt;
         emit coord2AMSLAltChanged();
@@ -70,16 +59,14 @@ void FlightPathSegment::setCoord2AMSLAlt(double alt)
     }
 }
 
-void FlightPathSegment::setSpecialVisual(bool specialVisual)
-{
+void FlightPathSegment::setSpecialVisual(bool specialVisual) {
     if (_specialVisual != specialVisual) {
         _specialVisual = specialVisual;
         emit specialVisualChanged(specialVisual);
     }
 }
 
-void FlightPathSegment::_sendTerrainPathQuery(void)
-{
+void FlightPathSegment::_sendTerrainPathQuery(void) {
     if (_queryTerrainData && _coord1.isValid() && _coord2.isValid()) {
         qCDebug(FlightPathSegmentLog) << this << "_sendTerrainPathQuery";
         // Clear any previous query
@@ -103,8 +90,7 @@ void FlightPathSegment::_sendTerrainPathQuery(void)
     }
 }
 
-void FlightPathSegment::_terrainDataReceived(bool success, const TerrainPathQuery::PathHeightInfo_t& pathHeightInfo)
-{
+void FlightPathSegment::_terrainDataReceived(bool success, const TerrainPathQuery::PathHeightInfo_t &pathHeightInfo) {
     qCDebug(FlightPathSegmentLog) << this << "_terrainDataReceived" << success << pathHeightInfo.heights.count();
     if (success) {
         if (!QGC::fuzzyCompare(pathHeightInfo.distanceBetween, _distanceBetween)) {
@@ -117,7 +103,7 @@ void FlightPathSegment::_terrainDataReceived(bool success, const TerrainPathQuer
         }
 
         _amslTerrainHeights.clear();
-        for (const double& amslTerrainHeight: pathHeightInfo.heights) {
+        for (const double &amslTerrainHeight : pathHeightInfo.heights) {
             _amslTerrainHeights.append(amslTerrainHeight);
         }
         emit amslTerrainHeightsChanged();
@@ -129,8 +115,7 @@ void FlightPathSegment::_terrainDataReceived(bool success, const TerrainPathQuer
     _updateTerrainCollision();
 }
 
-void FlightPathSegment::_updateTotalDistance(void)
-{
+void FlightPathSegment::_updateTotalDistance(void) {
     double newTotalDistance = 0;
     if (_coord1.isValid() && _coord2.isValid()) {
         newTotalDistance = _coord1.distanceTo(_coord2);
@@ -142,16 +127,15 @@ void FlightPathSegment::_updateTotalDistance(void)
     }
 }
 
-void FlightPathSegment::_updateTerrainCollision(void)
-{
+void FlightPathSegment::_updateTerrainCollision(void) {
     bool newTerrainCollision = false;
 
     if (_segmentType != SegmentTypeTerrainFrame) {
-        double slope =      (_coord2AMSLAlt - _coord1AMSLAlt) / _totalDistance;
+        double slope = (_coord2AMSLAlt - _coord1AMSLAlt) / _totalDistance;
         double yIntercept = _coord1AMSLAlt;
 
         double x = 0;
-        for (int i=0; i<_amslTerrainHeights.count(); i++) {
+        for (int i = 0; i < _amslTerrainHeights.count(); i++) {
             bool ignoreCollision = false;
             if (_segmentType == SegmentTypeTakeoff && x < _collisionIgnoreMeters) {
                 ignoreCollision = true;

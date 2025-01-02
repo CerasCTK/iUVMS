@@ -9,151 +9,145 @@
 
 #pragma once
 
-#include <QtSensors/QAmbientTemperatureSensor>
-#include <QtSensors/QPressureSensor>
-#include <QtSensors/QCompass>
-#include <QtPositioning/QGeoPositionInfo>
 #include <QtCore/QLoggingCategory>
+#include <QtPositioning/QGeoPositionInfo>
+#include <QtSensors/QAmbientTemperatureSensor>
+#include <QtSensors/QCompass>
+#include <QtSensors/QPressureSensor>
 
 Q_DECLARE_LOGGING_CATEGORY(QGCDeviceInfoLog)
 
-namespace QGCDeviceInfo
-{
+namespace QGCDeviceInfo {
 
-bool isInternetAvailable();
-bool isBluetoothAvailable();
-bool isNetworkWired();
+    bool isInternetAvailable();
+    bool isBluetoothAvailable();
+    bool isNetworkWired();
 
-////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
-class QGCAmbientTemperatureFilter : public QAmbientTemperatureFilter
-{
-public:
-    QGCAmbientTemperatureFilter();
-    ~QGCAmbientTemperatureFilter();
+    class QGCAmbientTemperatureFilter : public QAmbientTemperatureFilter {
+      public:
+        QGCAmbientTemperatureFilter();
+        ~QGCAmbientTemperatureFilter();
 
-    bool filter(QAmbientTemperatureReading *reading) final;
+        bool filter(QAmbientTemperatureReading *reading) final;
 
-private:
-    static constexpr const qreal s_minValidTemperatureC = -40.;
-    static constexpr const qreal s_maxValidTemperatureC = 85.;
-};
+      private:
+        static constexpr const qreal s_minValidTemperatureC = -40.;
+        static constexpr const qreal s_maxValidTemperatureC = 85.;
+    };
 
-class QGCAmbientTemperature : public QObject
-{
-    Q_OBJECT
+    class QGCAmbientTemperature : public QObject {
+        Q_OBJECT
 
-public:
-    QGCAmbientTemperature(QObject* parent = nullptr);
-    ~QGCAmbientTemperature();
+      public:
+        QGCAmbientTemperature(QObject *parent = nullptr);
+        ~QGCAmbientTemperature();
 
-    static QGCAmbientTemperature* instance();
+        static QGCAmbientTemperature *instance();
 
-    qreal temperature() const { return _temperatureC; }
+        qreal temperature() const { return _temperatureC; }
 
-    bool init();
-    void quit();
+        bool init();
+        void quit();
 
-signals:
-    void temperatureUpdated(qreal temperature);
+      signals:
+        void temperatureUpdated(qreal temperature);
 
-private:
-    QAmbientTemperatureSensor* _ambientTemperature = nullptr;
-    std::shared_ptr<QGCAmbientTemperatureFilter> _ambientTemperatureFilter = nullptr;
+      private:
+        QAmbientTemperatureSensor *_ambientTemperature = nullptr;
+        std::shared_ptr<QGCAmbientTemperatureFilter> _ambientTemperatureFilter = nullptr;
 
-    QMetaObject::Connection _readingChangedConnection;
+        QMetaObject::Connection _readingChangedConnection;
 
-    qreal _temperatureC = 0;
-};
+        qreal _temperatureC = 0;
+    };
 
-////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
-class QGCPressureFilter : public QPressureFilter
-{
-public:
-    QGCPressureFilter();
-    ~QGCPressureFilter();
+    class QGCPressureFilter : public QPressureFilter {
+      public:
+        QGCPressureFilter();
+        ~QGCPressureFilter();
 
-    bool filter(QPressureReading *reading) final;
+        bool filter(QPressureReading *reading) final;
 
-private:
-    static constexpr const qreal s_minValidPressurePa = 45000.;
-    static constexpr const qreal s_maxValidPressurePa = 110000.;
+      private:
+        static constexpr const qreal s_minValidPressurePa = 45000.;
+        static constexpr const qreal s_maxValidPressurePa = 110000.;
 
-    static constexpr const qreal s_minValidTemperatureC = -40.;
-    static constexpr const qreal s_maxValidTemperatureC = 85.;
-};
+        static constexpr const qreal s_minValidTemperatureC = -40.;
+        static constexpr const qreal s_maxValidTemperatureC = 85.;
+    };
 
-class QGCPressure : public QObject
-{
-    Q_OBJECT
+    class QGCPressure : public QObject {
+        Q_OBJECT
 
-public:
-    QGCPressure(QObject* parent = nullptr);
-    ~QGCPressure();
+      public:
+        QGCPressure(QObject *parent = nullptr);
+        ~QGCPressure();
 
-    static QGCPressure* instance();
+        static QGCPressure *instance();
 
-    qreal pressure() const { return _pressurePa; }
-    qreal temperature() const { return _temperatureC; }
+        qreal pressure() const { return _pressurePa; }
 
-    bool init();
-    void quit();
+        qreal temperature() const { return _temperatureC; }
 
-signals:
-    void pressureUpdated(qreal pressure, qreal temperature);
+        bool init();
+        void quit();
 
-private:
-    QPressureSensor* _pressure = nullptr;
-    std::shared_ptr<QGCPressureFilter> _pressureFilter = nullptr;
+      signals:
+        void pressureUpdated(qreal pressure, qreal temperature);
 
-    QMetaObject::Connection _readingChangedConnection;
+      private:
+        QPressureSensor *_pressure = nullptr;
+        std::shared_ptr<QGCPressureFilter> _pressureFilter = nullptr;
 
-    qreal _temperatureC = 0;
-    qreal _pressurePa = 0;
-};
+        QMetaObject::Connection _readingChangedConnection;
 
-////////////////////////////////////////////////////////////////////
+        qreal _temperatureC = 0;
+        qreal _pressurePa = 0;
+    };
 
-class QGCCompassFilter : public QCompassFilter
-{
-public:
-    QGCCompassFilter();
-    ~QGCCompassFilter();
+    ////////////////////////////////////////////////////////////////////
 
-    bool filter(QCompassReading *reading) final;
+    class QGCCompassFilter : public QCompassFilter {
+      public:
+        QGCCompassFilter();
+        ~QGCCompassFilter();
 
-private:
-    static constexpr qreal s_minCompassCalibrationLevel = 0.65;
-};
+        bool filter(QCompassReading *reading) final;
 
-class QGCCompass : public QObject
-{
-    Q_OBJECT
+      private:
+        static constexpr qreal s_minCompassCalibrationLevel = 0.65;
+    };
 
-public:
-    QGCCompass(QObject *parent = nullptr);
-    ~QGCCompass();
+    class QGCCompass : public QObject {
+        Q_OBJECT
 
-    static QGCCompass* instance();
+      public:
+        QGCCompass(QObject *parent = nullptr);
+        ~QGCCompass();
 
-    bool init();
-    void quit();
+        static QGCCompass *instance();
 
-signals:
-    void compassUpdated(qreal azimuth);
-    void positionUpdated(QGeoPositionInfo update);
+        bool init();
+        void quit();
 
-private:
-    QCompass *_compass = nullptr;
-    std::shared_ptr<QGCCompassFilter> _compassFilter = nullptr;
+      signals:
+        void compassUpdated(qreal azimuth);
+        void positionUpdated(QGeoPositionInfo update);
 
-    QMetaObject::Connection _readingChangedConnection;
+      private:
+        QCompass *_compass = nullptr;
+        std::shared_ptr<QGCCompassFilter> _compassFilter = nullptr;
 
-    qreal _azimuth = 0;
-    qreal _calibrationLevel = 0;
-};
+        QMetaObject::Connection _readingChangedConnection;
 
-////////////////////////////////////////////////////////////////////
+        qreal _azimuth = 0;
+        qreal _calibrationLevel = 0;
+    };
+
+    ////////////////////////////////////////////////////////////////////
 
 } /* namespace QGCDeviceInfo */

@@ -14,8 +14,8 @@
 #include <QtCore/QTranslator>
 
 #include "QGCCorePlugin.h"
-#include "QGCOptions.h"
 #include "QGCLoggingCategory.h"
+#include "QGCOptions.h"
 
 class CustomOptions;
 class CustomPlugin;
@@ -24,56 +24,53 @@ class QQmlApplicationEngine;
 
 Q_DECLARE_LOGGING_CATEGORY(CustomLog)
 
-class CustomFlyViewOptions : public QGCFlyViewOptions
-{
-public:
-    CustomFlyViewOptions(CustomOptions* options, QObject* parent = nullptr);
+class CustomFlyViewOptions : public QGCFlyViewOptions {
+  public:
+    CustomFlyViewOptions(CustomOptions *options, QObject *parent = nullptr);
 
     // Overrides from CustomFlyViewOptions
-    bool                    showInstrumentPanel         (void) const final;
-    bool                    showMultiVehicleList        (void) const final;
+    bool showInstrumentPanel(void) const final;
+    bool showMultiVehicleList(void) const final;
 };
 
-class CustomOptions : public QGCOptions
-{
-public:
-    CustomOptions(CustomPlugin *plugin, QObject* parent = nullptr);
+class CustomOptions : public QGCOptions {
+  public:
+    CustomOptions(CustomPlugin *plugin, QObject *parent = nullptr);
 
     // Overrides from QGCOptions
-    bool                    wifiReliableForCalibration  (void) const final;
-    bool                    showFirmwareUpgrade         (void) const final;
-    QGCFlyViewOptions*      flyViewOptions(void) const final;
+    bool wifiReliableForCalibration(void) const final;
+    bool showFirmwareUpgrade(void) const final;
+    QGCFlyViewOptions *flyViewOptions(void) const final;
 
-private:
+  private:
     QGCCorePlugin *_plugin = nullptr;
     CustomFlyViewOptions *_flyViewOptions = nullptr;
 };
 
-class CustomPlugin : public QGCCorePlugin
-{
+class CustomPlugin : public QGCCorePlugin {
     Q_OBJECT
-public:
+  public:
     CustomPlugin(QObject *parent = nullptr);
     ~CustomPlugin();
 
     static QGCCorePlugin *instance();
 
     // Overrides from QGCCorePlugin
-    QGCOptions*             options                         (void) final;
-    QString                 brandImageIndoor                (void) const final;
-    QString                 brandImageOutdoor               (void) const final;
-    bool                    overrideSettingsGroupVisibility (const QString &name) final;
-    bool                    adjustSettingMetaData           (const QString& settingsGroup, FactMetaData& metaData) final;
-    void                    paletteOverride                 (const QString &colorName, QGCPalette::PaletteColorInfo_t& colorInfo) final;
-    QQmlApplicationEngine*  createQmlApplicationEngine      (QObject* parent) final;
+    QGCOptions *options(void) final;
+    QString brandImageIndoor(void) const final;
+    QString brandImageOutdoor(void) const final;
+    bool overrideSettingsGroupVisibility(const QString &name) final;
+    bool adjustSettingMetaData(const QString &settingsGroup, FactMetaData &metaData) final;
+    void paletteOverride(const QString &colorName, QGCPalette::PaletteColorInfo_t &colorInfo) final;
+    QQmlApplicationEngine *createQmlApplicationEngine(QObject *parent) final;
 
-private slots:
+  private slots:
     void _advancedChanged(bool advanced);
 
-private:
-    void _addSettingsEntry(const QString& title, const char* qmlFile, const char* iconFile = nullptr);
+  private:
+    void _addSettingsEntry(const QString &title, const char *qmlFile, const char *iconFile = nullptr);
 
-private:
-    CustomOptions*  _options = nullptr;
-    QVariantList    _customSettingsList; // Not to be mixed up with QGCCorePlugin implementation
+  private:
+    CustomOptions *_options = nullptr;
+    QVariantList _customSettingsList; // Not to be mixed up with QGCCorePlugin implementation
 };

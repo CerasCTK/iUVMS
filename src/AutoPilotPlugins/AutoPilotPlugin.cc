@@ -7,37 +7,25 @@
  *
  ****************************************************************************/
 
-
 /// @file
 ///     @author Don Gagne <don@thegagnes.com>
 
 #include "AutoPilotPlugin.h"
-#include "QGCApplication.h"
 #include "FirmwarePlugin.h"
+#include "QGCApplication.h"
 #include "Vehicle.h"
 #include "VehicleComponent.h"
 #include <QtCore/QCoreApplication>
 
-AutoPilotPlugin::AutoPilotPlugin(Vehicle* vehicle, QObject* parent)
-    : QObject(parent)
-    , _vehicle(vehicle)
-    , _firmwarePlugin(vehicle->firmwarePlugin())
-    , _setupComplete(false)
-{
+AutoPilotPlugin::AutoPilotPlugin(Vehicle *vehicle, QObject *parent) : QObject(parent), _vehicle(vehicle), _firmwarePlugin(vehicle->firmwarePlugin()), _setupComplete(false) {}
 
-}
+AutoPilotPlugin::~AutoPilotPlugin() {}
 
-AutoPilotPlugin::~AutoPilotPlugin()
-{
-
-}
-
-void AutoPilotPlugin::_recalcSetupComplete(void)
-{
+void AutoPilotPlugin::_recalcSetupComplete(void) {
     bool newSetupComplete = true;
 
-    for(const QVariant& componentVariant: vehicleComponents()) {
-        VehicleComponent* component = qobject_cast<VehicleComponent*>(qvariant_cast<QObject *>(componentVariant));
+    for (const QVariant &componentVariant : vehicleComponents()) {
+        VehicleComponent *component = qobject_cast<VehicleComponent *>(qvariant_cast<QObject *>(componentVariant));
         if (component) {
             if (!component->setupComplete()) {
                 newSetupComplete = false;
@@ -54,18 +42,14 @@ void AutoPilotPlugin::_recalcSetupComplete(void)
     }
 }
 
-bool AutoPilotPlugin::setupComplete(void) const
-{
-    return _setupComplete;
-}
+bool AutoPilotPlugin::setupComplete(void) const { return _setupComplete; }
 
-void AutoPilotPlugin::parametersReadyPreChecks(void)
-{
+void AutoPilotPlugin::parametersReadyPreChecks(void) {
     _recalcSetupComplete();
 
     // Connect signals in order to keep setupComplete up to date
-    for(QVariant componentVariant: vehicleComponents()) {
-        VehicleComponent* component = qobject_cast<VehicleComponent*>(qvariant_cast<QObject *>(componentVariant));
+    for (QVariant componentVariant : vehicleComponents()) {
+        VehicleComponent *component = qobject_cast<VehicleComponent *>(qvariant_cast<QObject *>(componentVariant));
         if (component) {
             connect(component, &VehicleComponent::setupCompleteChanged, this, &AutoPilotPlugin::_recalcSetupComplete);
         } else {

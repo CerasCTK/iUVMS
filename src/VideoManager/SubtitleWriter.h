@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 /**
  * @file
  *   @brief QGC Video Subtitle Writer
@@ -16,35 +15,34 @@
 
 #pragma once
 
-#include <QtCore/QObject>
-#include <QtCore/QTime>
 #include <QtCore/QFile>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QObject>
+#include <QtCore/QTime>
 
 class Fact;
 class QTimer;
 
 Q_DECLARE_LOGGING_CATEGORY(SubtitleWriterLog)
 
-class SubtitleWriter : public QObject
-{
+class SubtitleWriter : public QObject {
     Q_OBJECT
 
-public:
-    explicit SubtitleWriter(QObject* parent = nullptr);
+  public:
+    explicit SubtitleWriter(QObject *parent = nullptr);
     ~SubtitleWriter();
 
     // starts capturing vehicle telemetry.
     void startCapturingTelemetry(const QString &videoFile);
     void stopCapturingTelemetry();
 
-private slots:
+  private slots:
     // Captures a snapshot of telemetry data from vehicle into the subtitles file.
     void _captureTelemetry();
 
-private:
-    QTimer* _timer = nullptr;
-    QList<Fact*> _facts;
+  private:
+    QTimer *_timer = nullptr;
+    QList<Fact *> _facts;
     QTime _lastEndTime;
     QFile _file;
 

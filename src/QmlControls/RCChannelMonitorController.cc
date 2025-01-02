@@ -7,28 +7,23 @@
  *
  ****************************************************************************/
 
-
 #include "RCChannelMonitorController.h"
-#include "Vehicle.h"
 #include "QGCLoggingCategory.h"
+#include "Vehicle.h"
 
 QGC_LOGGING_CATEGORY(RCChannelMonitorControllerLog, "qgc.qmlcontrols.rcchannelmonitorcontroller")
 
-RCChannelMonitorController::RCChannelMonitorController(QObject *parent)
-    : FactPanelController(parent)
-{
+RCChannelMonitorController::RCChannelMonitorController(QObject *parent) : FactPanelController(parent) {
     // qCDebug(RCChannelMonitorControllerLog) << Q_FUNC_INFO << this;
 
-    (void) connect(_vehicle, &Vehicle::rcChannelsChanged, this, &RCChannelMonitorController::_rcChannelsChanged);
+    (void)connect(_vehicle, &Vehicle::rcChannelsChanged, this, &RCChannelMonitorController::_rcChannelsChanged);
 }
 
-RCChannelMonitorController::~RCChannelMonitorController()
-{
+RCChannelMonitorController::~RCChannelMonitorController() {
     // qCDebug(RCChannelMonitorControllerLog) << Q_FUNC_INFO << this;
 }
 
-void RCChannelMonitorController::_rcChannelsChanged(int channelCount, int pwmValues[QGCMAVLink::maxRcChannels])
-{
+void RCChannelMonitorController::_rcChannelsChanged(int channelCount, int pwmValues[QGCMAVLink::maxRcChannels]) {
     for (int channel = 0; channel < channelCount; channel++) {
         const int channelValue = pwmValues[channel];
 

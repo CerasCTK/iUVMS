@@ -11,11 +11,10 @@
 
 #include "SettingsGroup.h"
 
-class PlanViewSettings : public SettingsGroup
-{
+class PlanViewSettings : public SettingsGroup {
     Q_OBJECT
-public:
-    PlanViewSettings(QObject* parent = nullptr);
+  public:
+    PlanViewSettings(QObject *parent = nullptr);
     DEFINE_SETTING_NAME_GROUP()
 
     // Most individual settings related to PlanView are still in AppSettings due to historical reasons.

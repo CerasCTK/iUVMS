@@ -15,9 +15,7 @@
 
 QGC_LOGGING_CATEGORY(TerrainTileLog, "qgc.terrain.terraintile");
 
-TerrainTile::TerrainTile(const QByteArray &byteArray)
-    : _tileInfo(*reinterpret_cast<const TileInfo_t*>(byteArray.constData()))
-{
+TerrainTile::TerrainTile(const QByteArray &byteArray) : _tileInfo(*reinterpret_cast<const TileInfo_t *>(byteArray.constData())) {
     // qCDebug(TerrainTileLog) << Q_FUNC_INFO << this;
 
     constexpr int cTileHeaderBytes = static_cast<int>(sizeof(TileInfo_t));
@@ -55,7 +53,7 @@ TerrainTile::TerrainTile(const QByteArray &byteArray)
     }
 
     int valueIndex = 0;
-    const int16_t* const pTileData = reinterpret_cast<const int16_t*>(&reinterpret_cast<const uint8_t*>(byteArray.constData())[cTileHeaderBytes]);
+    const int16_t *const pTileData = reinterpret_cast<const int16_t *>(&reinterpret_cast<const uint8_t *>(byteArray.constData())[cTileHeaderBytes]);
     for (int i = 0; i < _tileInfo.gridSizeLat; i++) {
         for (int j = 0; j < _tileInfo.gridSizeLon; j++) {
             _elevationData[i][j] = pTileData[valueIndex++];
@@ -65,13 +63,11 @@ TerrainTile::TerrainTile(const QByteArray &byteArray)
     _isValid = true;
 }
 
-TerrainTile::~TerrainTile()
-{
+TerrainTile::~TerrainTile() {
     // qCDebug(TerrainTileLog) << Q_FUNC_INFO << this;
 }
 
-double TerrainTile::elevation(const QGeoCoordinate &coordinate) const
-{
+double TerrainTile::elevation(const QGeoCoordinate &coordinate) const {
     if (!_isValid) {
         qCWarning(TerrainTileLog) << this << "Request for elevation, but tile is invalid.";
         return qQNaN();
@@ -92,9 +88,8 @@ double TerrainTile::elevation(const QGeoCoordinate &coordinate) const
     }
 
     if ((latIndex >= _elevationData.size()) || (lonIndex >= _elevationData[latIndex].size())) {
-        qCWarning(TerrainTileLog).noquote() << this << "Internal error: _elevationData size inconsistent _tileInfo << coordinate" << coordinate
-            << "\n\t_tillIndo.gridSizeLat:" << _tileInfo.gridSizeLat << "_tileInfo.gridSizeLon:" << _tileInfo.gridSizeLon
-            << "\n\t_data.size():" << _elevationData.size() << "_elevationData[latIndex].size():" << _elevationData[latIndex].size();
+        qCWarning(TerrainTileLog).noquote() << this << "Internal error: _elevationData size inconsistent _tileInfo << coordinate" << coordinate << "\n\t_tillIndo.gridSizeLat:" << _tileInfo.gridSizeLat
+                                            << "_tileInfo.gridSizeLon:" << _tileInfo.gridSizeLon << "\n\t_data.size():" << _elevationData.size() << "_elevationData[latIndex].size():" << _elevationData[latIndex].size();
         return qQNaN();
     }
 

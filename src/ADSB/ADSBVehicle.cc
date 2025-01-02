@@ -15,22 +15,18 @@
 
 QGC_LOGGING_CATEGORY(ADSBVehicleLog, "qgc.adsb.adsbvehicle")
 
-ADSBVehicle::ADSBVehicle(const ADSB::VehicleInfo_t &vehicleInfo, QObject *parent)
-    : QObject(parent)
-{
+ADSBVehicle::ADSBVehicle(const ADSB::VehicleInfo_t &vehicleInfo, QObject *parent) : QObject(parent) {
     _info.icaoAddress = vehicleInfo.icaoAddress;
     update(vehicleInfo);
 
     // qCDebug(ADSBTCPLinkLog) << Q_FUNC_INFO << this;
 }
 
-ADSBVehicle::~ADSBVehicle()
-{
+ADSBVehicle::~ADSBVehicle() {
     // qCDebug(ADSBTCPLinkLog) << Q_FUNC_INFO << this;
 }
 
-void ADSBVehicle::update(const ADSB::VehicleInfo_t &vehicleInfo)
-{
+void ADSBVehicle::update(const ADSB::VehicleInfo_t &vehicleInfo) {
     if (vehicleInfo.icaoAddress != icaoAddress()) {
         qCWarning(ADSBVehicleLog) << "ICAO address mismatch expected:" << icaoAddress() << "actual:" << vehicleInfo.icaoAddress;
         return;
@@ -73,5 +69,5 @@ void ADSBVehicle::update(const ADSB::VehicleInfo_t &vehicleInfo)
         }
     }
 
-    (void) _lastUpdateTimer.restart();
+    (void)_lastUpdateTimer.restart();
 }

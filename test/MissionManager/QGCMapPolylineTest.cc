@@ -8,27 +8,23 @@
  ****************************************************************************/
 
 #include "QGCMapPolylineTest.h"
-#include "QGCQGeoCoordinate.h"
 #include "MultiSignalSpy.h"
 #include "QGCMapPolyline.h"
+#include "QGCQGeoCoordinate.h"
 #include "QmlObjectListModel.h"
 
-QGCMapPolylineTest::QGCMapPolylineTest(void)
-{
-    _linePoints << QGeoCoordinate(47.635638361473475, -122.09269407980834 ) <<
-                   QGeoCoordinate(47.635638361473475, -122.08545246602667) <<
-                   QGeoCoordinate(47.63057923872075, -122.08545246602667) <<
-                   QGeoCoordinate(47.63057923872075, -122.09269407980834);
+QGCMapPolylineTest::QGCMapPolylineTest(void) {
+    _linePoints << QGeoCoordinate(47.635638361473475, -122.09269407980834) << QGeoCoordinate(47.635638361473475, -122.08545246602667) << QGeoCoordinate(47.63057923872075, -122.08545246602667)
+                << QGeoCoordinate(47.63057923872075, -122.09269407980834);
 }
 
-void QGCMapPolylineTest::init(void)
-{
+void QGCMapPolylineTest::init(void) {
     UnitTest::init();
 
     _rgSignals[countChangedIndex] = SIGNAL(countChanged(int));
-    _rgSignals[pathChangedIndex] =  SIGNAL(pathChanged());
+    _rgSignals[pathChangedIndex] = SIGNAL(pathChanged());
     _rgSignals[dirtyChangedIndex] = SIGNAL(dirtyChanged(bool));
-    _rgSignals[clearedIndex] =      SIGNAL(cleared());
+    _rgSignals[clearedIndex] = SIGNAL(cleared());
 
     _rgModelSignals[modelCountChangedIndex] = SIGNAL(countChanged(int));
     _rgModelSignals[modelDirtyChangedIndex] = SIGNAL(dirtyChanged(bool));
@@ -44,16 +40,14 @@ void QGCMapPolylineTest::init(void)
     QCOMPARE(_multiSpyModel->init(_pathModel, _rgModelSignals, _cModelSignals), true);
 }
 
-void QGCMapPolylineTest::cleanup(void)
-{
+void QGCMapPolylineTest::cleanup(void) {
     UnitTest::cleanup();
     delete _mapPolyline;
     delete _multiSpyPolyline;
     delete _multiSpyModel;
 }
 
-void QGCMapPolylineTest::_testDirty(void)
-{
+void QGCMapPolylineTest::_testDirty(void) {
     // Check basic dirty bit set/get
 
     QVERIFY(!_mapPolyline->dirty());
@@ -102,30 +96,29 @@ void QGCMapPolylineTest::_testDirty(void)
     _multiSpyModel->clearAllSignals();
 }
 
-void QGCMapPolylineTest::_testVertexManipulation(void)
-{
+void QGCMapPolylineTest::_testVertexManipulation(void) {
     // Vertex addition testing
 
-    for (int i=0; i<_linePoints.count(); i++) {
+    for (int i = 0; i < _linePoints.count(); i++) {
         QCOMPARE(_mapPolyline->count(), i);
 
         _mapPolyline->appendVertex(_linePoints[i]);
         QVERIFY(_multiSpyPolyline->checkOnlySignalByMask(pathChangedMask | dirtyChangedMask | countChangedMask));
         QVERIFY(_multiSpyModel->checkOnlySignalByMask(modelDirtyChangedMask | modelCountChangedMask));
-        QCOMPARE(_multiSpyPolyline->pullIntFromSignalIndex(countChangedIndex), i+1);
-        QCOMPARE(_multiSpyModel->pullIntFromSignalIndex(modelCountChangedIndex), i+1);
+        QCOMPARE(_multiSpyPolyline->pullIntFromSignalIndex(countChangedIndex), i + 1);
+        QCOMPARE(_multiSpyModel->pullIntFromSignalIndex(modelCountChangedIndex), i + 1);
 
         QVERIFY(_mapPolyline->dirty());
         QVERIFY(_pathModel->dirty());
 
-        QCOMPARE(_mapPolyline->count(), i+1);
+        QCOMPARE(_mapPolyline->count(), i + 1);
 
         QVariantList vertexList = _mapPolyline->path();
-        QCOMPARE(vertexList.count(), i+1);
+        QCOMPARE(vertexList.count(), i + 1);
         QCOMPARE(vertexList[i].value<QGeoCoordinate>(), _linePoints[i]);
 
-        QCOMPARE(_pathModel->count(), i+1);
-        QCOMPARE(_pathModel->value<QGCQGeoCoordinate*>(i)->coordinate(), _linePoints[i]);
+        QCOMPARE(_pathModel->count(), i + 1);
+        QCOMPARE(_pathModel->value<QGCQGeoCoordinate *>(i)->coordinate(), _linePoints[i]);
 
         _mapPolyline->setDirty(false);
         _multiSpyPolyline->clearAllSignals();
@@ -134,7 +127,7 @@ void QGCMapPolylineTest::_testVertexManipulation(void)
 
     // Vertex adjustment testing
 
-    QGCQGeoCoordinate* geoCoord = _pathModel->value<QGCQGeoCoordinate*>(1);
+    QGCQGeoCoordinate *geoCoord = _pathModel->value<QGCQGeoCoordinate *>(1);
     QSignalSpy coordSpy(geoCoord, SIGNAL(coordinateChanged(QGeoCoordinate)));
     QSignalSpy coordDirtySpy(geoCoord, SIGNAL(dirtyChanged(bool)));
     QGeoCoordinate adjustCoord(_linePoints[1].latitude() + 1, _linePoints[1].longitude() + 1);
@@ -146,11 +139,11 @@ void QGCMapPolylineTest::_testVertexManipulation(void)
     QCOMPARE(geoCoord->coordinate(), adjustCoord);
     QVariantList vertexList = _mapPolyline->path();
     QCOMPARE(vertexList[0].value<QGeoCoordinate>(), _linePoints[0]);
-    QCOMPARE(_pathModel->value<QGCQGeoCoordinate*>(0)->coordinate(), _linePoints[0]);
+    QCOMPARE(_pathModel->value<QGCQGeoCoordinate *>(0)->coordinate(), _linePoints[0]);
     QCOMPARE(vertexList[2].value<QGeoCoordinate>(), _linePoints[2]);
-    QCOMPARE(_pathModel->value<QGCQGeoCoordinate*>(2)->coordinate(), _linePoints[2]);
+    QCOMPARE(_pathModel->value<QGCQGeoCoordinate *>(2)->coordinate(), _linePoints[2]);
     QCOMPARE(vertexList[3].value<QGeoCoordinate>(), _linePoints[3]);
-    QCOMPARE(_pathModel->value<QGCQGeoCoordinate*>(3)->coordinate(), _linePoints[3]);
+    QCOMPARE(_pathModel->value<QGCQGeoCoordinate *>(3)->coordinate(), _linePoints[3]);
 
     _mapPolyline->setDirty(false);
     _multiSpyPolyline->clearAllSignals();
@@ -166,11 +159,11 @@ void QGCMapPolylineTest::_testVertexManipulation(void)
     QCOMPARE(vertexList.count(), 3);
     QCOMPARE(_pathModel->count(), 3);
     QCOMPARE(vertexList[0].value<QGeoCoordinate>(), _linePoints[0]);
-    QCOMPARE(_pathModel->value<QGCQGeoCoordinate*>(0)->coordinate(), _linePoints[0]);
+    QCOMPARE(_pathModel->value<QGCQGeoCoordinate *>(0)->coordinate(), _linePoints[0]);
     QCOMPARE(vertexList[1].value<QGeoCoordinate>(), _linePoints[2]);
-    QCOMPARE(_pathModel->value<QGCQGeoCoordinate*>(1)->coordinate(), _linePoints[2]);
+    QCOMPARE(_pathModel->value<QGCQGeoCoordinate *>(1)->coordinate(), _linePoints[2]);
     QCOMPARE(vertexList[2].value<QGeoCoordinate>(), _linePoints[3]);
-    QCOMPARE(_pathModel->value<QGCQGeoCoordinate*>(2)->coordinate(), _linePoints[3]);
+    QCOMPARE(_pathModel->value<QGCQGeoCoordinate *>(2)->coordinate(), _linePoints[3]);
 
     // Clear testing
 
@@ -204,8 +197,7 @@ void QGCMapPolylineTest::_testKMLLoad(void)
 }
 #endif
 
-void QGCMapPolylineTest::_testSelectVertex(void)
-{
+void QGCMapPolylineTest::_testSelectVertex(void) {
     // Create polyline
     foreach (auto vertex, _linePoints) {
         _mapPolyline->appendVertex(vertex);

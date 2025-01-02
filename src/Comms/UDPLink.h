@@ -33,25 +33,14 @@ Q_DECLARE_LOGGING_CATEGORY(UDPLinkLog)
 
 /*===========================================================================*/
 
-struct UDPClient
-{
-    UDPClient(const QHostAddress &address, quint16 port)
-        : address(address)
-        , port(port)
-    {}
+struct UDPClient {
+    UDPClient(const QHostAddress &address, quint16 port) : address(address), port(port) {}
 
-    explicit UDPClient(const UDPClient *other)
-        : address(other->address)
-        , port(other->port)
-    {}
+    explicit UDPClient(const UDPClient *other) : address(other->address), port(other->port) {}
 
-    bool operator==(const UDPClient &other) const
-    {
-        return ((address == other.address) && (port == other.port));
-    }
+    bool operator==(const UDPClient &other) const { return ((address == other.address) && (port == other.port)); }
 
-    UDPClient &operator=(const UDPClient &other)
-    {
+    UDPClient &operator=(const UDPClient &other) {
         address = other.address;
         port = other.port;
 
@@ -64,14 +53,13 @@ struct UDPClient
 
 /*===========================================================================*/
 
-class UDPConfiguration : public LinkConfiguration
-{
+class UDPConfiguration : public LinkConfiguration {
     Q_OBJECT
 
     Q_PROPERTY(QStringList hostList READ hostList NOTIFY hostListChanged)
     Q_PROPERTY(quint16 localPort READ localPort WRITE setLocalPort NOTIFY localPortChanged)
 
-public:
+  public:
     explicit UDPConfiguration(const QString &name, QObject *parent = nullptr);
     explicit UDPConfiguration(const UDPConfiguration *source, QObject *parent = nullptr);
     virtual ~UDPConfiguration();
@@ -82,22 +70,33 @@ public:
     Q_INVOKABLE void removeHost(const QString &host, quint16 port);
 
     LinkType type() const override { return LinkConfiguration::TypeUdp; }
+
     void copyFrom(const LinkConfiguration *source) override;
     void loadSettings(QSettings &settings, const QString &root) override;
     void saveSettings(QSettings &settings, const QString &root) override;
+
     QString settingsURL() override { return QStringLiteral("UdpSettings.qml"); }
+
     QString settingsTitle() override { return tr("UDP Link Settings"); }
 
     QStringList hostList() const { return _hostList; }
-    QList<std::shared_ptr<UDPClient>> targetHosts() const { return _targetHosts; }
-    quint16 localPort() const { return _localPort; }
-    void setLocalPort(quint16 port) { if (port != _localPort) { _localPort = port; emit localPortChanged(); } }
 
-signals:
+    QList<std::shared_ptr<UDPClient>> targetHosts() const { return _targetHosts; }
+
+    quint16 localPort() const { return _localPort; }
+
+    void setLocalPort(quint16 port) {
+        if (port != _localPort) {
+            _localPort = port;
+            emit localPortChanged();
+        }
+    }
+
+  signals:
     void hostListChanged();
     void localPortChanged();
 
-private:
+  private:
     void _updateHostList();
 
     static QString _getIpAddress(const QString &address);
@@ -109,37 +108,36 @@ private:
 
 /*===========================================================================*/
 
-class UDPWorker : public QObject
-{
+class UDPWorker : public QObject {
     Q_OBJECT
 
-public:
+  public:
     explicit UDPWorker(const UDPConfiguration *config, QObject *parent = nullptr);
     virtual ~UDPWorker();
 
     bool isConnected() const;
 
-public slots:
+  public slots:
     void setupSocket();
     void connectLink();
     void disconnectLink();
     void writeData(const QByteArray &data);
 
-signals:
+  signals:
     void connected();
     void disconnected();
     void errorOccurred(const QString &errorString);
     void dataReceived(const QByteArray &data);
     void dataSent(const QByteArray &data);
 
-private slots:
+  private slots:
     void _onSocketConnected();
     void _onSocketDisconnected();
     void _onSocketReadyRead();
     void _onSocketBytesWritten(qint64 bytes);
     void _onSocketErrorOccurred(QAbstractSocket::SocketError socketError);
 
-private:
+  private:
     const UDPConfiguration *_udpConfig = nullptr;
     QUdpSocket *_socket = nullptr;
     QMutex _sessionTargetsMutex;
@@ -161,11 +159,10 @@ private:
 
 /*===========================================================================*/
 
-class UDPLink : public LinkInterface
-{
+class UDPLink : public LinkInterface {
     Q_OBJECT
 
-public:
+  public:
     explicit UDPLink(SharedLinkConfigurationPtr &config, QObject *parent = nullptr);
     virtual ~UDPLink();
 
@@ -173,7 +170,7 @@ public:
     void disconnect() override;
     bool isSecureConnection() override;
 
-private slots:
+  private slots:
     void _writeBytes(const QByteArray &data) override;
     void _onConnected();
     void _onDisconnected();
@@ -181,7 +178,7 @@ private slots:
     void _onDataReceived(const QByteArray &data);
     void _onDataSent(const QByteArray &data);
 
-private:
+  private:
     bool _connect() override;
 
     const UDPConfiguration *_udpConfig = nullptr;

@@ -10,76 +10,74 @@
 #pragma once
 
 #include "Common.h"
-#include "Vehicle.h"
 #include "QmlObjectListModel.h"
+#include "Vehicle.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
 namespace ActuatorActions {
 
-struct Config {
-    enum class Type {
-        beep = ACTUATOR_CONFIGURATION_BEEP,                            ///< beep actuator
-        set3DModeOn = ACTUATOR_CONFIGURATION_3D_MODE_ON,               ///< motors: enable 3D mode (reversible)
-        set3DModeOff = ACTUATOR_CONFIGURATION_3D_MODE_OFF,             ///< motors: disable 3D mode (reversible)
-        setSpinDirection1 = ACTUATOR_CONFIGURATION_SPIN_DIRECTION1,    ///< motors: set spin direction 1
-        setSpinDirection2 = ACTUATOR_CONFIGURATION_SPIN_DIRECTION2,    ///< motors: set spin direction 2
+    struct Config {
+        enum class Type {
+            beep = ACTUATOR_CONFIGURATION_BEEP,                         ///< beep actuator
+            set3DModeOn = ACTUATOR_CONFIGURATION_3D_MODE_ON,            ///< motors: enable 3D mode (reversible)
+            set3DModeOff = ACTUATOR_CONFIGURATION_3D_MODE_OFF,          ///< motors: disable 3D mode (reversible)
+            setSpinDirection1 = ACTUATOR_CONFIGURATION_SPIN_DIRECTION1, ///< motors: set spin direction 1
+            setSpinDirection2 = ACTUATOR_CONFIGURATION_SPIN_DIRECTION2, ///< motors: set spin direction 2
+        };
+
+        QString typeToLabel() const;
+
+        Type type;
+        Condition condition;
+        QSet<QString> actuatorTypes;
     };
 
-    QString typeToLabel() const;
+    class Action : public QObject {
+        Q_OBJECT
+      public:
+        Action(QObject *parent, const Config &action, const QString &label, int outputFunction, Vehicle *vehicle);
 
-    Type type;
-    Condition condition;
-    QSet<QString> actuatorTypes;
-};
+        Q_PROPERTY(QString label READ label CONSTANT)
 
-class Action : public QObject
-{
-    Q_OBJECT
-public:
-    Action(QObject* parent, const Config& action, const QString& label,
-            int outputFunction, Vehicle* vehicle);
+        const QString &label() const { return _label; }
 
-    Q_PROPERTY(QString label                     READ label              CONSTANT)
+        Q_INVOKABLE void trigger();
 
-    const QString& label() const { return _label; }
+      private:
+        static void ackHandlerEntry(void *resultHandlerData, int compId, const mavlink_command_ack_t &ack, Vehicle::MavCmdResultFailureCode_t failureCode);
+        void ackHandler(MAV_RESULT commandResult, Vehicle::MavCmdResultFailureCode_t failureCode);
+        void sendMavlinkRequest();
 
-    Q_INVOKABLE void trigger();
+        const QString _label;
+        const int _outputFunction;
+        const Config::Type _type;
+        Vehicle *_vehicle{ nullptr };
 
-private:
-    static void ackHandlerEntry(void* resultHandlerData, int compId, const mavlink_command_ack_t& ack, Vehicle::MavCmdResultFailureCode_t failureCode);
-    void ackHandler(MAV_RESULT commandResult, Vehicle::MavCmdResultFailureCode_t failureCode);
-    void sendMavlinkRequest();
+        bool _commandInProgress{ false };
+    };
 
-    const QString _label;
-    const int _outputFunction;
-    const Config::Type _type;
-    Vehicle* _vehicle{nullptr};
+    class ActionGroup : public QObject {
+        Q_OBJECT
+      public:
+        ActionGroup(QObject *parent, const QString &label, Config::Type type);
 
-    bool _commandInProgress{false};
-};
+        Q_PROPERTY(QString label READ label CONSTANT)
+        Q_PROPERTY(QmlObjectListModel *actions READ actions CONSTANT)
 
-class ActionGroup : public QObject
-{
-    Q_OBJECT
-public:
-    ActionGroup(QObject* parent, const QString& label, Config::Type type);
+        QmlObjectListModel *actions() { return _actions; }
 
-    Q_PROPERTY(QString label                     READ label              CONSTANT)
-    Q_PROPERTY(QmlObjectListModel* actions       READ actions            CONSTANT)
+        const QString &label() const { return _label; }
 
-    QmlObjectListModel* actions() { return _actions; }
-    const QString& label() const { return _label; }
+        void addAction(Action *action) { _actions->append(action); }
 
-    void addAction(Action* action) { _actions->append(action); }
+        Config::Type type() const { return _type; }
 
-    Config::Type type() const { return _type; }
-
-private:
-    const QString _label;
-    QmlObjectListModel* _actions = new QmlObjectListModel(this); ///< list of Action*
-    const Config::Type _type;
-};
+      private:
+        const QString _label;
+        QmlObjectListModel *_actions = new QmlObjectListModel(this); ///< list of Action*
+        const Config::Type _type;
+    };
 
 } // namespace ActuatorActions

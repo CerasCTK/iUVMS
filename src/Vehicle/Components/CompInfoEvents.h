@@ -17,15 +17,14 @@ class FactMetaData;
 class Vehicle;
 class FirmwarePlugin;
 
-class CompInfoEvents : public CompInfo
-{
+class CompInfoEvents : public CompInfo {
     Q_OBJECT
 
-public:
-    CompInfoEvents(uint8_t compId, Vehicle* vehicle, QObject* parent = nullptr);
+  public:
+    CompInfoEvents(uint8_t compId, Vehicle *vehicle, QObject *parent = nullptr);
 
     // Overrides from CompInfo
-    void setJson(const QString& metadataJsonFileName) override;
+    void setJson(const QString &metadataJsonFileName) override;
 
-private:
+  private:
 };

@@ -9,43 +9,32 @@
 
 #include "TakeoffMissionItem.h"
 #include "MissionCommandTree.h"
-#include "QGroundControlQmlGlobal.h"
-#include "SettingsManager.h"
-#include "PlanViewSettings.h"
-#include "PlanMasterController.h"
 #include "MissionSettingsItem.h"
 #include "MultiVehicleManager.h"
+#include "PlanMasterController.h"
+#include "PlanViewSettings.h"
+#include "QGroundControlQmlGlobal.h"
+#include "SettingsManager.h"
 #include "Vehicle.h"
 
-TakeoffMissionItem::TakeoffMissionItem(PlanMasterController* masterController, bool flyView, MissionSettingsItem* settingsItem, bool forLoad)
-    : SimpleMissionItem (masterController, flyView, forLoad)
-    , _settingsItem     (settingsItem)
-{
+TakeoffMissionItem::TakeoffMissionItem(PlanMasterController *masterController, bool flyView, MissionSettingsItem *settingsItem, bool forLoad) : SimpleMissionItem(masterController, flyView, forLoad), _settingsItem(settingsItem) {
     _init(forLoad);
 }
 
-TakeoffMissionItem::TakeoffMissionItem(MAV_CMD takeoffCmd, PlanMasterController* masterController, bool flyView, MissionSettingsItem* settingsItem, bool forLoad)
-    : SimpleMissionItem (masterController, flyView, false /* forLoad */)
-    , _settingsItem     (settingsItem)
-{
+TakeoffMissionItem::TakeoffMissionItem(MAV_CMD takeoffCmd, PlanMasterController *masterController, bool flyView, MissionSettingsItem *settingsItem, bool forLoad)
+    : SimpleMissionItem(masterController, flyView, false /* forLoad */), _settingsItem(settingsItem) {
     setCommand(takeoffCmd);
     _init(forLoad);
 }
 
-TakeoffMissionItem::TakeoffMissionItem(const MissionItem& missionItem, PlanMasterController* masterController, bool flyView, MissionSettingsItem* settingsItem, bool forLoad)
-    : SimpleMissionItem (masterController, flyView, missionItem)
-    , _settingsItem     (settingsItem)
-{
+TakeoffMissionItem::TakeoffMissionItem(const MissionItem &missionItem, PlanMasterController *masterController, bool flyView, MissionSettingsItem *settingsItem, bool forLoad)
+    : SimpleMissionItem(masterController, flyView, missionItem), _settingsItem(settingsItem) {
     _init(forLoad);
 }
 
-TakeoffMissionItem::~TakeoffMissionItem()
-{
+TakeoffMissionItem::~TakeoffMissionItem() {}
 
-}
-
-void TakeoffMissionItem::_init(bool forLoad)
-{
+void TakeoffMissionItem::_init(bool forLoad) {
     _editorQml = QStringLiteral("qrc:/qml/SimpleItemEditor.qml");
 
     connect(_settingsItem, &MissionSettingsItem::coordinateChanged, this, &TakeoffMissionItem::launchCoordinateChanged);
@@ -57,7 +46,7 @@ void TakeoffMissionItem::_init(bool forLoad)
 
     QGeoCoordinate homePosition = _settingsItem->coordinate();
     if (!homePosition.isValid()) {
-        Vehicle* activeVehicle = MultiVehicleManager::instance()->activeVehicle();
+        Vehicle *activeVehicle = MultiVehicleManager::instance()->activeVehicle();
         if (activeVehicle) {
             homePosition = activeVehicle->homePosition();
             if (homePosition.isValid()) {
@@ -86,8 +75,7 @@ void TakeoffMissionItem::_init(bool forLoad)
     setDirty(false);
 }
 
-void TakeoffMissionItem::setLaunchTakeoffAtSameLocation(bool launchTakeoffAtSameLocation)
-{
+void TakeoffMissionItem::setLaunchTakeoffAtSameLocation(bool launchTakeoffAtSameLocation) {
     if (launchTakeoffAtSameLocation != _launchTakeoffAtSameLocation) {
         _launchTakeoffAtSameLocation = launchTakeoffAtSameLocation;
         if (_launchTakeoffAtSameLocation) {
@@ -98,13 +86,9 @@ void TakeoffMissionItem::setLaunchTakeoffAtSameLocation(bool launchTakeoffAtSame
     }
 }
 
-QGeoCoordinate TakeoffMissionItem::launchCoordinate(void) const
-{
-    return _settingsItem->coordinate();
-}
+QGeoCoordinate TakeoffMissionItem::launchCoordinate(void) const { return _settingsItem->coordinate(); }
 
-void TakeoffMissionItem::setCoordinate(const QGeoCoordinate& coordinate)
-{
+void TakeoffMissionItem::setCoordinate(const QGeoCoordinate &coordinate) {
     if (coordinate != this->coordinate()) {
         SimpleMissionItem::setCoordinate(coordinate);
         if (_launchTakeoffAtSameLocation) {
@@ -113,13 +97,9 @@ void TakeoffMissionItem::setCoordinate(const QGeoCoordinate& coordinate)
     }
 }
 
-bool TakeoffMissionItem::isTakeoffCommand(MAV_CMD command)
-{
-    return MissionCommandTree::instance()->isTakeoffCommand(command);
-}
+bool TakeoffMissionItem::isTakeoffCommand(MAV_CMD command) { return MissionCommandTree::instance()->isTakeoffCommand(command); }
 
-void TakeoffMissionItem::_initLaunchTakeoffAtSameLocation(void)
-{
+void TakeoffMissionItem::_initLaunchTakeoffAtSameLocation(void) {
     if (specifiesCoordinate()) {
         if (_controllerVehicle->fixedWing() || _controllerVehicle->vtol()) {
             setLaunchTakeoffAtSameLocation(false);
@@ -132,15 +112,13 @@ void TakeoffMissionItem::_initLaunchTakeoffAtSameLocation(void)
             } else {
                 setLaunchTakeoffAtSameLocation(true);
             }
-
         }
     } else {
         setLaunchTakeoffAtSameLocation(true);
     }
 }
 
-bool TakeoffMissionItem::load(QTextStream &loadStream)
-{
+bool TakeoffMissionItem::load(QTextStream &loadStream) {
     bool success = SimpleMissionItem::load(loadStream);
     if (success) {
         _initLaunchTakeoffAtSameLocation();
@@ -149,8 +127,7 @@ bool TakeoffMissionItem::load(QTextStream &loadStream)
     return success;
 }
 
-bool TakeoffMissionItem::load(const QJsonObject& json, int sequenceNumber, QString& errorString)
-{
+bool TakeoffMissionItem::load(const QJsonObject &json, int sequenceNumber, QString &errorString) {
     bool success = SimpleMissionItem::load(json, sequenceNumber, errorString);
     if (success) {
         _initLaunchTakeoffAtSameLocation();
@@ -159,8 +136,7 @@ bool TakeoffMissionItem::load(const QJsonObject& json, int sequenceNumber, QStri
     return success;
 }
 
-void TakeoffMissionItem::setLaunchCoordinate(const QGeoCoordinate& launchCoordinate)
-{
+void TakeoffMissionItem::setLaunchCoordinate(const QGeoCoordinate &launchCoordinate) {
     if (!launchCoordinate.isValid()) {
         return;
     }

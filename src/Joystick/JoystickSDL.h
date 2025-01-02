@@ -21,27 +21,27 @@ typedef struct _SDL_GameController SDL_GameController;
 
 Q_DECLARE_LOGGING_CATEGORY(JoystickSDLLog)
 
-class JoystickSDL : public Joystick
-{
-public:
+class JoystickSDL : public Joystick {
+  public:
     JoystickSDL(const QString &name, int axisCount, int buttonCount, int hatCount, int index, bool isGameController, QObject *parent = nullptr);
     ~JoystickSDL();
 
     int index() const { return _index; }
+
     void setIndex(int index) { _index = index; }
 
     // bool requiresCalibration() final { return !_isGameController; }
 
     static bool init();
-    static QMap<QString, Joystick*> discover();
+    static QMap<QString, Joystick *> discover();
 
-private:
+  private:
     bool _open() final;
     void _close() final;
     bool _update() final;
 
     bool _getButton(int i) final;
-    int  _getAxis(int i) final;
+    int _getAxis(int i) final;
     bool _getHat(int hat, int i) final;
 
     static void _loadGameControllerMappings();

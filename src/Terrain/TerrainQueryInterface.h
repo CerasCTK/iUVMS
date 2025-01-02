@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include <QtCore/QLoggingCategory>
 #include <QtCore/QList>
+#include <QtCore/QLoggingCategory>
 #include <QtCore/QObject>
 #include <QtNetwork/QNetworkReply>
 
@@ -19,27 +19,20 @@ class QNetworkAccessManager;
 
 Q_DECLARE_LOGGING_CATEGORY(TerrainQueryInterfaceLog)
 
-namespace TerrainQuery
-{
-    enum QueryMode {
-        QueryModeNone,
-        QueryModeCoordinates,
-        QueryModePath,
-        QueryModeCarpet
-    };
+namespace TerrainQuery {
+    enum QueryMode { QueryModeNone, QueryModeCoordinates, QueryModePath, QueryModeCarpet };
 
     enum class State {
         Idle,
         Downloading,
     };
-}
+} // namespace TerrainQuery
 
 /// Base class for offline/online terrain queries
-class TerrainQueryInterface : public QObject
-{
+class TerrainQueryInterface : public QObject {
     Q_OBJECT
 
-public:
+  public:
     explicit TerrainQueryInterface(QObject *parent = nullptr);
     virtual ~TerrainQueryInterface();
 
@@ -64,12 +57,12 @@ public:
     void signalPathHeights(bool success, double distanceBetween, double finalDistanceBetween, const QList<double> &heights);
     void signalCarpetHeights(bool success, double minHeight, double maxHeight, const QList<QList<double>> &carpet);
 
-signals:
+  signals:
     void coordinateHeightsReceived(bool success, const QList<double> &heights);
     void pathHeightsReceived(bool success, double distanceBetween, double finalDistanceBetween, const QList<double> &heights);
     void carpetHeightsReceived(bool success, double minHeight, double maxHeight, const QList<QList<double>> &carpet);
 
-protected:
+  protected:
     virtual void _requestFailed();
 
     TerrainQuery::QueryMode _queryMode = TerrainQuery::QueryMode::QueryModeNone;
@@ -77,11 +70,10 @@ protected:
 
 /*===========================================================================*/
 
-class TerrainOfflineQuery : public TerrainQueryInterface
-{
+class TerrainOfflineQuery : public TerrainQueryInterface {
     Q_OBJECT
 
-public:
+  public:
     explicit TerrainOfflineQuery(QObject *parent = nullptr);
     ~TerrainOfflineQuery();
 
@@ -91,19 +83,18 @@ public:
 
 /*===========================================================================*/
 
-class TerrainOnlineQuery : public TerrainQueryInterface
-{
+class TerrainOnlineQuery : public TerrainQueryInterface {
     Q_OBJECT
 
-public:
+  public:
     explicit TerrainOnlineQuery(QObject *parent = nullptr);
     virtual ~TerrainOnlineQuery();
 
-protected slots:
+  protected slots:
     virtual void _requestFinished();
     virtual void _requestError(QNetworkReply::NetworkError code);
     virtual void _sslErrors(const QList<QSslError> &errors);
 
-protected:
+  protected:
     QNetworkAccessManager *_networkManager = nullptr;
 };

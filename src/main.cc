@@ -170,16 +170,11 @@ int main(int argc, char *argv[]) {
 
     QString unitTestOptions;
     CmdLineOpt_t rgCmdLineOptions[] = {
-        { "--unittest", &runUnitTests, &unitTestOptions },
-        { "--unittest-stress", &stressUnitTests, &unitTestOptions },
-        { "--no-windows-assert-ui", &quietWindowsAsserts, nullptr },
+        { "--unittest", &runUnitTests, &unitTestOptions }, { "--unittest-stress", &stressUnitTests, &unitTestOptions }, { "--no-windows-assert-ui", &quietWindowsAsserts, nullptr },
         // Add additional command line option flags here
     };
 
-    ParseCmdLineOptions(
-        argc, argv, rgCmdLineOptions,
-        sizeof(rgCmdLineOptions) / sizeof(rgCmdLineOptions[0]), false
-    );
+    ParseCmdLineOptions(argc, argv, rgCmdLineOptions, sizeof(rgCmdLineOptions) / sizeof(rgCmdLineOptions[0]), false);
     if (stressUnitTests) {
         runUnitTests = true;
     }

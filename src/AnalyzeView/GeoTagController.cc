@@ -18,60 +18,41 @@
 
 QGC_LOGGING_CATEGORY(GeoTagControllerLog, "qgc.analyzeview.geotagcontroller")
 
-GeoTagController::GeoTagController(QObject *parent)
-    : QObject(parent)
-    , _worker(new GeoTagWorker())
-    , _workerThread(new QThread(this))
-{
+GeoTagController::GeoTagController(QObject *parent) : QObject(parent), _worker(new GeoTagWorker()), _workerThread(new QThread(this)) {
     // qCDebug(GeoTagControllerLog) << Q_FUNC_INFO << this;
 
     _worker->moveToThread(_workerThread);
 
-    (void) connect(_worker, &GeoTagWorker::progressChanged, this, &GeoTagController::_workerProgressChanged);
-    (void) connect(_worker, &GeoTagWorker::error, this, &GeoTagController::_workerError);
-    (void) connect(_workerThread, &QThread::started, _worker, &GeoTagWorker::process);
-    (void) connect(_workerThread, &QThread::started, this, &GeoTagController::inProgressChanged);
-    (void) connect(_workerThread, &QThread::finished, this, &GeoTagController::inProgressChanged);
+    (void)connect(_worker, &GeoTagWorker::progressChanged, this, &GeoTagController::_workerProgressChanged);
+    (void)connect(_worker, &GeoTagWorker::error, this, &GeoTagController::_workerError);
+    (void)connect(_workerThread, &QThread::started, _worker, &GeoTagWorker::process);
+    (void)connect(_workerThread, &QThread::started, this, &GeoTagController::inProgressChanged);
+    (void)connect(_workerThread, &QThread::finished, this, &GeoTagController::inProgressChanged);
 }
 
-GeoTagController::~GeoTagController()
-{
+GeoTagController::~GeoTagController() {
     cancelTagging();
     delete _worker;
 
     // qCDebug(GeoTagControllerLog) << Q_FUNC_INFO << this;
 }
 
-void GeoTagController::cancelTagging()
-{
-    (void) QMetaObject::invokeMethod(_worker, "cancelTagging", Qt::AutoConnection);
-    (void) QMetaObject::invokeMethod(_workerThread, "quit", Qt::AutoConnection);
+void GeoTagController::cancelTagging() {
+    (void)QMetaObject::invokeMethod(_worker, "cancelTagging", Qt::AutoConnection);
+    (void)QMetaObject::invokeMethod(_workerThread, "quit", Qt::AutoConnection);
 
     _workerThread->wait();
 }
 
-QString GeoTagController::logFile() const
-{
-    return _worker->logFile();
-}
+QString GeoTagController::logFile() const { return _worker->logFile(); }
 
-QString GeoTagController::imageDirectory() const
-{
-    return _worker->imageDirectory();
-}
+QString GeoTagController::imageDirectory() const { return _worker->imageDirectory(); }
 
-QString GeoTagController::saveDirectory() const
-{
-    return _worker->saveDirectory();
-}
+QString GeoTagController::saveDirectory() const { return _worker->saveDirectory(); }
 
-bool GeoTagController::inProgress() const
-{
-    return _workerThread->isRunning();
-}
+bool GeoTagController::inProgress() const { return _workerThread->isRunning(); }
 
-void GeoTagController::setLogFile(const QString &filename)
-{
+void GeoTagController::setLogFile(const QString &filename) {
     if (filename.isEmpty()) {
         _setErrorMessage(tr("Empty Filename."));
         return;
@@ -89,8 +70,7 @@ void GeoTagController::setLogFile(const QString &filename)
     _setErrorMessage(QString());
 }
 
-void GeoTagController::setImageDirectory(const QString &dir)
-{
+void GeoTagController::setImageDirectory(const QString &dir) {
     if (dir.isEmpty()) {
         _setErrorMessage(tr("Invalid Directory."));
         return;
@@ -116,8 +96,7 @@ void GeoTagController::setImageDirectory(const QString &dir)
     _setErrorMessage(QString());
 }
 
-void GeoTagController::setSaveDirectory(const QString &dir)
-{
+void GeoTagController::setSaveDirectory(const QString &dir) {
     if (dir.isEmpty()) {
         _setErrorMessage(tr("Invalid Directory."));
         return;
@@ -148,8 +127,7 @@ void GeoTagController::setSaveDirectory(const QString &dir)
     _setErrorMessage(QString());
 }
 
-void GeoTagController::startTagging()
-{
+void GeoTagController::startTagging() {
     _setErrorMessage(QString());
 
     const QDir imageDirectory = QDir(_worker->imageDirectory());
@@ -175,5 +153,5 @@ void GeoTagController::startTagging()
         }
     }
 
-    (void) QMetaObject::invokeMethod(_workerThread, "start", Qt::AutoConnection);
+    (void)QMetaObject::invokeMethod(_workerThread, "start", Qt::AutoConnection);
 }

@@ -17,11 +17,10 @@ class TerrainTileTest;
 
 Q_DECLARE_LOGGING_CATEGORY(TerrainTileLog)
 
-class TerrainTile
-{
+class TerrainTile {
     friend class TerrainTileTest;
 
-public:
+  public:
     /// Constructor from serialized elevation data (either from file or web)
     ///    @param document
     explicit TerrainTile(const QByteArray &byteArray);
@@ -48,18 +47,18 @@ public:
     ///    @return average elevation
     double avgElevation() const { return (_isValid ? _tileInfo.avgElevation : qQNaN()); }
 
-protected:
+  protected:
     struct TileInfo_t {
-        double  swLat, swLon, neLat, neLon;
+        double swLat, swLon, neLat, neLon;
         int16_t minElevation, maxElevation;
-        double  avgElevation;
+        double avgElevation;
         int16_t gridSizeLat, gridSizeLon;
     } Q_PACKED;
 
-private:
+  private:
     TileInfo_t _tileInfo{};
-    QList<QList<int16_t>> _elevationData;   ///< 2D elevation data array
-    double _cellSizeLat = 0.0;              ///< data grid size in latitude direction
-    double _cellSizeLon = 0.0;              ///< data grid size in longitude direction
-    bool _isValid = false;                  ///< data loaded is valid
+    QList<QList<int16_t>> _elevationData; ///< 2D elevation data array
+    double _cellSizeLat = 0.0;            ///< data grid size in latitude direction
+    double _cellSizeLon = 0.0;            ///< data grid size in longitude direction
+    bool _isValid = false;                ///< data loaded is valid
 };

@@ -14,14 +14,9 @@
 
 #include <QtCore/QJsonArray>
 
-MissionCommandList::MissionCommandList(const QString& jsonFilename, bool baseCommandList, QObject* parent)
-    : QObject(parent)
-{
-    _loadMavCmdInfoJson(jsonFilename, baseCommandList);
-}
+MissionCommandList::MissionCommandList(const QString &jsonFilename, bool baseCommandList, QObject *parent) : QObject(parent) { _loadMavCmdInfoJson(jsonFilename, baseCommandList); }
 
-void MissionCommandList::_loadMavCmdInfoJson(const QString& jsonFilename, bool baseCommandList)
-{
+void MissionCommandList::_loadMavCmdInfoJson(const QString &jsonFilename, bool baseCommandList) {
     if (jsonFilename.isEmpty()) {
         return;
     }
@@ -44,13 +39,13 @@ void MissionCommandList::_loadMavCmdInfoJson(const QString& jsonFilename, bool b
 
     // Iterate over MissionCommandUIInfo objects
     QJsonArray jsonArray = jsonValue.toArray();
-    for(QJsonValue info: jsonArray) {
+    for (QJsonValue info : jsonArray) {
         if (!info.isObject()) {
             qWarning() << jsonFilename << "mavCmdArray should contain objects";
             return;
         }
 
-        MissionCommandUIInfo* uiInfo = new MissionCommandUIInfo(this);
+        MissionCommandUIInfo *uiInfo = new MissionCommandUIInfo(this);
 
         QString errorString;
         if (!uiInfo->loadJsonInfo(info.toObject(), baseCommandList, errorString)) {
@@ -69,13 +64,12 @@ void MissionCommandList::_loadMavCmdInfoJson(const QString& jsonFilename, bool b
     }
 
     // Build id list
-    for (MAV_CMD id: _infoMap.keys()) {
+    for (MAV_CMD id : _infoMap.keys()) {
         _ids << id;
     }
 }
 
-MissionCommandUIInfo* MissionCommandList::getUIInfo(MAV_CMD command) const
-{
+MissionCommandUIInfo *MissionCommandList::getUIInfo(MAV_CMD command) const {
     if (!_infoMap.contains(command)) {
         return nullptr;
     }

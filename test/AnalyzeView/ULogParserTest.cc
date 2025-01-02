@@ -1,11 +1,10 @@
 #include "ULogParserTest.h"
-#include "ULogParser.h"
 #include "GeoTagWorker.h"
+#include "ULogParser.h"
 
 #include <QtTest/QTest>
 
-void ULogParserTest::_getTagsFromLogTest()
-{
+void ULogParserTest::_getTagsFromLogTest() {
     QFile file(":/SampleULog.ulg");
     QVERIFY(file.open(QIODevice::ReadOnly));
 

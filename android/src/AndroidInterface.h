@@ -9,15 +9,14 @@
 
 #pragma once
 
-#include <QtCore/QString>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QString>
 
 #include <jni.h>
 
 Q_DECLARE_LOGGING_CATEGORY(AndroidInterfaceLog)
 
-namespace AndroidInterface
-{
+namespace AndroidInterface {
     bool cleanJavaException();
     void setNativeMethods();
     void jniLogDebug(JNIEnv *envA, jobject thizA, jstring messageA);
@@ -26,5 +25,5 @@ namespace AndroidInterface
     QString getSDCardPath();
     jclass getActivityClass();
 
-    constexpr const char* kJniQGCActivityClassName = "org/mavlink/qgroundcontrol/QGCActivity";
-};
+    constexpr const char *kJniQGCActivityClassName = "org/mavlink/qgroundcontrol/QGCActivity";
+}; // namespace AndroidInterface

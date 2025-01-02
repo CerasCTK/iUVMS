@@ -8,31 +8,27 @@
  ****************************************************************************/
 
 #include "FTPManagerTest.h"
+#include "FTPManager.h"
+#include "MockLink.h"
 #include "MultiVehicleManager.h"
 #include "Vehicle.h"
-#include "MockLink.h"
-#include "FTPManager.h"
 
 #include <QtCore/QStandardPaths>
-#include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
+#include <QtTest/QTest>
 
 const FTPManagerTest::TestCase_t FTPManagerTest::_rgTestCases[] = {
-    {  "/general.json" },
+    { "/general.json" },
 };
 
-void FTPManagerTest::cleanup(void)
-{
-    _disconnectMockLink();
-}
+void FTPManagerTest::cleanup(void) { _disconnectMockLink(); }
 
-void FTPManagerTest::_testCaseWorker(const TestCase_t& testCase)
-{
+void FTPManagerTest::_testCaseWorker(const TestCase_t &testCase) {
     _connectMockLinkNoInitialConnectSequence();
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    FTPManager*             ftpManager  = vehicle->ftpManager();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
+    FTPManager *ftpManager = vehicle->ftpManager();
 
     QSignalSpy spyDownloadComplete(ftpManager, &FTPManager::downloadComplete);
 
@@ -48,12 +44,11 @@ void FTPManagerTest::_testCaseWorker(const TestCase_t& testCase)
     _disconnectMockLink();
 }
 
-void FTPManagerTest::_sizeTestCaseWorker(int fileSize)
-{
+void FTPManagerTest::_sizeTestCaseWorker(int fileSize) {
     _connectMockLinkNoInitialConnectSequence();
 
-    FTPManager* ftpManager  = _vehicle->ftpManager();
-    QString     filename    = QStringLiteral("%1%2").arg(MockLinkFTP::sizeFilenamePrefix).arg(fileSize);
+    FTPManager *ftpManager = _vehicle->ftpManager();
+    QString filename = QStringLiteral("%1%2").arg(MockLinkFTP::sizeFilenamePrefix).arg(fileSize);
 
     QSignalSpy spyDownloadComplete(ftpManager, &FTPManager::downloadComplete);
 
@@ -71,41 +66,38 @@ void FTPManagerTest::_sizeTestCaseWorker(int fileSize)
     _disconnectMockLink();
 }
 
-void FTPManagerTest::_performSizeBasedTestCases(void)
-{
+void FTPManagerTest::_performSizeBasedTestCases(void) {
     // We test various boundary conditions on file sizes with respect to buffer sizes
     const QList<int> rgSizeTestCases = {
         // File fits one Read Ack packet, partially filling data
-        sizeof(((MavlinkFTP::Request*)0)->data) - 1,
+        sizeof(((MavlinkFTP::Request *)0)->data) - 1,
         // File fits one Read Ack packet, exactly filling all data
-        sizeof(((MavlinkFTP::Request*)0)->data),
+        sizeof(((MavlinkFTP::Request *)0)->data),
         // File is larger than a single Read Ack packets, requires multiple Reads
-        sizeof(((MavlinkFTP::Request*)0)->data) + 1,
+        sizeof(((MavlinkFTP::Request *)0)->data) + 1,
         // File is large enough to require multiple bursts
         3 * 1024,
     };
 
-    for (int fileSize: rgSizeTestCases) {
+    for (int fileSize : rgSizeTestCases) {
         _sizeTestCaseWorker(fileSize);
     }
 }
 
-void FTPManagerTest::_performTestCases(void)
-{
+void FTPManagerTest::_performTestCases(void) {
     int index = 0;
-    for (const TestCase_t& testCase: _rgTestCases) {
+    for (const TestCase_t &testCase : _rgTestCases) {
         qDebug() << "Testing case" << index++;
         _testCaseWorker(testCase);
     }
 }
 
-void FTPManagerTest::_testLostPackets(void)
-{
+void FTPManagerTest::_testLostPackets(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    FTPManager* ftpManager  = _vehicle->ftpManager();
-    int         fileSize    = 4 * 1024;
-    QString     filename    = QStringLiteral("%1%2").arg(MockLinkFTP::sizeFilenamePrefix).arg(fileSize);
+    FTPManager *ftpManager = _vehicle->ftpManager();
+    int fileSize = 4 * 1024;
+    QString filename = QStringLiteral("%1%2").arg(MockLinkFTP::sizeFilenamePrefix).arg(fileSize);
 
     QSignalSpy spyDownloadComplete(ftpManager, &FTPManager::downloadComplete);
 
@@ -124,8 +116,7 @@ void FTPManagerTest::_testLostPackets(void)
     _disconnectMockLink();
 }
 
-void FTPManagerTest::_verifyFileSizeAndDelete(const QString& filename, int expectedSize)
-{
+void FTPManagerTest::_verifyFileSizeAndDelete(const QString &filename, int expectedSize) {
     QFileInfo fileInfo(filename);
 
     QVERIFY(fileInfo.exists());
@@ -133,7 +124,7 @@ void FTPManagerTest::_verifyFileSizeAndDelete(const QString& filename, int expec
 
     QFile file(filename);
     QVERIFY(file.open(QFile::ReadOnly));
-    for (int i=0; i<expectedSize; i++) {
+    for (int i = 0; i < expectedSize; i++) {
         QByteArray bytes = file.read(1);
         QCOMPARE(bytes[0], (char)(i % 255));
     }
@@ -141,13 +132,12 @@ void FTPManagerTest::_verifyFileSizeAndDelete(const QString& filename, int expec
     file.remove();
 }
 
-void FTPManagerTest::_testListDirectory(void)
-{
+void FTPManagerTest::_testListDirectory(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    FTPManager*             ftpManager  = vehicle->ftpManager();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
+    FTPManager *ftpManager = vehicle->ftpManager();
 
     _mockLink->mockLinkFTP()->setErrorMode(MockLinkFTP::errModeNoSecondResponseAllowRetry);
 
@@ -164,13 +154,12 @@ void FTPManagerTest::_testListDirectory(void)
     _disconnectMockLink();
 }
 
-void FTPManagerTest::_testListDirectoryNoResponse(void)
-{
+void FTPManagerTest::_testListDirectoryNoResponse(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    FTPManager*             ftpManager  = vehicle->ftpManager();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
+    FTPManager *ftpManager = vehicle->ftpManager();
 
     _mockLink->mockLinkFTP()->setErrorMode(MockLinkFTP::errModeNoResponse);
 
@@ -187,13 +176,12 @@ void FTPManagerTest::_testListDirectoryNoResponse(void)
     _disconnectMockLink();
 }
 
-void FTPManagerTest::_testListDirectoryNakResponse(void)
-{
+void FTPManagerTest::_testListDirectoryNakResponse(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    FTPManager*             ftpManager  = vehicle->ftpManager();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
+    FTPManager *ftpManager = vehicle->ftpManager();
 
     _mockLink->mockLinkFTP()->setErrorMode(MockLinkFTP::errModeNakResponse);
 
@@ -210,13 +198,12 @@ void FTPManagerTest::_testListDirectoryNakResponse(void)
     _disconnectMockLink();
 }
 
-void FTPManagerTest::_testListDirectoryNoSecondResponse(void)
-{
+void FTPManagerTest::_testListDirectoryNoSecondResponse(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    FTPManager*             ftpManager  = vehicle->ftpManager();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
+    FTPManager *ftpManager = vehicle->ftpManager();
 
     _mockLink->mockLinkFTP()->setErrorMode(MockLinkFTP::errModeNoSecondResponse);
 
@@ -233,13 +220,12 @@ void FTPManagerTest::_testListDirectoryNoSecondResponse(void)
     _disconnectMockLink();
 }
 
-void FTPManagerTest::_testListDirectoryNoSecondResponseAllowRetry(void)
-{
+void FTPManagerTest::_testListDirectoryNoSecondResponseAllowRetry(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    FTPManager*             ftpManager  = vehicle->ftpManager();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
+    FTPManager *ftpManager = vehicle->ftpManager();
 
     _mockLink->mockLinkFTP()->setErrorMode(MockLinkFTP::errModeNoSecondResponseAllowRetry);
 
@@ -256,13 +242,12 @@ void FTPManagerTest::_testListDirectoryNoSecondResponseAllowRetry(void)
     _disconnectMockLink();
 }
 
-void FTPManagerTest::_testListDirectoryNakSecondResponse(void)
-{
+void FTPManagerTest::_testListDirectoryNakSecondResponse(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    FTPManager*             ftpManager  = vehicle->ftpManager();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
+    FTPManager *ftpManager = vehicle->ftpManager();
 
     _mockLink->mockLinkFTP()->setErrorMode(MockLinkFTP::errModeNakSecondResponse);
 
@@ -279,13 +264,12 @@ void FTPManagerTest::_testListDirectoryNakSecondResponse(void)
     _disconnectMockLink();
 }
 
-void FTPManagerTest::_testListDirectoryBadSequence(void)
-{
+void FTPManagerTest::_testListDirectoryBadSequence(void) {
     _connectMockLinkNoInitialConnectSequence();
 
-    MultiVehicleManager*    vehicleMgr  = MultiVehicleManager::instance();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    FTPManager*             ftpManager  = vehicle->ftpManager();
+    MultiVehicleManager *vehicleMgr = MultiVehicleManager::instance();
+    Vehicle *vehicle = vehicleMgr->activeVehicle();
+    FTPManager *ftpManager = vehicle->ftpManager();
 
     _mockLink->mockLinkFTP()->setErrorMode(MockLinkFTP::errModeBadSequence);
 

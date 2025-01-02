@@ -13,29 +13,22 @@
 #include "QGC.h"
 #include "QGCLoggingCategory.h"
 
-#include <QtCharts/QLineSeries>
 #include <QtCharts/QAbstractSeries>
+#include <QtCharts/QLineSeries>
 
 QGC_LOGGING_CATEGORY(MAVLinkMessageFieldLog, "qgc.analyzeview.mavlinkmessagefield")
 
-QGCMAVLinkMessageField::QGCMAVLinkMessageField(const QString &name, const QString &type, QGCMAVLinkMessage *parent)
-    : QObject(parent)
-    , _type(type)
-    , _name(name)
-    , _msg(parent)
-{
+QGCMAVLinkMessageField::QGCMAVLinkMessageField(const QString &name, const QString &type, QGCMAVLinkMessage *parent) : QObject(parent), _type(type), _name(name), _msg(parent) {
     // qCDebug(MAVLinkMessageFieldLog) << Q_FUNC_INFO << this;
 
     qCDebug(MAVLinkMessageFieldLog) << "Field:" << name << type;
 }
 
-QGCMAVLinkMessageField::~QGCMAVLinkMessageField()
-{
+QGCMAVLinkMessageField::~QGCMAVLinkMessageField() {
     // qCDebug(MAVLinkMessageFieldLog) << Q_FUNC_INFO << this;
 }
 
-void QGCMAVLinkMessageField::addSeries(MAVLinkChartController *chart, QAbstractSeries *series)
-{
+void QGCMAVLinkMessageField::addSeries(MAVLinkChartController *chart, QAbstractSeries *series) {
     if (_pSeries) {
         return;
     }
@@ -48,14 +41,13 @@ void QGCMAVLinkMessageField::addSeries(MAVLinkChartController *chart, QAbstractS
     _msg->updateFieldSelection();
 }
 
-void QGCMAVLinkMessageField::delSeries()
-{
+void QGCMAVLinkMessageField::delSeries() {
     if (!_pSeries) {
         return;
     }
 
     _values.clear();
-    QLineSeries *const lineSeries = static_cast<QLineSeries*>(_pSeries);
+    QLineSeries *const lineSeries = static_cast<QLineSeries *>(_pSeries);
     lineSeries->replace(_values);
     _pSeries = nullptr;
     _chart = nullptr;
@@ -63,21 +55,16 @@ void QGCMAVLinkMessageField::delSeries()
     _msg->updateFieldSelection();
 }
 
-QString QGCMAVLinkMessageField::label() const
-{
-    return (_msg->name() + ": " + _name);
-}
+QString QGCMAVLinkMessageField::label() const { return (_msg->name() + ": " + _name); }
 
-void QGCMAVLinkMessageField::setSelectable(bool sel)
-{
+void QGCMAVLinkMessageField::setSelectable(bool sel) {
     if (_selectable != sel) {
         _selectable = sel;
         emit selectableChanged();
     }
 }
 
-int QGCMAVLinkMessageField::chartIndex() const
-{
+int QGCMAVLinkMessageField::chartIndex() const {
     if (_chart) {
         return _chart->chartIndex();
     }
@@ -85,8 +72,7 @@ int QGCMAVLinkMessageField::chartIndex() const
     return 0;
 }
 
-void QGCMAVLinkMessageField::updateValue(const QString &newValue, qreal v)
-{
+void QGCMAVLinkMessageField::updateValue(const QString &newValue, qreal v) {
     if (_value != newValue) {
         _value = newValue;
         emit valueChanged();
@@ -141,8 +127,7 @@ void QGCMAVLinkMessageField::updateValue(const QString &newValue, qreal v)
     }
 }
 
-void QGCMAVLinkMessageField::updateSeries()
-{
+void QGCMAVLinkMessageField::updateSeries() {
     const int count = _values.count();
     if (count <= 1) {
         return;
@@ -160,6 +145,6 @@ void QGCMAVLinkMessageField::updateSeries()
         s.append(p);
     }
 
-    QLineSeries *const lineSeries = static_cast<QLineSeries*>(_pSeries);
+    QLineSeries *const lineSeries = static_cast<QLineSeries *>(_pSeries);
     lineSeries->replace(s);
 }

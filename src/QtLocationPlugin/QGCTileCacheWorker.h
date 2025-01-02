@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 /**
  * @file
  *   @brief Map Tile Cache Worker Thread
@@ -31,27 +30,26 @@ class QGCMapTask;
 class QGCCachedTileSet;
 class QSqlDatabase;
 
-class QGCCacheWorker : public QThread
-{
+class QGCCacheWorker : public QThread {
     Q_OBJECT
 
-public:
+  public:
     explicit QGCCacheWorker(QObject *parent = nullptr);
     ~QGCCacheWorker();
 
     void setDatabaseFile(const QString &path) { _databasePath = path; }
 
-public slots:
+  public slots:
     bool enqueueTask(QGCMapTask *task);
     void stop();
 
-signals:
+  signals:
     void updateTotals(quint32 totaltiles, quint64 totalsize, quint32 defaulttiles, quint64 defaultsize);
 
-protected:
+  protected:
     void run() final;
 
-private:
+  private:
     void _runTask(QGCMapTask *task);
 
     void _saveTile(QGCMapTask *task);
@@ -82,7 +80,7 @@ private:
 
     std::shared_ptr<QSqlDatabase> _db = nullptr;
     QMutex _taskQueueMutex;
-    QQueue<QGCMapTask*> _taskQueue;
+    QQueue<QGCMapTask *> _taskQueue;
     QWaitCondition _waitc;
     QString _databasePath;
     quint32 _defaultCount = 0;

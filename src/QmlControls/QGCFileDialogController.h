@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include <QtCore/QLoggingCategory>
@@ -17,13 +16,12 @@
 
 Q_DECLARE_LOGGING_CATEGORY(QGCFileDialogControllerLog)
 
-class QGCFileDialogController : public QObject
-{
+class QGCFileDialogController : public QObject {
     Q_OBJECT
     // TODO: Q_NAMESPACE
     QML_ELEMENT
 
-public:
+  public:
     explicit QGCFileDialogController(QObject *parent = nullptr);
     ~QGCFileDialogController();
 

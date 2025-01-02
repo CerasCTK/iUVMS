@@ -16,11 +16,10 @@ Q_DECLARE_LOGGING_CATEGORY(GPSManagerLog)
 
 class GPSRtk;
 
-class GPSManager : public QObject
-{
+class GPSManager : public QObject {
     Q_OBJECT
 
-public:
+  public:
     GPSManager(QObject *parent = nullptr);
     ~GPSManager();
 
@@ -28,6 +27,6 @@ public:
 
     GPSRtk *gpsRtk() { return _gpsRtk; }
 
-private:
+  private:
     GPSRtk *_gpsRtk = nullptr;
 };

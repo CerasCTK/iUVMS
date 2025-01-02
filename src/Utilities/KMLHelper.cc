@@ -11,8 +11,7 @@
 
 #include <QtCore/QFile>
 
-QDomDocument KMLHelper::_loadFile(const QString& kmlFile, QString& errorString)
-{
+QDomDocument KMLHelper::_loadFile(const QString &kmlFile, QString &errorString) {
     QFile file(kmlFile);
 
     errorString.clear();
@@ -38,8 +37,7 @@ QDomDocument KMLHelper::_loadFile(const QString& kmlFile, QString& errorString)
     return doc;
 }
 
-ShapeFileHelper::ShapeType KMLHelper::determineShapeType(const QString& kmlFile, QString& errorString)
-{
+ShapeFileHelper::ShapeType KMLHelper::determineShapeType(const QString &kmlFile, QString &errorString) {
     QDomDocument domDocument = KMLHelper::_loadFile(kmlFile, errorString);
     if (!errorString.isEmpty()) {
         return ShapeFileHelper::Error;
@@ -59,8 +57,7 @@ ShapeFileHelper::ShapeType KMLHelper::determineShapeType(const QString& kmlFile,
     return ShapeFileHelper::Error;
 }
 
-bool KMLHelper::loadPolygonFromFile(const QString& kmlFile, QList<QGeoCoordinate>& vertices, QString& errorString)
-{
+bool KMLHelper::loadPolygonFromFile(const QString &kmlFile, QList<QGeoCoordinate> &vertices, QString &errorString) {
     errorString.clear();
     vertices.clear();
 
@@ -85,7 +82,7 @@ bool KMLHelper::loadPolygonFromFile(const QString& kmlFile, QList<QGeoCoordinate
     QStringList rgCoordinateStrings = coordinatesString.split(" ");
 
     QList<QGeoCoordinate> rgCoords;
-    for (int i=0; i<rgCoordinateStrings.count()-1; i++) {
+    for (int i = 0; i < rgCoordinateStrings.count() - 1; i++) {
         QString coordinateString = rgCoordinateStrings[i];
 
         QStringList rgValueStrings = coordinateString.split(",");
@@ -99,9 +96,9 @@ bool KMLHelper::loadPolygonFromFile(const QString& kmlFile, QList<QGeoCoordinate
 
     // Determine winding, reverse if needed. QGC wants clockwise winding
     double sum = 0;
-    for (int i=0; i<rgCoords.count(); i++) {
+    for (int i = 0; i < rgCoords.count(); i++) {
         QGeoCoordinate coord1 = rgCoords[i];
-        QGeoCoordinate coord2 = (i == rgCoords.count() - 1) ? rgCoords[0] : rgCoords[i+1];
+        QGeoCoordinate coord2 = (i == rgCoords.count() - 1) ? rgCoords[0] : rgCoords[i + 1];
 
         sum += (coord2.longitude() - coord1.longitude()) * (coord2.latitude() + coord1.latitude());
     }
@@ -109,7 +106,7 @@ bool KMLHelper::loadPolygonFromFile(const QString& kmlFile, QList<QGeoCoordinate
     if (reverse) {
         QList<QGeoCoordinate> rgReversed;
 
-        for (int i=0; i<rgCoords.count(); i++) {
+        for (int i = 0; i < rgCoords.count(); i++) {
             rgReversed.prepend(rgCoords[i]);
         }
         rgCoords = rgReversed;
@@ -120,8 +117,7 @@ bool KMLHelper::loadPolygonFromFile(const QString& kmlFile, QList<QGeoCoordinate
     return true;
 }
 
-bool KMLHelper::loadPolylineFromFile(const QString& kmlFile, QList<QGeoCoordinate>& coords, QString& errorString)
-{
+bool KMLHelper::loadPolylineFromFile(const QString &kmlFile, QList<QGeoCoordinate> &coords, QString &errorString) {
     errorString.clear();
     coords.clear();
 
@@ -146,7 +142,7 @@ bool KMLHelper::loadPolylineFromFile(const QString& kmlFile, QList<QGeoCoordinat
     QStringList rgCoordinateStrings = coordinatesString.split(" ");
 
     QList<QGeoCoordinate> rgCoords;
-    for (int i=0; i<rgCoordinateStrings.count()-1; i++) {
+    for (int i = 0; i < rgCoordinateStrings.count() - 1; i++) {
         QString coordinateString = rgCoordinateStrings[i];
 
         QStringList rgValueStrings = coordinateString.split(",");

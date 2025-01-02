@@ -17,19 +17,12 @@ QGC_LOGGING_CATEGORY(GPSManagerLog, "qgc.gps.gpsmanager")
 
 Q_APPLICATION_STATIC(GPSManager, _gpsManager);
 
-GPSManager::GPSManager(QObject *parent)
-    : QObject(parent)
-    , _gpsRtk(new GPSRtk(this))
-{
+GPSManager::GPSManager(QObject *parent) : QObject(parent), _gpsRtk(new GPSRtk(this)) {
     // qCDebug(GPSManagerLog) << Q_FUNC_INFO << this;
 }
 
-GPSManager::~GPSManager()
-{
+GPSManager::~GPSManager() {
     // qCDebug(GPSManagerLog) << Q_FUNC_INFO << this;
 }
 
-GPSManager *GPSManager::instance()
-{
-    return _gpsManager();
-}
+GPSManager *GPSManager::instance() { return _gpsManager(); }

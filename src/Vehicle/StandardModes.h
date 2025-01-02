@@ -11,20 +11,19 @@
 
 #include "MAVLinkLib.h"
 
+#include <QtCore/QLoggingCategory>
+#include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtCore/QMap>
-#include <QtCore/QLoggingCategory>
 
 Q_DECLARE_LOGGING_CATEGORY(StandardModesLog)
 
 class Vehicle;
 
-class StandardModes : public QObject
-{
-Q_OBJECT
+class StandardModes : public QObject {
+    Q_OBJECT
 
-public:
+  public:
     struct Mode {
         QString name;
         uint8_t standardMode;
@@ -32,7 +31,7 @@ public:
         bool cannotBeSet;
     };
 
-    StandardModes(QObject* parent, Vehicle* vehicle);
+    StandardModes(QObject *parent, Vehicle *vehicle);
 
     void request();
 
@@ -44,28 +43,26 @@ public:
 
     QString flightMode(uint32_t custom_mode) const;
 
-    bool setFlightMode(const QString& flightMode, uint32_t* custom_mode);
+    bool setFlightMode(const QString &flightMode, uint32_t *custom_mode);
 
     void gotMessage(MAV_RESULT result, const mavlink_message_t &message);
-signals:
+  signals:
     void modesUpdated();
     void requestCompleted();
 
-private:
-
+  private:
     void requestMode(int modeIndex);
     void ensureUniqueModeNames();
 
-    Vehicle*const _vehicle;
+    Vehicle *const _vehicle;
 
-    bool _requestActive{false};
-    bool _wantReset{false};
+    bool _requestActive{ false };
+    bool _wantReset{ false };
     QMap<uint32_t, Mode> _nextModes; ///< Modes added by current request
 
-    bool _hasModes{false};
+    bool _hasModes{ false };
 
-    int _lastSeq{-1};
+    int _lastSeq{ -1 };
 
     QMap<uint32_t, Mode> _modes; ///< key is custom_mode
 };
-

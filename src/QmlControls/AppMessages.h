@@ -7,43 +7,38 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
-#include <QtCore/QStringListModel>
 #include <QtCore/QFile>
+#include <QtCore/QStringListModel>
 
 // Hackish way to force only this translation unit to have public ctor access
 #ifndef _LOG_CTOR_ACCESS_
 #define _LOG_CTOR_ACCESS_ private
 #endif
 
-class AppLogModel : public QStringListModel
-{
+class AppLogModel : public QStringListModel {
     Q_OBJECT
-public:
+  public:
     Q_INVOKABLE void writeMessages(const QString dest_file);
     static void log(const QString message);
 
-signals:
+  signals:
     void emitLog(const QString message);
     void writeStarted();
     void writeFinished(bool success);
 
-private slots:
+  private slots:
     void threadsafeLog(const QString message);
 
-private:
+  private:
     QFile _logFile;
 
-_LOG_CTOR_ACCESS_:
-    AppLogModel();
+    _LOG_CTOR_ACCESS_ : AppLogModel();
 };
 
-
-class AppMessages
-{
-public:
+class AppMessages {
+  public:
     static void installHandler();
-    static AppLogModel* getModel();
+    static AppLogModel *getModel();
 };

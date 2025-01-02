@@ -12,25 +12,20 @@
 
 QGC_LOGGING_CATEGORY(StateMachineLog, "qgc.utilities.statemachine");
 
-StateMachine::StateMachine(QObject *parent)
-    : QObject(parent)
-{
+StateMachine::StateMachine(QObject *parent) : QObject(parent) {
     // qCDebug(StateMachineLog) << Q_FUNC_INFO << this;
 }
 
-StateMachine::~StateMachine()
-{
+StateMachine::~StateMachine() {
     // qCDebug(StateMachineLog) << Q_FUNC_INFO << this;
 }
 
-void StateMachine::start()
-{
+void StateMachine::start() {
     _active = true;
     advance();
 }
 
-void StateMachine::advance()
-{
+void StateMachine::advance() {
     if (!_active) {
         return;
     }
@@ -44,8 +39,7 @@ void StateMachine::advance()
     }
 }
 
-void StateMachine::move(StateFn stateFn)
-{
+void StateMachine::move(StateFn stateFn) {
     if (!_active) {
         return;
     }
@@ -59,7 +53,4 @@ void StateMachine::move(StateFn stateFn)
     }
 }
 
-StateMachine::StateFn StateMachine::currentState() const
-{
-    return (_active ? rgStates()[_stateIndex] : nullptr);
-}
+StateMachine::StateFn StateMachine::currentState() const { return (_active ? rgStates()[_stateIndex] : nullptr); }

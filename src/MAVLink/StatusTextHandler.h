@@ -10,8 +10,8 @@
 #pragma once
 
 #include <QtCore/QList>
-#include <QtCore/QObject>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QObject>
 
 #include "MAVLinkLib.h"
 
@@ -20,39 +20,35 @@ Q_DECLARE_LOGGING_CATEGORY(StatusTextHandlerLog)
 class StatusTextHandler;
 class QTimer;
 
-class StatusText
-{
-public:
+class StatusText {
+  public:
     StatusText(MAV_COMPONENT componentid, MAV_SEVERITY severity, const QString &text);
 
     bool severityIsError() const;
 
     MAV_COMPONENT getComponentID() const { return m_compId; }
+
     MAV_SEVERITY getSeverity() const { return m_severity; }
+
     QString getText() const { return m_text; }
+
     QString getFormattedText() const { return m_formatedText; }
 
     void setFormatedText(const QString &formatedText) { m_formatedText = formatedText; }
 
-private:
+  private:
     MAV_COMPONENT m_compId;
     MAV_SEVERITY m_severity;
     QString m_text;
     QString m_formatedText;
 };
 
-class StatusTextHandler : public QObject
-{
+class StatusTextHandler : public QObject {
     Q_OBJECT
 
-    enum class MessageType {
-        MessageNone,
-        MessageNormal,
-        MessageWarning,
-        MessageError
-    };
+    enum class MessageType { MessageNone, MessageNormal, MessageWarning, MessageError };
 
-public:
+  public:
     explicit StatusTextHandler(QObject *parent = nullptr);
     ~StatusTextHandler();
 
@@ -63,33 +59,41 @@ public:
     void resetAllMessages();
     void resetErrorLevelMessages();
 
-    const QList<StatusText*>& messages() const { return m_messages; }
+    const QList<StatusText *> &messages() const { return m_messages; }
+
     QString formattedMessages() const;
 
     bool messageTypeNone() const { return (m_messageType == MessageType::MessageNone); }
+
     bool messageTypeNormal() const { return (m_messageType == MessageType::MessageNormal); }
+
     bool messageTypeWarning() const { return (m_messageType == MessageType::MessageWarning); }
+
     bool messageTypeError() const { return (m_messageType == MessageType::MessageError); }
 
     uint32_t getErrorCount() const { return m_errorCount; }
+
     uint32_t getErrorCountTotal() const { return m_errorCountTotal; }
+
     uint32_t getWarningCount() const { return m_warningCount; }
+
     uint32_t getNormalCount() const { return m_normalCount; }
+
     uint32_t messageCount() const { return m_messageCount; }
 
     static QString getMessageText(const mavlink_message_t &message);
 
-signals:
+  signals:
     void newFormattedMessage(QString message);
     void textMessageReceived(MAV_COMPONENT componentid, MAV_SEVERITY severity, QString text, QString description);
     void messageCountChanged(uint32_t newCount);
     void messageTypeChanged();
     void newErrorMessage(QString message);
 
-private slots:
+  private slots:
     void _chunkedStatusTextTimeout();
 
-private:
+  private:
     void _handleStatusText(const mavlink_message_t &message);
     void _handleTextMessage(uint32_t newCount, MessageType messageType = MessageType::MessageNone);
     void _chunkedStatusTextCompleted(MAV_COMPONENT compId);
@@ -104,7 +108,7 @@ private:
     uint32_t m_normalCount = 0;
     uint32_t m_messageCount = 0;
 
-    QVector<StatusText*> m_messages;
+    QVector<StatusText *> m_messages;
 
     MessageType m_messageType = MessageType::MessageNone;
 

@@ -8,15 +8,14 @@
  ****************************************************************************/
 #pragma once
 
-#include "SettingsGroup.h"
 #include "MAVLinkLib.h"
+#include "SettingsGroup.h"
 
-class APMMavlinkStreamRateSettings : public SettingsGroup
-{
+class APMMavlinkStreamRateSettings : public SettingsGroup {
     Q_OBJECT
 
-public:
-    APMMavlinkStreamRateSettings(QObject* parent = nullptr);
+  public:
+    APMMavlinkStreamRateSettings(QObject *parent = nullptr);
 
     DEFINE_SETTING_NAME_GROUP()
 
@@ -28,15 +27,15 @@ public:
     DEFINE_SETTINGFACT(streamRateExtra2)
     DEFINE_SETTINGFACT(streamRateExtra3)
 
-private slots:
-    void _updateStreamRateRawSensors    (QVariant value);
+  private slots:
+    void _updateStreamRateRawSensors(QVariant value);
     void _updateStreamRateExtendedStatus(QVariant value);
-    void _updateStreamRateRCChannels    (QVariant value);
-    void _updateStreamRatePosition      (QVariant value);
-    void _updateStreamRateExtra1        (QVariant value);
-    void _updateStreamRateExtra2        (QVariant value);
-    void _updateStreamRateExtra3        (QVariant value);
+    void _updateStreamRateRCChannels(QVariant value);
+    void _updateStreamRatePosition(QVariant value);
+    void _updateStreamRateExtra1(QVariant value);
+    void _updateStreamRateExtra2(QVariant value);
+    void _updateStreamRateExtra3(QVariant value);
 
-private:
+  private:
     void _updateStreamRateWorker(MAV_DATA_STREAM mavStream, QVariant rateVar);
 };

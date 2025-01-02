@@ -9,39 +9,40 @@
 
 #pragma once
 
-#include <QtPositioning/QGeoPositionInfoSource>
 #include <QtCore/QLoggingCategory>
+#include <QtPositioning/QGeoPositionInfoSource>
 
 Q_DECLARE_LOGGING_CATEGORY(SimulatedPositionLog)
 
 class Vehicle;
 class QTimer;
 
-class SimulatedPosition : public QGeoPositionInfoSource
-{
-   Q_OBJECT
+class SimulatedPosition : public QGeoPositionInfoSource {
+    Q_OBJECT
 
-public:
-    SimulatedPosition(QObject* parent = nullptr);
+  public:
+    SimulatedPosition(QObject *parent = nullptr);
     ~SimulatedPosition();
 
     QGeoPositionInfo lastKnownPosition(bool /*fromSatellitePositioningMethodsOnly = false*/) const final { return _lastPosition; }
 
     PositioningMethods supportedPositioningMethods() const final { return PositioningMethod::AllPositioningMethods; }
+
     int minimumUpdateInterval() const final { return kUpdateIntervalMsecs; }
+
     Error error() const final { return QGeoPositionInfoSource::NoError; }
 
-public slots:
+  public slots:
     void startUpdates() final;
     void stopUpdates() final;
     void requestUpdate(int timeout = 5000) final;
 
-private slots:
+  private slots:
     void _updatePosition();
     void _vehicleAdded(Vehicle *vehicle);
     void _vehicleHomePositionChanged(QGeoCoordinate homePosition);
 
-private:
+  private:
     QTimer *_updateTimer = nullptr;
     QGeoPositionInfo _lastPosition;
     QMetaObject::Connection _homePositionChangedConnection;

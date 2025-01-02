@@ -7,17 +7,15 @@
  *
  ****************************************************************************/
 
-
 #pragma once
 
 #include "VehicleComponent.h"
 
-class APMSubFrameComponent : public VehicleComponent
-{
+class APMSubFrameComponent : public VehicleComponent {
     Q_OBJECT
 
-public:
-    APMSubFrameComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent = nullptr);
+  public:
+    APMSubFrameComponent(Vehicle *vehicle, AutoPilotPlugin *autopilot, QObject *parent = nullptr);
 
     // Virtuals from VehicleComponent
     QStringList setupCompleteChangedTriggerList(void) const final;
@@ -31,6 +29,6 @@ public:
     QUrl setupSource(void) const final;
     QUrl summaryQmlSource(void) const final;
 
-private:
-    const QString   _name;
+  private:
+    const QString _name;
 };

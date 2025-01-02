@@ -8,36 +8,32 @@
  ****************************************************************************/
 
 #include "VehicleLinkManager.h"
-#include "Vehicle.h"
 #include "LinkManager.h"
 #include "QGCApplication.h"
+#include "Vehicle.h"
 #ifndef NO_SERIAL_LINK
-    #include "SerialLink.h"
+#include "SerialLink.h"
 #endif
 #include "QGCLoggingCategory.h"
 
 QGC_LOGGING_CATEGORY(VehicleLinkManagerLog, "VehicleLinkManagerLog")
 
-VehicleLinkManager::VehicleLinkManager(Vehicle* vehicle)
-    : QObject   (vehicle)
-    , _vehicle  (vehicle)
-{
-    connect(this,                   &VehicleLinkManager::linkNamesChanged,  this, &VehicleLinkManager::linkStatusesChanged);
-    connect(&_commLostCheckTimer,   &QTimer::timeout,                       this, &VehicleLinkManager::_commLostCheck);
+VehicleLinkManager::VehicleLinkManager(Vehicle *vehicle) : QObject(vehicle), _vehicle(vehicle) {
+    connect(this, &VehicleLinkManager::linkNamesChanged, this, &VehicleLinkManager::linkStatusesChanged);
+    connect(&_commLostCheckTimer, &QTimer::timeout, this, &VehicleLinkManager::_commLostCheck);
 
     _commLostCheckTimer.setSingleShot(false);
     _commLostCheckTimer.setInterval(_commLostCheckTimeoutMSecs);
 }
 
-void VehicleLinkManager::mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
-{
+void VehicleLinkManager::mavlinkMessageReceived(LinkInterface *link, mavlink_message_t message) {
     // Radio status messages come from Sik Radios directly. It doesn't indicate there is any life on the other end.
     if (message.msgid != MAVLINK_MSG_ID_RADIO_STATUS) {
         int linkIndex = _containsLinkIndex(link);
         if (linkIndex == -1) {
             _addLink(link);
         } else {
-            LinkInfo_t& linkInfo = _rgLinkInfo[linkIndex];
+            LinkInfo_t &linkInfo = _rgLinkInfo[linkIndex];
             linkInfo.heartbeatElapsedTimer.restart();
             if (_rgLinkInfo[linkIndex].commLost) {
                 _commRegainedOnLink(link);
@@ -46,8 +42,7 @@ void VehicleLinkManager::mavlinkMessageReceived(LinkInterface* link, mavlink_mes
     }
 }
 
-void VehicleLinkManager::_commRegainedOnLink(LinkInterface* link)
-{
+void VehicleLinkManager::_commRegainedOnLink(LinkInterface *link) {
     QString commRegainedMessage;
     QString primarySwitchMessage;
 
@@ -84,7 +79,7 @@ void VehicleLinkManager::_commRegainedOnLink(LinkInterface* link)
     // Check recovery from total communication loss
     if (_communicationLost) {
         bool noCommunicationLoss = true;
-        for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+        for (const LinkInfo_t &linkInfo : _rgLinkInfo) {
             if (linkInfo.commLost) {
                 noCommunicationLoss = false;
                 break;
@@ -97,8 +92,7 @@ void VehicleLinkManager::_commRegainedOnLink(LinkInterface* link)
     }
 }
 
-void VehicleLinkManager::_commLostCheck(void)
-{
+void VehicleLinkManager::_commLostCheck(void) {
     QString switchingPrimaryLinkMessage;
 
     if (!_communicationLostEnabled) {
@@ -106,7 +100,7 @@ void VehicleLinkManager::_commLostCheck(void)
     }
 
     bool linkStatusChange = false;
-    for (LinkInfo_t& linkInfo: _rgLinkInfo) {
+    for (LinkInfo_t &linkInfo : _rgLinkInfo) {
         if (!linkInfo.commLost && !linkInfo.link->linkConfiguration()->isHighLatency() && linkInfo.heartbeatElapsedTimer.elapsed() > _heartbeatMaxElpasedMSecs) {
             linkInfo.commLost = true;
             linkStatusChange = true;
@@ -133,7 +127,7 @@ void VehicleLinkManager::_commLostCheck(void)
     // Check for total communication loss
     if (!_communicationLost) {
         bool totalCommunicationLoss = true;
-        for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+        for (const LinkInfo_t &linkInfo : _rgLinkInfo) {
             if (!linkInfo.commLost) {
                 totalCommunicationLoss = false;
                 break;
@@ -153,9 +147,8 @@ void VehicleLinkManager::_commLostCheck(void)
     }
 }
 
-int VehicleLinkManager::_containsLinkIndex(LinkInterface* link)
-{
-    for (int i=0; i<_rgLinkInfo.count(); i++) {
+int VehicleLinkManager::_containsLinkIndex(LinkInterface *link) {
+    for (int i = 0; i < _rgLinkInfo.count(); i++) {
         if (_rgLinkInfo[i].link.get() == link) {
             return i;
         }
@@ -163,15 +156,14 @@ int VehicleLinkManager::_containsLinkIndex(LinkInterface* link)
     return -1;
 }
 
-void VehicleLinkManager::_addLink(LinkInterface* link)
-{
+void VehicleLinkManager::_addLink(LinkInterface *link) {
     if (_containsLinkIndex(link) != -1) {
         qCWarning(VehicleLinkManagerLog) << "_addLink call with link which is already in the list";
         return;
     } else {
         SharedLinkInterfacePtr sharedLink = LinkManager::instance()->sharedLinkInterfacePointerForLink(link);
         if (!sharedLink) {
-            qCDebug(VehicleLinkManagerLog) << "_addLink stale link" << (void*)link;
+            qCDebug(VehicleLinkManagerLog) << "_addLink stale link" << (void *)link;
             return;
         }
         qCDebug(VehicleLinkManagerLog) << "_addLink:" << link->linkConfiguration()->name() << QString("%1").arg((qulonglong)link, 0, 16);
@@ -197,8 +189,7 @@ void VehicleLinkManager::_addLink(LinkInterface* link)
     }
 }
 
-void VehicleLinkManager::_removeLink(LinkInterface* link)
-{
+void VehicleLinkManager::_removeLink(LinkInterface *link) {
     int linkIndex = _containsLinkIndex(link);
 
     if (linkIndex == -1) {
@@ -223,11 +214,10 @@ void VehicleLinkManager::_removeLink(LinkInterface* link)
     }
 }
 
-void VehicleLinkManager::_linkDisconnected(void)
-{
+void VehicleLinkManager::_linkDisconnected(void) {
     qCDebug(VehicleLog) << "_linkDisconnected linkCount" << _rgLinkInfo.count();
 
-    LinkInterface* link = qobject_cast<LinkInterface*>(sender());
+    LinkInterface *link = qobject_cast<LinkInterface *>(sender());
     if (link) {
         _removeLink(link);
         _updatePrimaryLink();
@@ -238,26 +228,25 @@ void VehicleLinkManager::_linkDisconnected(void)
     }
 }
 
-SharedLinkInterfacePtr VehicleLinkManager::_bestActivePrimaryLink(void)
-{
+SharedLinkInterfacePtr VehicleLinkManager::_bestActivePrimaryLink(void) {
 #ifndef NO_SERIAL_LINK
     // Best choice is a USB connection
-    for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+    for (const LinkInfo_t &linkInfo : _rgLinkInfo) {
         if (!linkInfo.commLost) {
             SharedLinkInterfacePtr link = linkInfo.link;
             auto linkInterface = link.get();
             if (linkInterface && LinkManager::isLinkUSBDirect(linkInterface)) {
                 return link;
-            } 
+            }
         }
     }
 #endif
 
     // Next best is normal latency link
-    for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+    for (const LinkInfo_t &linkInfo : _rgLinkInfo) {
         if (!linkInfo.commLost) {
-            SharedLinkInterfacePtr      link    = linkInfo.link;
-            SharedLinkConfigurationPtr  config  = link->linkConfiguration();
+            SharedLinkInterfacePtr link = linkInfo.link;
+            SharedLinkConfigurationPtr config = link->linkConfiguration();
             if (config && !config->isHighLatency()) {
                 return link;
             }
@@ -271,10 +260,10 @@ SharedLinkInterfacePtr VehicleLinkManager::_bestActivePrimaryLink(void)
         return link;
     } else {
         // Pick any high latency link if one exists
-        for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+        for (const LinkInfo_t &linkInfo : _rgLinkInfo) {
             if (!linkInfo.commLost) {
-                SharedLinkInterfacePtr      link    = linkInfo.link;
-                SharedLinkConfigurationPtr  config  = link->linkConfiguration();
+                SharedLinkInterfacePtr link = linkInfo.link;
+                SharedLinkConfigurationPtr config = link->linkConfiguration();
                 if (config && config->isHighLatency()) {
                     return link;
                 }
@@ -285,8 +274,7 @@ SharedLinkInterfacePtr VehicleLinkManager::_bestActivePrimaryLink(void)
     return {};
 }
 
-bool VehicleLinkManager::_updatePrimaryLink(void)
-{
+bool VehicleLinkManager::_updatePrimaryLink(void) {
     SharedLinkInterfacePtr primaryLink = _primaryLink.lock();
     int linkIndex = _containsLinkIndex(primaryLink.get());
     if (linkIndex != -1 && !_rgLinkInfo[linkIndex].commLost && !primaryLink->linkConfiguration()->isHighLatency()) {
@@ -302,20 +290,16 @@ bool VehicleLinkManager::_updatePrimaryLink(void)
     } else {
         if (bestActivePrimaryLink != primaryLink) {
             if (primaryLink && primaryLink->linkConfiguration()->isHighLatency()) {
-                _vehicle->sendMavCommand(MAV_COMP_ID_AUTOPILOT1,
-                               MAV_CMD_CONTROL_HIGH_LATENCY,
-                               true,
-                               0); // Stop transmission on this link
+                _vehicle->sendMavCommand(MAV_COMP_ID_AUTOPILOT1, MAV_CMD_CONTROL_HIGH_LATENCY, true,
+                                         0); // Stop transmission on this link
             }
 
             _primaryLink = bestActivePrimaryLink;
             emit primaryLinkChanged();
 
             if (bestActivePrimaryLink && bestActivePrimaryLink->linkConfiguration()->isHighLatency()) {
-                _vehicle->sendMavCommand(MAV_COMP_ID_AUTOPILOT1,
-                               MAV_CMD_CONTROL_HIGH_LATENCY,
-                               true,
-                               1); // Start transmission on this link
+                _vehicle->sendMavCommand(MAV_COMP_ID_AUTOPILOT1, MAV_CMD_CONTROL_HIGH_LATENCY, true,
+                                         1); // Start transmission on this link
             }
             return true;
         } else {
@@ -324,12 +308,11 @@ bool VehicleLinkManager::_updatePrimaryLink(void)
     }
 }
 
-void VehicleLinkManager::closeVehicle(void)
-{
+void VehicleLinkManager::closeVehicle(void) {
     // Vehicle is no longer communicating with us. Remove all link references
 
     QList<LinkInfo_t> rgLinkInfoCopy = _rgLinkInfo;
-    for (const LinkInfo_t& linkInfo: rgLinkInfoCopy) {
+    for (const LinkInfo_t &linkInfo : rgLinkInfoCopy) {
         _removeLink(linkInfo.link.get());
     }
 
@@ -338,30 +321,25 @@ void VehicleLinkManager::closeVehicle(void)
     emit allLinksRemoved(_vehicle);
 }
 
-void VehicleLinkManager::setCommunicationLostEnabled(bool communicationLostEnabled)
-{
+void VehicleLinkManager::setCommunicationLostEnabled(bool communicationLostEnabled) {
     if (_communicationLostEnabled != communicationLostEnabled) {
         _communicationLostEnabled = communicationLostEnabled;
         emit communicationLostEnabledChanged(communicationLostEnabled);
     }
 }
 
-bool VehicleLinkManager::containsLink(LinkInterface* link)
-{
-    return _containsLinkIndex(link) != -1;
-}
+bool VehicleLinkManager::containsLink(LinkInterface *link) { return _containsLinkIndex(link) != -1; }
 
-QString VehicleLinkManager::primaryLinkName() const
-{
+QString VehicleLinkManager::primaryLinkName() const {
     if (!_primaryLink.expired()) {
         return _primaryLink.lock()->linkConfiguration()->name();
     }
 
     return QString();
 }
-void VehicleLinkManager::setPrimaryLinkByName(const QString& name)
-{
-    for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+
+void VehicleLinkManager::setPrimaryLinkByName(const QString &name) {
+    for (const LinkInfo_t &linkInfo : _rgLinkInfo) {
         if (linkInfo.link->linkConfiguration()->name() == name) {
             _primaryLink = linkInfo.link;
             emit primaryLinkChanged();
@@ -369,22 +347,20 @@ void VehicleLinkManager::setPrimaryLinkByName(const QString& name)
     }
 }
 
-QStringList VehicleLinkManager::linkNames(void) const
-{
+QStringList VehicleLinkManager::linkNames(void) const {
     QStringList rgNames;
 
-    for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+    for (const LinkInfo_t &linkInfo : _rgLinkInfo) {
         rgNames.append(linkInfo.link->linkConfiguration()->name());
     }
 
     return rgNames;
 }
 
-QStringList VehicleLinkManager::linkStatuses(void) const
-{
+QStringList VehicleLinkManager::linkStatuses(void) const {
     QStringList rgStatuses;
 
-    for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+    for (const LinkInfo_t &linkInfo : _rgLinkInfo) {
         rgStatuses.append(linkInfo.commLost ? tr("Comm Lost") : "");
     }
 

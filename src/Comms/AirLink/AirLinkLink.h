@@ -16,20 +16,21 @@
 
 Q_DECLARE_LOGGING_CATEGORY(AirLinkLinkLog)
 
-class AirLinkConfiguration : public UDPConfiguration
-{
+class AirLinkConfiguration : public UDPConfiguration {
     Q_OBJECT
 
-    Q_PROPERTY(QString username     READ username   WRITE setUsername   NOTIFY usernameChanged)
-    Q_PROPERTY(QString password     READ password   WRITE setPassword   NOTIFY passwordChanged)
-    Q_PROPERTY(QString modemName    READ modemName  WRITE setModemName  NOTIFY modemNameChanged)
-public:
+    Q_PROPERTY(QString username READ username WRITE setUsername NOTIFY usernameChanged)
+    Q_PROPERTY(QString password READ password WRITE setPassword NOTIFY passwordChanged)
+    Q_PROPERTY(QString modemName READ modemName WRITE setModemName NOTIFY modemNameChanged)
+  public:
     AirLinkConfiguration(const QString &name, QObject *parent = nullptr);
     AirLinkConfiguration(const AirLinkConfiguration *copy, QObject *parent = nullptr);
     ~AirLinkConfiguration();
 
     QString username() const { return _username; }
+
     QString password() const { return _password; }
+
     QString modemName() const { return _modemName; }
 
     void setUsername(const QString &username);
@@ -37,20 +38,22 @@ public:
     void setModemName(const QString &modemName);
 
     LinkType type() const final { return LinkConfiguration::AirLink; }
+
     void copyFrom(const LinkConfiguration *source) final;
 
     void loadSettings(QSettings &settings, const QString &root) final;
     void saveSettings(QSettings &settings, const QString &root) final;
+
     QString settingsURL() final { return "AirLinkSettings.qml"; }
+
     QString settingsTitle() final { return tr("AirLink Link Settings"); }
 
-
-signals:
+  signals:
     void usernameChanged();
     void passwordChanged();
     void modemNameChanged();
 
-private:
+  private:
     QString _username;
     QString _password;
     QString _modemName;
@@ -62,20 +65,19 @@ private:
 
 /*===========================================================================*/
 
-class AirLinkLink : public UDPLink
-{
+class AirLinkLink : public UDPLink {
     Q_OBJECT
 
-public:
+  public:
     AirLinkLink(SharedLinkConfigurationPtr &config, QObject *parent = nullptr);
     ~AirLinkLink();
 
     void disconnect() final;
 
-private slots:
+  private slots:
     bool _connect() final;
 
-private:
+  private:
     void _configureUdpSettings();
     void _sendLoginMsgToAirLink();
     bool _stillConnecting();

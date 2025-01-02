@@ -13,49 +13,43 @@
 
 using namespace ActuatorTesting;
 
-ActuatorTest::ActuatorTest(Vehicle* vehicle)
-    : _vehicle(vehicle)
-{
+ActuatorTest::ActuatorTest(Vehicle *vehicle) : _vehicle(vehicle) {
     _watchdogTimer.setInterval(100);
     _watchdogTimer.setSingleShot(false);
     connect(&_watchdogTimer, &QTimer::timeout, this, &ActuatorTest::watchdogTimeout);
     _watchdogTimer.start();
 }
 
-ActuatorTest::~ActuatorTest()
-{
+ActuatorTest::~ActuatorTest() {
     _actuators->clearAndDeleteContents();
     delete _allMotorsActuator;
 }
 
-void ActuatorTest::updateFunctions(const QList<Actuator*> &actuators)
-{
+void ActuatorTest::updateFunctions(const QList<Actuator *> &actuators) {
     _actuators->clearAndDeleteContents();
 
     if (_allMotorsActuator) {
-      _allMotorsActuator->deleteLater();
+        _allMotorsActuator->deleteLater();
     }
 
     _allMotorsActuator = nullptr;
 
-    Actuator* motorActuator{nullptr};
-    for (const auto& actuator : actuators) {
+    Actuator *motorActuator{ nullptr };
+    for (const auto &actuator : actuators) {
         if (actuator->isMotor()) {
             motorActuator = actuator;
         }
         _actuators->append(actuator);
     }
     if (motorActuator) {
-        _allMotorsActuator = new Actuator(this, tr("All Motors"), motorActuator->min(), motorActuator->max(), motorActuator->defaultValue(),
-                motorActuator->function(), true);
+        _allMotorsActuator = new Actuator(this, tr("All Motors"), motorActuator->min(), motorActuator->max(), motorActuator->defaultValue(), motorActuator->function(), true);
     }
     resetStates();
 
     emit actuatorsChanged();
 }
 
-void ActuatorTest::resetStates()
-{
+void ActuatorTest::resetStates() {
     _states.clear();
     _currentState = -1;
     for (int i = 0; i < _actuators->count(); ++i) {
@@ -63,8 +57,7 @@ void ActuatorTest::resetStates()
     }
 }
 
-void ActuatorTest::watchdogTimeout()
-{
+void ActuatorTest::watchdogTimeout() {
     for (int i = 0; i < _states.size(); ++i) {
         if (_states[i].state == ActuatorState::State::Active) {
             if (_states[i].lastUpdated.elapsed() > 100) {
@@ -76,8 +69,7 @@ void ActuatorTest::watchdogTimeout()
     sendNext();
 }
 
-void ActuatorTest::setChannelTo(int index, float value)
-{
+void ActuatorTest::setChannelTo(int index, float value) {
     if (!_active || index >= _states.size()) {
         return;
     }
@@ -89,8 +81,7 @@ void ActuatorTest::setChannelTo(int index, float value)
     sendNext();
 }
 
-void ActuatorTest::stopControl(int index)
-{
+void ActuatorTest::stopControl(int index) {
     if (index >= _states.size() || index < -1) {
         return;
     }
@@ -110,8 +101,7 @@ void ActuatorTest::stopControl(int index)
     sendNext();
 }
 
-void ActuatorTest::setActive(bool active)
-{
+void ActuatorTest::setActive(bool active) {
     qCDebug(ActuatorsConfigLog) << "setting active: " << active;
     if (!active) {
         stopControl(-1);
@@ -119,14 +109,12 @@ void ActuatorTest::setActive(bool active)
     _active = active;
 }
 
-void ActuatorTest::ackHandlerEntry(void* resultHandlerData, int /*compId*/, const mavlink_command_ack_t& ack, Vehicle::MavCmdResultFailureCode_t failureCode)
-{
-    ActuatorTest* actuatorTest = (ActuatorTest*)resultHandlerData;
+void ActuatorTest::ackHandlerEntry(void *resultHandlerData, int /*compId*/, const mavlink_command_ack_t &ack, Vehicle::MavCmdResultFailureCode_t failureCode) {
+    ActuatorTest *actuatorTest = (ActuatorTest *)resultHandlerData;
     actuatorTest->ackHandler(static_cast<MAV_RESULT>(ack.result), failureCode);
 }
 
-void ActuatorTest::ackHandler(MAV_RESULT commandResult, Vehicle::MavCmdResultFailureCode_t failureCode)
-{
+void ActuatorTest::ackHandler(MAV_RESULT commandResult, Vehicle::MavCmdResultFailureCode_t failureCode) {
     // upon receiving an (n)ack, continuously cycle through the active actuators, one at a time
     _commandInProgress = false;
     if (failureCode == Vehicle::MavCmdResultFailureNoResponseToCommand) {
@@ -161,8 +149,7 @@ void ActuatorTest::ackHandler(MAV_RESULT commandResult, Vehicle::MavCmdResultFai
     }
 }
 
-void ActuatorTest::sendNext()
-{
+void ActuatorTest::sendNext() {
     if (_commandInProgress) {
         return;
     }
@@ -170,7 +157,7 @@ void ActuatorTest::sendNext()
     // find the next actuator not in state NotActive
     for (int i = 0; i < _states.size(); ++i) {
         _currentState = (_currentState + 1) % _states.size();
-        Actuator* actuator = _actuators->value<Actuator*>(_currentState);
+        Actuator *actuator = _actuators->value<Actuator *>(_currentState);
         if (_states[_currentState].state == ActuatorState::State::Active) {
             sendMavlinkRequest(actuator->function(), _states[_currentState].value, 1.f);
             break;
@@ -182,26 +169,26 @@ void ActuatorTest::sendNext()
     }
 }
 
-void ActuatorTest::sendMavlinkRequest(int function, float value, float timeout)
-{
+void ActuatorTest::sendMavlinkRequest(int function, float value, float timeout) {
     qCDebug(ActuatorsConfigLog) << "Sending actuator test function:" << function << "value:" << value;
 
     // TODO: consider using a lower command timeout
 
     Vehicle::MavCmdAckHandlerInfo_t handlerInfo = {};
-    handlerInfo.resultHandler       = ackHandlerEntry;
-    handlerInfo.resultHandlerData   = this;
+    handlerInfo.resultHandler = ackHandlerEntry;
+    handlerInfo.resultHandlerData = this;
 
     _vehicle->sendMavCommandWithHandler(
-            &handlerInfo,
-            MAV_COMP_ID_AUTOPILOT1,           // the ID of the autopilot
-            MAV_CMD_ACTUATOR_TEST,            // the mavlink command
-            value,                            // value
-            timeout,                          // timeout
-            0,                                // unused parameter
-            0,                                // unused parameter
-            1000+function,                    // function
-            0,                                // unused parameter
-            0);
+        &handlerInfo,
+        MAV_COMP_ID_AUTOPILOT1, // the ID of the autopilot
+        MAV_CMD_ACTUATOR_TEST,  // the mavlink command
+        value,                  // value
+        timeout,                // timeout
+        0,                      // unused parameter
+        0,                      // unused parameter
+        1000 + function,        // function
+        0,                      // unused parameter
+        0
+    );
     _commandInProgress = true;
 }

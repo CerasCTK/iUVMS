@@ -13,21 +13,20 @@
 
 class InstrumentValueData;
 
-class HorizontalFactValueGrid : public FactValueGrid
-{
+class HorizontalFactValueGrid : public FactValueGrid {
     Q_OBJECT
 
-public:
+  public:
     HorizontalFactValueGrid(QQuickItem *parent = nullptr);
-    HorizontalFactValueGrid(const QString& defaultSettingsGroup);
+    HorizontalFactValueGrid(const QString &defaultSettingsGroup);
 
     Q_PROPERTY(QString telemetryBarDefaultSettingsGroup MEMBER telemetryBarDefaultSettingsGroup CONSTANT)
-    Q_PROPERTY(QString telemetryBarUserSettingsGroup    MEMBER telemetryBarUserSettingsGroup    CONSTANT)
+    Q_PROPERTY(QString telemetryBarUserSettingsGroup MEMBER telemetryBarUserSettingsGroup CONSTANT)
 
     static const QString telemetryBarDefaultSettingsGroup;
     static const QString telemetryBarUserSettingsGroup;
 
-private:
+  private:
     Q_DISABLE_COPY(HorizontalFactValueGrid)
 };
 
