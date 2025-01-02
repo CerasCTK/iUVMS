@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/qml">
         <file alias="AseMainRootWindow.qml">src/AseUI/AseMainRootWindow.qml</file>
+
+        <file alias="UVMS/FlightDisplay/qmldir">src/QmlControls/UVMS/FlightDisplay/qmldir</file>
+        <file alias="UVMS/FlightDisplay/AseFlyView.qml">src/AseUI/FlightDisplay/AseFlyView.qml</file>
     </qresource>
 </RCC>
