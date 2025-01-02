@@ -13,11 +13,11 @@
 #include <QtQml/QQmlEngine>
 #include <QtCore/QVariantList>
 
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
 #include "GStreamer.h"
 #endif
 
-#ifndef QGC_DISABLE_UVC
+#ifndef UVMS_DISABLE_UVC
 #include <QtMultimedia/QMediaDevices>
 #include <QtMultimedia/QCameraDevice>
 #endif
@@ -28,7 +28,7 @@ DECLARE_SETTINGGROUP(Video, "Video")
 
     // Setup enum values for videoSource settings into meta data
     QVariantList videoSourceList;
-#if defined(QGC_GST_STREAMING) || defined(QGC_QT_STREAMING)
+#if defined(UVMS_GST_STREAMING) || defined(UVMS_QT_STREAMING)
     videoSourceList.append(videoSourceRTSP);
     videoSourceList.append(videoSourceUDPH264);
     videoSourceList.append(videoSourceUDPH265);
@@ -38,13 +38,13 @@ DECLARE_SETTINGGROUP(Video, "Video")
     videoSourceList.append(videoSourceParrotDiscovery);
     videoSourceList.append(videoSourceYuneecMantisG);
 
-    #ifdef QGC_HERELINK_AIRUNIT_VIDEO
+    #ifdef UVMS_HERELINK_AIRUNIT_VIDEO
         videoSourceList.append(videoSourceHerelinkAirUnit);
     #else
         videoSourceList.append(videoSourceHerelinkHotspot);
     #endif
 #endif
-#ifndef QGC_DISABLE_UVC
+#ifndef UVMS_DISABLE_UVC
     QList<QCameraDevice> videoInputs = QMediaDevices::videoInputs();
     for (const auto& cameraDevice: videoInputs) {
         videoSourceList.append(cameraDevice.description());
@@ -114,7 +114,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, forceVideoDecoder)
         _forceVideoDecoderFact = _createSettingsFact(forceVideoDecoderName);
 
         _forceVideoDecoderFact->setVisible(
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
             true
 #else
             false
@@ -132,7 +132,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, lowLatencyMode)
         _lowLatencyModeFact = _createSettingsFact(lowLatencyModeName);
 
         _lowLatencyModeFact->setVisible(
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
             true
 #else
             false
@@ -150,7 +150,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspTimeout)
         _rtspTimeoutFact = _createSettingsFact(rtspTimeoutName);
 
         _rtspTimeoutFact->setVisible(
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
             true
 #else
             false
@@ -231,7 +231,7 @@ bool VideoSettings::streamConfigured(void)
         qCDebug(VideoManagerLog) << "Stream configured for Herelink Hotspot";
         return true;
     }
-#ifndef QGC_DISABLE_UVC
+#ifndef UVMS_DISABLE_UVC
     const QList<QCameraDevice> videoInputs = QMediaDevices::videoInputs();
     for (const auto& cameraDevice: videoInputs) {
         if(vSource == cameraDevice.description()) {
@@ -250,7 +250,7 @@ void VideoSettings::_configChanged(QVariant)
 
 void VideoSettings::_setForceVideoDecodeList()
 {
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
     const QVariantList removeForceVideoDecodeList{
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         GStreamer::VideoDecoderOptions::ForceVideoDecoderDirectX3D,

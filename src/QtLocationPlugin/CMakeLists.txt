@@ -46,7 +46,7 @@ qt_add_plugin(QGCLocation STATIC
 )
 
 if(IOS)
-    target_compile_definitions(QGCLocation PRIVATE QGC_NO_GOOGLE_MAPS)
+    target_compile_definitions(QGCLocation PRIVATE UVMS_NO_GOOGLE_MAPS)
 endif()
 
 target_link_libraries(QGCLocation

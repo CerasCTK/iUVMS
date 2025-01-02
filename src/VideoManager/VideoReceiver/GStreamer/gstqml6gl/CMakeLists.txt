@@ -25,7 +25,7 @@ endforeach()
 ################################################################################
 
 if(LINUX)
-    # if(NOT QGC_GST_STATIC_BUILD)
+    # if(NOT UVMS_GST_STATIC_BUILD)
         install(DIRECTORY ${GSTREAMER_LIB_PATH}/gstreamer1.0 DESTINATION ${CMAKE_INSTALL_LIBDIR})
         install(CODE "execute_process(COMMAND chmod +x \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner\")")
         install(CODE "execute_process(COMMAND chmod +x \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/gstreamer1.0/gstreamer-1.0/gst-ptp-helper\")")
@@ -113,30 +113,30 @@ if(GStreamer_VERSION VERSION_GREATER_EQUAL 1.22)
         DOWNLOAD_EXTRACT_TIMESTAMP true
     )
     FetchContent_MakeAvailable(gstreamer_good_plugins)
-    set(QGC_GST_QT6_PLUGIN_PATH "${gstreamer_good_plugins_SOURCE_DIR}/ext/qt6")
+    set(UVMS_GST_QT6_PLUGIN_PATH "${gstreamer_good_plugins_SOURCE_DIR}/ext/qt6")
 else()
-    set(QGC_GST_QT6_PLUGIN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/qt6")
+    set(UVMS_GST_QT6_PLUGIN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/qt6")
 endif()
-cmake_print_variables(QGC_GST_QT6_PLUGIN_PATH)
+cmake_print_variables(UVMS_GST_QT6_PLUGIN_PATH)
 
 ################################################################################
 
-file(READ ${QGC_GST_QT6_PLUGIN_PATH}/qt6glitem.h FILE_CONTENTS)
+file(READ ${UVMS_GST_QT6_PLUGIN_PATH}/qt6glitem.h FILE_CONTENTS)
 string(FIND "${FILE_CONTENTS}" "#include <QtQuick/QQuickWindow>" GST_FIX_INCLUDES)
 if(GST_FIX_INCLUDES EQUAL -1)
     string(REPLACE "#include <QtGui/QOpenGLFunctions>" "#include <QtGui/QOpenGLFunctions>\n#include <QtQuick/QQuickWindow>" FILE_CONTENTS "${FILE_CONTENTS}")
-    file(WRITE ${QGC_GST_QT6_PLUGIN_PATH}/qt6glitem.h "${FILE_CONTENTS}")
+    file(WRITE ${UVMS_GST_QT6_PLUGIN_PATH}/qt6glitem.h "${FILE_CONTENTS}")
 endif()
 
 ################################################################################
 
 file(GLOB gstqml6gl_SRCS
-    ${QGC_GST_QT6_PLUGIN_PATH}/*.cc
-    ${QGC_GST_QT6_PLUGIN_PATH}/*.h
+    ${UVMS_GST_QT6_PLUGIN_PATH}/*.cc
+    ${UVMS_GST_QT6_PLUGIN_PATH}/*.h
 )
 target_sources(gstqml6gl PRIVATE ${gstqml6gl_SRCS})
 
-target_include_directories(gstqml6gl PUBLIC ${QGC_GST_QT6_PLUGIN_PATH})
+target_include_directories(gstqml6gl PUBLIC ${UVMS_GST_QT6_PLUGIN_PATH})
 
 ################################################################################
 
@@ -175,21 +175,21 @@ target_compile_definitions(gstqml6gl
 
 ################################################################################
 
-if(EXISTS "${QGC_GST_QT6_PLUGIN_PATH}/resources.qrc")
+if(EXISTS "${UVMS_GST_QT6_PLUGIN_PATH}/resources.qrc")
     find_package(Qt6 REQUIRED COMPONENTS ShaderTools)
     if(Qt6ShaderTools_FOUND)
         set(SHADERS
-            ${QGC_GST_QT6_PLUGIN_PATH}/vertex.vert
-            ${QGC_GST_QT6_PLUGIN_PATH}/YUV_TRIPLANAR.frag
-            ${QGC_GST_QT6_PLUGIN_PATH}/RGBA.frag
+            ${UVMS_GST_QT6_PLUGIN_PATH}/vertex.vert
+            ${UVMS_GST_QT6_PLUGIN_PATH}/YUV_TRIPLANAR.frag
+            ${UVMS_GST_QT6_PLUGIN_PATH}/RGBA.frag
         )
         set(OUTPUTS
             vertex.vert.qsb
             YUV_TRIPLANAR.frag.qsb
             RGBA.frag.qsb
         )
-        if(EXISTS "${QGC_GST_QT6_PLUGIN_PATH}/YUV_BIPLANAR.frag")
-            LIST(APPEND SHADERS ${QGC_GST_QT6_PLUGIN_PATH}/YUV_BIPLANAR.frag)
+        if(EXISTS "${UVMS_GST_QT6_PLUGIN_PATH}/YUV_BIPLANAR.frag")
+            LIST(APPEND SHADERS ${UVMS_GST_QT6_PLUGIN_PATH}/YUV_BIPLANAR.frag)
             LIST(APPEND OUTPUTS YUV_BIPLANAR.frag.qsb)
         endif()
         qt6_add_shaders(gstqml6gl "gstqml6gl_shaders"
@@ -201,12 +201,12 @@ if(EXISTS "${QGC_GST_QT6_PLUGIN_PATH}/resources.qrc")
             BATCHABLE
         )
 
-        if(EXISTS "${QGC_GST_QT6_PLUGIN_PATH}/RGBA_gles.frag")
+        if(EXISTS "${UVMS_GST_QT6_PLUGIN_PATH}/RGBA_gles.frag")
             file(COPY_FILE "${CMAKE_CURRENT_BINARY_DIR}/.qsb/RGBA.frag.qsb" "${CMAKE_CURRENT_BINARY_DIR}/.qsb/RGBA.frag.qsb.external")
             qt6_add_shaders(gstqml6gl "gstqml6gl_shaders1"
                 PREFIX "/org/freedesktop/gstreamer/qml6"
                 OUTPUT_TARGETS gstqml6gl_shaders1
-                FILES "${CMAKE_CURRENT_BINARY_DIR}/.qsb/RGBA.frag.qsb.external@glsl,100es,${QGC_GST_QT6_PLUGIN_PATH}/RGBA_gles.frag"
+                FILES "${CMAKE_CURRENT_BINARY_DIR}/.qsb/RGBA.frag.qsb.external@glsl,100es,${UVMS_GST_QT6_PLUGIN_PATH}/RGBA_gles.frag"
                 OUTPUTS "RGBA.frag.qsb.external"
             )
         endif()

@@ -25,7 +25,7 @@ QGC_LOGGING_CATEGORY(GStreamerLog, "qgc.videomanager.videoreceiver.gstreamer")
 QGC_LOGGING_CATEGORY(GStreamerAPILog, "qgc.videomanager.videoreceiver.gstreamer.api")
 
 G_BEGIN_DECLS
-#ifdef QGC_GST_STATIC_BUILD
+#ifdef UVMS_GST_STATIC_BUILD
 GST_PLUGIN_STATIC_DECLARE(coreelements);
 GST_PLUGIN_STATIC_DECLARE(playback);
 GST_PLUGIN_STATIC_DECLARE(libav);
@@ -132,7 +132,7 @@ static void _setGstEnvVars()
 
 static void _registerPlugins()
 {
-#ifdef QGC_GST_STATIC_BUILD
+#ifdef UVMS_GST_STATIC_BUILD
     GST_PLUGIN_STATIC_REGISTER(coreelements);
     GST_PLUGIN_STATIC_REGISTER(playback);
     GST_PLUGIN_STATIC_REGISTER(libav);

@@ -19,17 +19,17 @@
 #include "Vehicle.h"
 #include "VideoReceiver.h"
 #include "VideoSettings.h"
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
 #include "GStreamer.h"
 #else
 #include "GLVideoItemStub.h"
 #endif
-#ifdef QGC_QT_STREAMING
+#ifdef UVMS_QT_STREAMING
 #include "QtMultimediaReceiver.h"
 // #include "UVCReceiver.h"
 #endif
 
-#ifndef QGC_DISABLE_UVC
+#ifndef UVMS_DISABLE_UVC
 #include <QtCore/QPermissions>
 #include <QtMultimedia/QCameraDevice>
 #include <QtMultimedia/QMediaDevices>
@@ -58,7 +58,7 @@ VideoManager::VideoManager(QObject *parent)
 {
     // qCDebug(VideoManagerLog) << Q_FUNC_INFO << this;
 
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
     GStreamer::initialize();
 #endif
 }
@@ -83,7 +83,7 @@ void VideoManager::registerQmlTypes()
 {
     (void) qmlRegisterUncreatableType<VideoManager>("QGroundControl.VideoManager", 1, 0, "VideoManager", "Reference only");
     (void) qmlRegisterUncreatableType<VideoReceiver>("QGroundControl", 1, 0, "VideoReceiver","Reference only");
-    #ifndef QGC_GST_STREAMING
+    #ifndef UVMS_GST_STREAMING
         (void) qmlRegisterType<GLVideoItemStub>("org.freedesktop.gstreamer.Qt6GLVideoItem", 1, 0, "GstGLQt6VideoItem");
     #endif
 }
@@ -385,7 +385,7 @@ bool VideoManager::isUvc() const
 
 bool VideoManager::gstreamerEnabled() const
 {
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
     return true;
 #else
     return false;
@@ -394,7 +394,7 @@ bool VideoManager::gstreamerEnabled() const
 
 bool VideoManager::uvcEnabled() const
 {
-#ifndef QGC_DISABLE_UVC
+#ifndef UVMS_DISABLE_UVC
     return !QMediaDevices::videoInputs().isEmpty();
 #else
     return false;
@@ -403,7 +403,7 @@ bool VideoManager::uvcEnabled() const
 
 bool VideoManager::qtmultimediaEnabled() const
 {
-#ifdef QGC_QT_STREAMING
+#ifdef UVMS_QT_STREAMING
     return true;
 #else
     return false;
@@ -513,7 +513,7 @@ bool VideoManager::_updateUVC()
 {
     bool result = false;
 
-#ifndef QGC_DISABLE_UVC
+#ifndef UVMS_DISABLE_UVC
     const QString oldUvcVideoSrcID = _uvcVideoSourceID;
     if (!hasVideo() || isStreamSource()) {
         _uvcVideoSourceID = "";

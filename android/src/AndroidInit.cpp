@@ -14,7 +14,7 @@ QGC_LOGGING_CATEGORY(AndroidInitLog, "qgc.android.androidinit");
 static jobject _context = nullptr;
 static jobject _class_loader = nullptr;
 
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
 extern "C"
 {
     extern void gst_amc_jni_set_java_vm(JavaVM *java_vm);
@@ -98,7 +98,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
         return JNI_ERR;
     }
 
-    #ifdef QGC_GST_STREAMING
+    #ifdef UVMS_GST_STREAMING
         gst_amc_jni_set_java_vm(vm);
     #endif
 

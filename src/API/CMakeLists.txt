@@ -31,6 +31,6 @@ target_link_libraries(API
 
 target_include_directories(API PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(QGC_CUSTOM_BUILD)
+if(UVMS_CUSTOM_BUILD)
     target_link_libraries(API PRIVATE CustomPlugin)
 endif()

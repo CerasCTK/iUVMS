@@ -76,7 +76,7 @@ void MAVLinkProtocol::setVersion(unsigned version)
 void MAVLinkProtocol::_loadSettings()
 {
     QSettings settings;
-    settings.beginGroup("QGC_MAVLINK_PROTOCOL");
+    settings.beginGroup("UVMS_MAVLINK_PROTOCOL");
 
     enableVersionCheck(settings.value("VERSION_CHECK_ENABLED", versionCheckEnabled()).toBool());
 
@@ -92,7 +92,7 @@ void MAVLinkProtocol::_loadSettings()
 void MAVLinkProtocol::_storeSettings() const
 {
     QSettings settings;
-    settings.beginGroup("QGC_MAVLINK_PROTOCOL");
+    settings.beginGroup("UVMS_MAVLINK_PROTOCOL");
 
     settings.setValue("VERSION_CHECK_ENABLED", versionCheckEnabled());
     settings.setValue("GCS_SYSTEM_ID", getSystemId());

@@ -48,4 +48,4 @@ target_link_libraries(GStreamerReceiver
         VideoReceiver
 )
 
-target_compile_definitions(GStreamerReceiver PUBLIC QGC_GST_STREAMING)
+target_compile_definitions(GStreamerReceiver PUBLIC UVMS_GST_STREAMING)

@@ -13,13 +13,13 @@
 
 G_BEGIN_DECLS
 
-#define GST_TYPE_QGC_VIDEO_SINK_BIN (gst_qgc_video_sink_bin_get_type())
-G_DECLARE_FINAL_TYPE (GstQgcVideoSinkBin, gst_qgc_video_sink_bin, GST, QGC_VIDEO_SINK_BIN, GstBin)
-#define GST_QGC_VIDEO_SINK_BIN_CAST(obj) ((GstQgcVideoSinkBin *)(obj))
-#define GST_QGC_VIDEO_SINK_BIN(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), GST_TYPE_QGC_VIDEO_SINK_BIN, GstQgcVideoSinkBin))
-#define GST_QGC_VIDEO_SINK_BIN_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), GST_TYPE_QGC_VIDEO_SINK_BIN, GstQgcVideoSinkBinClass))
-#define GST_IS_QGC_VIDEO_SINK_BIN(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), GST_TYPE_QGC_VIDEO_SINK_BIN))
-#define GST_IS_QGC_VIDEO_SINK_BIN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GST_TYPE_QGC_VIDEO_SINK_BIN))
+#define GST_TYPE_UVMS_VIDEO_SINK_BIN (gst_qgc_video_sink_bin_get_type())
+G_DECLARE_FINAL_TYPE (GstQgcVideoSinkBin, gst_qgc_video_sink_bin, GST, UVMS_VIDEO_SINK_BIN, GstBin)
+#define GST_UVMS_VIDEO_SINK_BIN_CAST(obj) ((GstQgcVideoSinkBin *)(obj))
+#define GST_UVMS_VIDEO_SINK_BIN(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), GST_TYPE_UVMS_VIDEO_SINK_BIN, GstQgcVideoSinkBin))
+#define GST_UVMS_VIDEO_SINK_BIN_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), GST_TYPE_UVMS_VIDEO_SINK_BIN, GstQgcVideoSinkBinClass))
+#define GST_IS_UVMS_VIDEO_SINK_BIN(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), GST_TYPE_UVMS_VIDEO_SINK_BIN))
+#define GST_IS_UVMS_VIDEO_SINK_BIN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GST_TYPE_UVMS_VIDEO_SINK_BIN))
 
 struct _GstQgcVideoSinkBin {
     GstBin bin;

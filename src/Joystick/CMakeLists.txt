@@ -40,7 +40,7 @@ target_sources(Joystick
         JoystickSDL.h
 )
 
-target_compile_definitions(Joystick PRIVATE QGC_SDL_JOYSTICK SDL_MAIN_HANDLED)
+target_compile_definitions(Joystick PRIVATE UVMS_SDL_JOYSTICK SDL_MAIN_HANDLED)
 
 FetchContent_Declare(SDL_GameControllerDB
     GIT_REPOSITORY https://github.com/mdqinc/SDL_GameControllerDB.git
@@ -66,7 +66,7 @@ qt_add_qml_module(Joystick
 )
 
 set(MINIMUM_SDL2_VERSION 2.24.0)
-if(NOT QGC_BUILD_DEPENDENCIES)
+if(NOT UVMS_BUILD_DEPENDENCIES)
     find_package(SDL2 ${MINIMUM_SDL2_VERSION})
     if(TARGET SDL2::SDL2)
         message(STATUS "Found JoystickSDL ${SDL2_VERSION_STRING}")

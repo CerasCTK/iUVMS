@@ -11,7 +11,7 @@
 #include "AppMessages.h"
 #include "AppSettings.h"
 #include "FactMetaData.h"
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
 #include "GStreamer.h"
 #endif
 #include "HorizontalFactValueGrid.h"
@@ -23,13 +23,13 @@
 #include "QGCOptions.h"
 #include "QmlComponentInfo.h"
 #include "QmlObjectListModel.h"
-#ifdef QGC_QT_STREAMING
+#ifdef UVMS_QT_STREAMING
 #include "QtMultimediaReceiver.h"
 #endif
 #include "SettingsManager.h"
 #include "VideoReceiver.h"
 
-#ifdef QGC_CUSTOM_BUILD
+#ifdef UVMS_CUSTOM_BUILD
 #include CUSTOMHEADER
 #endif
 
@@ -41,7 +41,7 @@
 
 QGC_LOGGING_CATEGORY(QGCCorePluginLog, "qgc.api.qgccoreplugin");
 
-#ifndef QGC_CUSTOM_BUILD
+#ifndef UVMS_CUSTOM_BUILD
 Q_APPLICATION_STATIC(QGCCorePlugin, _qgcCorePluginInstance);
 #endif
 
@@ -56,7 +56,7 @@ QGCCorePlugin::~QGCCorePlugin() {
 }
 
 QGCCorePlugin *QGCCorePlugin::instance() {
-#ifndef QGC_CUSTOM_BUILD
+#ifndef UVMS_CUSTOM_BUILD
     return _qgcCorePluginInstance();
 #else
     return CUSTOMCLASS::instance();
@@ -101,7 +101,7 @@ const QVariantList &QGCCorePlugin::analyzePages() {
                 QStringLiteral("qrc:/qmlimages/MAVLinkConsoleIcon.svg")
             )
         )),
-#ifndef QGC_DISABLE_MAVLINK_INSPECTOR
+#ifndef UVMS_DISABLE_MAVLINK_INSPECTOR
         QVariant::fromValue(new QmlComponentInfo(
             tr("MAVLink Inspector"),
             QUrl::fromUserInput(
@@ -283,9 +283,9 @@ void QGCCorePlugin::createRootWindow(QQmlApplicationEngine *qmlEngine) {
 }
 
 VideoReceiver *QGCCorePlugin::createVideoReceiver(QObject *parent) {
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
     return GStreamer::createVideoReceiver(parent);
-#elif defined(QGC_QT_STREAMING)
+#elif defined(UVMS_QT_STREAMING)
     return QtMultimediaReceiver::createVideoReceiver(parent);
 #else
     return nullptr;
@@ -293,9 +293,9 @@ VideoReceiver *QGCCorePlugin::createVideoReceiver(QObject *parent) {
 }
 
 void *QGCCorePlugin::createVideoSink(QObject *parent, QQuickItem *widget) {
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
     return GStreamer::createVideoSink(parent, widget);
-#elif defined(QGC_QT_STREAMING)
+#elif defined(UVMS_QT_STREAMING)
     return QtMultimediaReceiver::createVideoSink(parent, widget);
 #else
     Q_UNUSED(parent);
@@ -305,9 +305,9 @@ void *QGCCorePlugin::createVideoSink(QObject *parent, QQuickItem *widget) {
 }
 
 void QGCCorePlugin::releaseVideoSink(void *sink) {
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
     GStreamer::releaseVideoSink(sink);
-#elif defined(QGC_QT_STREAMING)
+#elif defined(UVMS_QT_STREAMING)
     QtMultimediaReceiver::releaseVideoSink(sink);
 #else
     Q_UNUSED(sink);

@@ -140,7 +140,7 @@ public:
     /// The contents of this file should be a single line in the form:
     ///     v3.4.4
     /// This indicates the latest stable version number.
-#ifdef QGC_CUSTOM_BUILD
+#ifdef UVMS_CUSTOM_BUILD
     virtual QString stableVersionCheckFileUrl() const { return QString(); }
 #else
     virtual QString stableVersionCheckFileUrl() const { return QStringLiteral("https://s3-us-west-2.amazonaws.com/qgroundcontrol/latest/QGC.version.txt"); }

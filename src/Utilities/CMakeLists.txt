@@ -62,7 +62,7 @@ endif()
 
 set(MINIMUM_SHAPELIB_VERSION 1.6.0)
 
-if(NOT QGC_BUILD_DEPENDENCIES)
+if(NOT UVMS_BUILD_DEPENDENCIES)
     find_package(Shapelib ${MINIMUM_SHAPELIB_VERSION})
     if(Shapelib_FOUND)
         message(STATUS "Found Shapelib ${Shapelib_VERSION}")

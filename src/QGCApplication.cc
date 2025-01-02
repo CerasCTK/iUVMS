@@ -65,7 +65,7 @@
 #include "VehicleComponent.h"
 #include "VideoManager.h"
 
-#ifndef QGC_DISABLE_MAVLINK_INSPECTOR
+#ifndef UVMS_DISABLE_MAVLINK_INSPECTOR
 #include "MAVLinkInspectorController.h"
 #endif
 #ifdef UVMS_VIEWER3D
@@ -189,13 +189,13 @@ QGCApplication::QGCApplication(int &argc, char *argv[], bool unitTesting)
         // write some settings.
         if (settings.contains(_settingsVersionKey)) {
             if (settings.value(_settingsVersionKey).toInt()
-                != QGC_SETTINGS_VERSION) {
+                != UVMS_SETTINGS_VERSION) {
                 settings.clear();
                 _settingsUpgraded = true;
             }
         }
     }
-    settings.setValue(_settingsVersionKey, QGC_SETTINGS_VERSION);
+    settings.setValue(_settingsVersionKey, UVMS_SETTINGS_VERSION);
 
     if (fClearCache) {
         QDir dir(ParameterManager::parameterCacheDir());
@@ -311,7 +311,7 @@ void QGCApplication::init() {
         "QGroundControl.Vehicle", 1, 0, "GimbalController", "Reference only"
     );
 
-#if !defined(QGC_DISABLE_MAVLINK_INSPECTOR)
+#if !defined(UVMS_DISABLE_MAVLINK_INSPECTOR)
     qmlRegisterUncreatableType<MAVLinkChartController>(
         "QGroundControl", 1, 0, "MAVLinkChart", "Reference only"
     );
@@ -377,7 +377,7 @@ void QGCApplication::init() {
 }
 
 void QGCApplication::_initForNormalAppBoot() {
-#ifdef QGC_GST_STREAMING
+#ifdef UVMS_GST_STREAMING
     // Gstreamer video playback requires OpenGL
     QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
 #endif

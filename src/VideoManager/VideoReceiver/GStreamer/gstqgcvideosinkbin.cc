@@ -45,7 +45,7 @@ enum {
 #define gst_qgc_video_sink_bin_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE(GstQgcVideoSinkBin, gst_qgc_video_sink_bin, GST_TYPE_BIN, GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "qgcsinkbin", 0, "QGC Video Sink Bin"));
 
-// GST_ELEMENT_REGISTER_DEFINE_WITH_CODE(qgcvideosinkbin, "qgcvideosinkbin", GST_RANK_NONE, GST_TYPE_QGC_VIDEO_SINK_BIN, qgc_element_init(plugin));
+// GST_ELEMENT_REGISTER_DEFINE_WITH_CODE(qgcvideosinkbin, "qgcvideosinkbin", GST_RANK_NONE, GST_TYPE_UVMS_VIDEO_SINK_BIN, qgc_element_init(plugin));
 G_BEGIN_DECLS
 gboolean G_PASTE(gst_element_register_, qgcvideosinkbin)(GstPlugin *plugin)
 {
@@ -195,7 +195,7 @@ init_failed:
 static gboolean
 gst_qgc_video_sink_bin_sink_pad_query(GstPad *pad, GstObject *parent, GstQuery *query)
 {
-    GstQgcVideoSinkBin *const vsb = GST_QGC_VIDEO_SINK_BIN(parent);
+    GstQgcVideoSinkBin *const vsb = GST_UVMS_VIDEO_SINK_BIN(parent);
     GstElement *element = NULL;
 
     switch (GST_QUERY_TYPE(query)) {
@@ -231,7 +231,7 @@ gst_qgc_video_sink_bin_sink_pad_query(GstPad *pad, GstObject *parent, GstQuery *
 static void
 gst_qgc_video_sink_bin_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
 {
-    GstQgcVideoSinkBin *const vsb = GST_QGC_VIDEO_SINK_BIN(object);
+    GstQgcVideoSinkBin *const vsb = GST_UVMS_VIDEO_SINK_BIN(object);
 
     switch (prop_id) {
     case PROP_ENABLE_LAST_SAMPLE:
@@ -289,7 +289,7 @@ gst_qgc_video_sink_bin_get_property(GObject *object, guint prop_id, GValue *valu
 static void
 gst_qgc_video_sink_bin_set_property(GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
-    GstQgcVideoSinkBin *const vsb = GST_QGC_VIDEO_SINK_BIN(object);
+    GstQgcVideoSinkBin *const vsb = GST_UVMS_VIDEO_SINK_BIN(object);
 
     switch (prop_id) {
     case PROP_ENABLE_LAST_SAMPLE:
@@ -316,7 +316,7 @@ gst_qgc_video_sink_bin_set_property(GObject *object, guint prop_id, const GValue
 static void
 gst_qgc_video_sink_bin_dispose(GObject *object)
 {
-    GstQgcVideoSinkBin *const vsb = GST_QGC_VIDEO_SINK_BIN(object);
+    GstQgcVideoSinkBin *const vsb = GST_UVMS_VIDEO_SINK_BIN(object);
 
     if (vsb->qmlglsink) {
         gst_object_unref(vsb->qmlglsink);

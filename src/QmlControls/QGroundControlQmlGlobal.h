@@ -202,7 +202,7 @@ public:
     bool    hasAPMSupport           () { return true; }
 #endif
 
-#if defined(QGC_DISABLE_MAVLINK_INSPECTOR)
+#if defined(UVMS_DISABLE_MAVLINK_INSPECTOR)
     bool    hasMAVLinkInspector     () { return false; }
 #else
     bool    hasMAVLinkInspector     () { return true; }

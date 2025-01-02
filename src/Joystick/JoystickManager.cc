@@ -9,7 +9,7 @@
 
 #include "JoystickManager.h"
 #include "Joystick.h"
-#if defined(QGC_SDL_JOYSTICK)
+#if defined(UVMS_SDL_JOYSTICK)
     #include "JoystickSDL.h"
     #include <SDL.h>
 #elif defined(Q_OS_ANDROID)
@@ -55,7 +55,7 @@ JoystickManager *JoystickManager::instance()
 
 void JoystickManager::init()
 {
-#ifdef QGC_SDL_JOYSTICK
+#ifdef UVMS_SDL_JOYSTICK
     if (!JoystickSDL::init()) {
         return;
     }
@@ -79,7 +79,7 @@ void JoystickManager::_setActiveJoystickFromSettings()
 {
     QMap<QString, Joystick*> newMap;
 
-#ifdef QGC_SDL_JOYSTICK
+#ifdef UVMS_SDL_JOYSTICK
     newMap = JoystickSDL::discover();
 #elif defined(Q_OS_ANDROID)
     newMap = JoystickAndroid::discover();
@@ -186,7 +186,7 @@ bool JoystickManager::setActiveJoystickName(const QString &name)
 
 void JoystickManager::_updateAvailableJoysticks()
 {
-#ifdef QGC_SDL_JOYSTICK
+#ifdef UVMS_SDL_JOYSTICK
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch(event.type) {

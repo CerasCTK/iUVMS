@@ -212,7 +212,7 @@ endif()
 
 cmake_dependent_option(UVMS_BUILD_TESTING "Enable testing" ON "CMAKE_BUILD_TYPE STREQUAL Debug" OFF)
 if(UVMS_BUILD_TESTING)
-    add_compile_definitions(UNITTEST_BUILD) # TODO: QGC_UNITTEST_BUILD
+    add_compile_definitions(UNITTEST_BUILD)
 else()
     set(BUILD_TESTING OFF CACHE INTERNAL "")
 endif()

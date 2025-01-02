@@ -67,7 +67,7 @@ endif()
 
 set(MINIMUM_EXIV2_VERSION 0.28.2)
 
-if(NOT QGC_BUILD_DEPENDENCIES)
+if(NOT UVMS_BUILD_DEPENDENCIES)
     find_package(LibExiv2 ${MINIMUM_EXIV2_VERSION})
     if(LibExiv2_FOUND AND TARGET LibExiv2::LibExiv2)
         target_link_libraries(AnalyzeView PRIVATE LibExiv2::LibExiv2)
