@@ -18,7 +18,7 @@ target_link_libraries(PX4FirmwarePlugin
         AutoPilotPlugins
         MissionManager
         PX4AutoPilotPlugin
-        QGC
+        UVMS
         Settings
         VehicleSetup
         Utilities

@@ -8,7 +8,7 @@ find_package(Qt6
         Widgets
 )
 
-qt_add_library(QGC STATIC
+qt_add_library(UVMS STATIC
     CmdLineOptParser.cc
     CmdLineOptParser.h
     QGCApplication.cc
@@ -52,7 +52,7 @@ add_subdirectory(Viewer3D)
 #######################################################
 #               Linking Libraries
 #######################################################
-target_link_libraries(QGC
+target_link_libraries(UVMS
     PRIVATE
         Qt6::Quick
         Qt6::QuickControls2
@@ -95,10 +95,10 @@ target_link_libraries(QGC
         Qt6::Widgets
 )
 
-target_include_directories(QGC PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(UVMS PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(ANDROID)
-    target_sources(QGC
+    target_sources(UVMS
         PRIVATE
             ${CMAKE_SOURCE_DIR}/android/src/AndroidInterface.cc
             ${CMAKE_SOURCE_DIR}/android/src/AndroidInterface.h
@@ -106,7 +106,7 @@ if(ANDROID)
             ${CMAKE_SOURCE_DIR}/android/src/AndroidInit.cpp
     )
 
-    target_link_libraries(QGC
+    target_link_libraries(UVMS
         PRIVATE
             Qt6::CorePrivate
         PUBLIC
@@ -115,20 +115,20 @@ if(ANDROID)
             Joystick
     )
 
-    target_include_directories(QGC PUBLIC ${CMAKE_SOURCE_DIR}/android/src)
-    target_precompile_headers(QGC
+    target_include_directories(UVMS PUBLIC ${CMAKE_SOURCE_DIR}/android/src)
+    target_precompile_headers(UVMS
         PRIVATE
             <QtCore/QJniEnvironment>
     )
 else()
-    target_sources(QGC
+    target_sources(UVMS
         PRIVATE
             RunGuard.cc
             RunGuard.h
     )
 endif()
 
-target_precompile_headers(QGC
+target_precompile_headers(UVMS
     PRIVATE
         ${CMAKE_SOURCE_DIR}/src/pch.h
         <QtWidgets/QApplication>

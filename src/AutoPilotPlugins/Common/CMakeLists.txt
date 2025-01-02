@@ -19,7 +19,7 @@ target_link_libraries(CommonAutoPilotPlugin
     PRIVATE
         AutoPilotPlugins
         FactSystem
-        QGC
+        UVMS
         Utilities
         Vehicle
     PUBLIC

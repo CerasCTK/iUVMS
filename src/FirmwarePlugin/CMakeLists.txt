@@ -26,7 +26,7 @@ target_link_libraries(FirmwarePlugin
         Camera
         CommonAutoPilotPlugin
         MissionManager
-        QGC
+        UVMS
         Utilities
         VehicleSetup
         $<$<NOT:$<BOOL:${UVMS_DISABLE_APM_PLUGIN}>>:APMFirmwarePlugin>

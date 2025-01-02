@@ -54,7 +54,7 @@ target_link_libraries(QGCLocation
         Qt6::Positioning
         Qt6::Sql
         Compression
-        QGC
+        UVMS
         Settings
         Utilities
     PUBLIC

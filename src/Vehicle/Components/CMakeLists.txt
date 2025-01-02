@@ -23,7 +23,7 @@ target_link_libraries(VehicleComponents
     PRIVATE
         Compression
         FirmwarePlugin
-        QGC
+        UVMS
         Vehicle
     PUBLIC
         Qt6::Core

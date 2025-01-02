@@ -83,7 +83,7 @@ target_link_libraries(QmlControls
         MAVLink
         MissionManager
         PositionManager
-        QGC
+        UVMS
         QGCLocation
         Settings
         Terrain

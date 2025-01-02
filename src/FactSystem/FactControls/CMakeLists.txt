@@ -10,7 +10,7 @@ target_link_libraries(FactControls
         Qt6::Qml
         AutoPilotPlugins
         FactSystem
-        QGC
+        UVMS
         Utilities
         Vehicle
     PUBLIC

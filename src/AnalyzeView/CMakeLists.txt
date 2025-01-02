@@ -31,7 +31,7 @@ target_link_libraries(AnalyzeView
         Qt6::Gui
         Qt6::Qml
         FactSystem
-        QGC
+        UVMS
         Settings
         Utilities
         Vehicle

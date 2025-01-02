@@ -47,7 +47,7 @@ target_link_libraries(APMAutoPilotPlugin
     PRIVATE
         APMFirmwarePlugin
         FactSystem
-        QGC
+        UVMS
         Settings
         Utilities
         Vehicle

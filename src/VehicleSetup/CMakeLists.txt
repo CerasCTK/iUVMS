@@ -12,7 +12,7 @@ target_link_libraries(VehicleSetup
         Qt6::Qml
         Compression
         FactSystem
-        QGC
+        UVMS
         Settings
         Utilities
         Vehicle

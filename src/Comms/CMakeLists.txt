@@ -26,7 +26,7 @@ target_link_libraries(Comms
         Qt6::Test
         MockLink
         PositionManager
-        QGC
+        UVMS
         Settings
         Vehicle
     PUBLIC

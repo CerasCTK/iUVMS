@@ -19,7 +19,7 @@ target_link_libraries(QtMultimediaReceiver
     PRIVATE
         Qt6::MultimediaQuickPrivate
         Qt6::Quick
-        QGC
+        UVMS
         Utilities
     PUBLIC
         Qt6::Core

@@ -472,7 +472,7 @@ target_link_libraries(${PROJECT_NAME}
         Qt6::Quick
         Qt6::Widgets
         Qt6::Svg # Used to import QSvgPlugin
-        QGC
+        UVMS 
         QmlControls
         Utilities
 )

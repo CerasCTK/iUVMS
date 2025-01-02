@@ -41,7 +41,7 @@ target_link_libraries(PX4AutoPilotPlugin
     PRIVATE
         Comms
         FactSystem
-        QGC
+        UVMS
         Utilities
         Vehicle
         VehicleActuators

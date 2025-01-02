@@ -21,7 +21,7 @@ qt_add_library(VehicleActuators STATIC
 
 target_link_libraries(VehicleActuators
     PRIVATE
-        QGC
+        UVMS
         Utilities
     PUBLIC
         Qt6::Core

@@ -83,7 +83,7 @@ target_link_libraries(MissionManager
         Camera
         FirmwarePlugin
         Geo
-        QGC
+        UVMS
     PUBLIC
         Qt6::Core
         Qt6::Gui

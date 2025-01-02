@@ -52,7 +52,7 @@ target_link_libraries(Settings
         Qt6::Multimedia
         API
         GStreamerReceiver
-        QGC
+        UVMS
         QmlControls
         QtMultimediaReceiver
         Vehicle

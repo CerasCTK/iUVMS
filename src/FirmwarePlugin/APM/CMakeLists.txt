@@ -25,7 +25,7 @@ target_link_libraries(APMFirmwarePlugin
         APMAutoPilotPlugin
         AutoPilotPlugins
         MissionManager
-        QGC
+        UVMS
         Settings
         Utilities
         Vehicle

@@ -12,7 +12,7 @@ target_link_libraries(PositionManager
         Qt6::Qml
         Qt6::PositioningPrivate
         API
-        QGC
+        UVMS
         Utilities
         Vehicle
     PUBLIC

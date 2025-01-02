@@ -12,7 +12,7 @@ qt_add_library(ADSB STATIC
 target_link_libraries(ADSB
     PRIVATE
         Qt6::Network
-        QGC
+        UVMS
         Settings
         Utilities
     PUBLIC

@@ -18,7 +18,7 @@ qt_add_library(AutoPilotPlugins STATIC
 target_link_libraries(AutoPilotPlugins
     PRIVATE
         FirmwarePlugin
-        QGC
+        UVMS
         Vehicle
         VehicleSetup
     PUBLIC

@@ -25,7 +25,7 @@ target_link_libraries(Camera
         Comms
         FirmwarePlugin
         Joystick
-        QGC
+        UVMS
         Settings
         Utilities
         Vehicle

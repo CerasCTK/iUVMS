@@ -24,7 +24,7 @@ target_link_libraries(FactSystem
         AutoPilotPlugins
         FactControls
         FirmwarePlugin
-        QGC
+        UVMS
         Settings
         Utilities
         Vehicle
