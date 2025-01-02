@@ -1,0 +1,3 @@
+Module UMVS.ScreenManager
+
+singleton ScreenManager 1.0 ScreenManager.qml

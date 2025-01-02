@@ -4,17 +4,12 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import QtQuick.Window
 
+import UVMS.ScreenManager
 import UVMS.FlightDisplay
 
 ApplicationWindow {
-    id: root
-
-    width: 500
-    height: 500
-
-    visible: true
-
-    AseFlyView {
-
-    }
+    id: mainRootWindow
+    minimumWidth:   ScreenTools.isMobile ? ScreenTools.screenWidth  : Math.min(ScreenTools.defaultFontPixelWidth * 100, Screen.width)
+    minimumHeight:  ScreenTools.isMobile ? ScreenTools.screenHeight : Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
+    visible:        true
 }
