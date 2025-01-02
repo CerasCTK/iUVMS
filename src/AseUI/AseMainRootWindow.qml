@@ -4,6 +4,8 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import QtQuick.Window
 
+import UVMS.FlightDisplay
+
 ApplicationWindow {
     id: root
 
@@ -12,15 +14,7 @@ ApplicationWindow {
 
     visible: true
 
-    Rectangle {
-        id: rect
+    AseFlyView {
 
-        width: 20
-        height: 20
-
-        x: 20
-        y: 20
-
-        color: "red"
     }
 }
