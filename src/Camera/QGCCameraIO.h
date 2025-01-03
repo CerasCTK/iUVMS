@@ -11,6 +11,8 @@
 
 #include "MAVLinkLib.h"
 #include <QtCore/QLoggingCategory>
+#include <QObject>
+#include <QTimer>
 
 class MavlinkCameraControl;
 class Fact;
