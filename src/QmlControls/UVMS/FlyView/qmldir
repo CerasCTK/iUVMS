@@ -1,0 +1,5 @@
+Module UVMS.FlyView
+
+FlyView 1.0 FlyView.qml
+FlyViewToolbar 1.0 FlyViewToolbar.qml
+FlyViewMap 1.0 FlyViewMap.qml

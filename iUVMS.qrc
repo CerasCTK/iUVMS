@@ -5,7 +5,14 @@
         <file alias="UVMS/ScreenManager/qmldir">src/QmlControls/UVMS/ScreenManager/qmldir</file>
         <file alias="UVMS/ScreenManager/ScreenManager.qml">src/QmlControls/ScreenManager.qml</file>
 
-        <file alias="UVMS/FlightDisplay/qmldir">src/QmlControls/UVMS/FlightDisplay/qmldir</file>
-        <file alias="UVMS/FlightDisplay/AseFlyView.qml">src/AseUI/FlightDisplay/AseFlyView.qml</file>
+        <file alias="UVMS/FlyView/qmldir">src/QmlControls/UVMS/FlyView/qmldir</file>
+        <file alias="UVMS/FlyView/FlyView.qml">src/AseUI/FlyView/FlyView.qml</file>
+        <file alias="UVMS/FlyView/FlyViewToolbar.qml">src/AseUI/FlyView/FlyViewToolbar.qml</file>
+        <file alias="UVMS/FlyView/FlyViewMap.qml">src/AseUI/FlyView/FlyViewMap.qml</file>
+
+        <file alias="UVMS/PlanView/qmldir">src/QmlControls/UVMS/PlanView/qmldir</file>
+        <file alias="UVMS/PlanView/PlanView.qml">src/AseUI/PlanView/PlanView.qml</file>
+        <file alias="UVMS/PlanView/PlanViewToolbar.qml">src/AseUI/PlanView/PlanViewToolbar.qml</file>
+        <file alias="UVMS/PlanView/PlanViewMap.qml">src/AseUI/PlanView/PlanViewMap.qml</file>
     </qresource>
 </RCC>

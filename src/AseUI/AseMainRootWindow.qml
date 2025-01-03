@@ -6,7 +6,7 @@ import QtQuick.Window
 
 import QGroundControl
 import UVMS.ScreenManager
-import UVMS.FlightDisplay
+import UVMS.FlyView
 
 ApplicationWindow {
     id: mainRootWindow
@@ -32,5 +32,9 @@ ApplicationWindow {
         readonly property var       activeVehicle:                  QGroundControl.multiVehicleManager.activeVehicle
         readonly property real      defaultTextHeight:              ScreenManager.defaultFontPixelHeight
         readonly property real      defaultTextWidth:               ScreenManager.defaultFontPixelWidth
+    }
+
+    FlyView {
+
     }
 }

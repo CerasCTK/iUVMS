@@ -1,0 +1,5 @@
+Module UVMS.PlanView
+
+PlanView 1.0 PlanView.qml
+PlanViewToolbar 1.0 PlanViewToolbar.qml
+PlanViewMap 1.0 PlanViewMap.qml
